@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class DrawManager : MonoBehaviour 
+public class DrawManager : Singlton<DrawManager>
 {
 	[SerializeField]
 	private GameObject _DrawUnitPrefab;
@@ -13,6 +13,8 @@ public class DrawManager : MonoBehaviour
 	private Vector3 _PreviousDrawPosition;
 	private GameObject _ParentObject;
 	
+	private int _Cnt;
+	
 	void Start()
 	{
 		_DrawInterval = _DrawUnitPrefab.transform.localScale.x*_DrawIntervalScale;
@@ -23,9 +25,15 @@ public class DrawManager : MonoBehaviour
 	{
 		if(InputManager.I.GetTapDown())
 		{
+			_Cnt = 1;
+			
 			Vector3 CurrentPosition = InputManager.I.GetTappedPointAcrossPlane(_DrawPlane);
 			_PreviousDrawPosition = CurrentPosition;
 			_ParentObject = new GameObject("DrawUnitParent");
+			GameObject obj = Instantiate(_DrawUnitPrefab,
+									     CurrentPosition,
+										 Quaternion.identity) as GameObject;
+			obj.transform.parent = _ParentObject.transform;
 		}
 		else if(InputManager.I.GetTap())
 		{
@@ -40,6 +48,9 @@ public class DrawManager : MonoBehaviour
 												 Quaternion.identity) as GameObject;
 					obj.transform.parent = _ParentObject.transform;
 				}
+				
+				_Cnt += loopCnt;
+				
 				_PreviousDrawPosition = CurrentPosition;
 			}
 		}
@@ -49,6 +60,8 @@ public class DrawManager : MonoBehaviour
 			rig.constraints = RigidbodyConstraints.FreezeRotationX| 
 							  RigidbodyConstraints.FreezeRotationY| 
 							  RigidbodyConstraints.FreezePositionZ;
+			rig.mass = _Cnt;
+							  
 		}	
 	}
 }
