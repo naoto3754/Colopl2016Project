@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class InputManager : Singlton<InputManager> {
+public class InputManager : Singlton<InputManager>
+{
 	//定数
 	public const bool SWIPEMODE_TIME_LIMIT = true;
 	public const bool SWIPEMODE_NO_LIMIT = false;
@@ -216,4 +217,28 @@ public class InputManager : Singlton<InputManager> {
 				
 		return Vector2.zero;
 	}
+	/// <summary>
+	/// 対応するインデックスにおけるタップと平面との交点を返す
+	/// </summary>
+	public Vector3 GetTappedPointAcrossPlane(Plane plane, int index = 0)
+	{
+		Ray ray;
+#if UNITY_IOS || UNITY_ANDROID
+		if(Input.touchCount <= index){
+			if(index != 0)
+				Debug.Log("[InputManager.GetTappedGameObject] Invalid Touch Index : "+index);
+			return null;
+		}
+		ray = Camera.main.ScreenPointToRay(Input.GetTouch(index).position);
+#else
+		ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+#endif
+		float rayDistance;
+		if(plane.Raycast(ray, out rayDistance)){
+			return ray.GetPoint(rayDistance);
+		}
+		
+		return Vector3.zero;
+	}
+
 }
