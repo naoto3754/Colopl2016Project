@@ -11,6 +11,7 @@ public class DrawManager : MonoBehaviour
 	private float _DrawInterval;
 	private Plane _DrawPlane;
 	private Vector3 _PreviousDrawPosition;
+	private GameObject _ParentObject;
 	
 	void Start()
 	{
@@ -24,6 +25,7 @@ public class DrawManager : MonoBehaviour
 		{
 			Vector3 CurrentPosition = InputManager.I.GetTappedPointAcrossPlane(_DrawPlane);
 			_PreviousDrawPosition = CurrentPosition;
+			_ParentObject = new GameObject("DrawUnitParent");
 		}
 		else if(InputManager.I.GetTap())
 		{
@@ -33,12 +35,17 @@ public class DrawManager : MonoBehaviour
 			{
 				int loopCnt = (int)(distance / _DrawInterval);
 				for(int i = 0; i < loopCnt; i++){
-					Instantiate(_DrawUnitPrefab,
-								Vector3.Lerp(_PreviousDrawPosition, CurrentPosition, (float)i/loopCnt),
-								Quaternion.identity);
+					GameObject obj = Instantiate(_DrawUnitPrefab,
+												 Vector3.Lerp(_PreviousDrawPosition, CurrentPosition, (float)i/loopCnt),
+												 Quaternion.identity) as GameObject;
+					obj.transform.parent = _ParentObject.transform;
 				}
 				_PreviousDrawPosition = CurrentPosition;
 			}
+		}
+		else if(InputManager.I.GetTapUp())
+		{
+			_ParentObject.AddComponent<Rigidbody>();
 		}	
 	}
 }
