@@ -45,7 +45,10 @@ public class DrawManager : MonoBehaviour
 		}
 		else if(InputManager.I.GetTapUp())
 		{
-			_ParentObject.AddComponent<Rigidbody>();
+			Rigidbody rig = _ParentObject.AddComponent<Rigidbody>();
+			rig.constraints = RigidbodyConstraints.FreezeRotationX| 
+							  RigidbodyConstraints.FreezeRotationY| 
+							  RigidbodyConstraints.FreezePositionZ;
 		}	
 	}
 }
