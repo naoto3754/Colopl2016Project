@@ -22,7 +22,8 @@ public class CharacterMover : MonoBehaviour {
 	void Update () {
 		float goalDir = GoalPos.position.x - transform.position.x;
 		if(Mathf.Abs(goalDir) > 0.1f){
-			rig.velocity = new Vector3(Mathf.Sign(goalDir)*SpeedScale, rig.velocity.y, 0f);
+			if(isJump == false)
+				rig.velocity = new Vector3(Mathf.Sign(goalDir)*SpeedScale, rig.velocity.y, 0f);
 		}else{
 			rig.velocity = new Vector3(0f, rig.velocity.y, 0f);
 			Jump();
@@ -33,7 +34,7 @@ public class CharacterMover : MonoBehaviour {
 	{
 		if(isJump == false){
 			isJump = true;
-			rig.velocity += new Vector3(0f, JumpPower, 0f);
+			rig.velocity = new Vector3(rig.velocity.x, JumpPower, rig.velocity.z);
 		}
 	}
 	

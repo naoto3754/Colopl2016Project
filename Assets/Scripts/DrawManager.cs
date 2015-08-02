@@ -30,10 +30,12 @@ public class DrawManager : Singlton<DrawManager>
 			Vector3 CurrentPosition = InputManager.I.GetTappedPointAcrossPlane(_DrawPlane);
 			_PreviousDrawPosition = CurrentPosition;
 			_ParentObject = new GameObject("DrawUnitParent");
+			_ParentObject.layer = LayerMask.NameToLayer("DrawObject");
 			GameObject obj = Instantiate(_DrawUnitPrefab,
 									     CurrentPosition,
 										 Quaternion.identity) as GameObject;
 			obj.transform.parent = _ParentObject.transform;
+			obj.layer = LayerMask.NameToLayer("DrawObject");
 		}
 		else if(InputManager.I.GetTap())
 		{
@@ -47,6 +49,7 @@ public class DrawManager : Singlton<DrawManager>
 												 Vector3.Lerp(_PreviousDrawPosition, CurrentPosition, (float)i/loopCnt),
 												 Quaternion.identity) as GameObject;
 					obj.transform.parent = _ParentObject.transform;
+					obj.layer = LayerMask.NameToLayer("DrawObject");
 				}
 				
 				_Cnt += loopCnt;
