@@ -41,7 +41,9 @@ public class InputManager : Singlton<InputManager>
 	/// </summary>
 	public bool GetTapDown(int index = 0)
 	{
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_EDITOR
+		return Input.GetMouseButtonDown(0);
+#elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
 				Debug.Log("[InputManager.GetTapDown] Invalid Touch Index : "+index);
@@ -57,13 +59,15 @@ public class InputManager : Singlton<InputManager>
 	/// </summary>
 	public bool GetTap(int index = 0)
 	{
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_EDITOR
+		return Input.GetMouseButton(0);
+#elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
 				Debug.Log("[InputManager.GetTap] Invalid Touch Index : "+index);
 			return false;
 		}
-		return Input.GetTouch(index).phase == TouchPhase.Stayed;
+		return Input.GetTouch(index).phase == TouchPhase.Moved;
 #else
 		return Input.GetMouseButton(0);
 #endif
@@ -73,7 +77,9 @@ public class InputManager : Singlton<InputManager>
 	/// </summary>
 	public bool GetTapUp(int index = 0)
 	{
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_EDITOR
+		return Input.GetMouseButtonUp(0);
+#elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
 				Debug.Log("[InputManager.GetTapUp] Invalid Touch Index : "+index);
@@ -89,7 +95,12 @@ public class InputManager : Singlton<InputManager>
 	/// </summary>
 	public bool GetAnyTapDown()
 	{
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_EDITOR
+		for(int i = 0; i < COUNT_MOUSE_BUTTON_TYPE; i++)
+			if(Input.GetMouseButtonDown(i))
+				return true;
+		return false;
+#elif UNITY_IOS || UNITY_ANDROID
 		foreach(Touch touch in Input.touches)
 			if(touch.phase == TouchPhase.Began)
 				return true;
@@ -106,9 +117,14 @@ public class InputManager : Singlton<InputManager>
 	/// </summary>
 	public bool GetAnyTap()
 	{
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_EDITOR
+		for(int i = 0; i < COUNT_MOUSE_BUTTON_TYPE; i++)
+			if(Input.GetMouseButton(i))
+				return true;
+		return false;
+#elif UNITY_IOS || UNITY_ANDROID
 		foreach(Touch touch in Input.touches)
-			if(touch.phase == TouchPhase.Stayed)
+			if(touch.phase == TouchPhase.Moved)
 				return true;
 		return false;
 #else
@@ -123,7 +139,12 @@ public class InputManager : Singlton<InputManager>
 	/// </summary>
 	public bool GetAnyTapUp()
 	{
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_EDITOR
+		for(int i = 0; i < COUNT_MOUSE_BUTTON_TYPE; i++)
+			if(Input.GetMouseButtonUp(i))
+				return true;
+		return false;
+#elif UNITY_IOS || UNITY_ANDROID
 		foreach(Touch touch in Input.touches)
 			if(touch.phase == TouchPhase.Ended)
 				return true;
@@ -142,7 +163,9 @@ public class InputManager : Singlton<InputManager>
 	{
 		Ray ray;
 		RaycastHit hit;
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_EDITOR
+		ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+#elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
 				Debug.Log("[InputManager.GetTappedGameObject] Invalid Touch Index : "+index);
@@ -165,7 +188,9 @@ public class InputManager : Singlton<InputManager>
 	public GameObject[] GetTappedGameObjects(int index = 0, float maxDistance = Mathf.Infinity)
 	{
 		Ray ray;
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_EDITOR
+		ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+#elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
 				Debug.Log("[InputManager.GetTappedGameObject] Invalid Touch Index : "+index);
@@ -187,7 +212,9 @@ public class InputManager : Singlton<InputManager>
 	public Vector2 GetSwipeDirction(int index = 0, bool swipeMode = SWIPEMODE_TIME_LIMIT)
 	{
 		Vector2 touchPos;
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_EDITOR
+		touchPos = Input.mousePosition;
+#elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
 				Debug.Log("[InputManager.GetSwipeDirction] Invalid Touch Index : "+index);
@@ -223,11 +250,13 @@ public class InputManager : Singlton<InputManager>
 	public Vector3 GetTappedPointAcrossPlane(Plane plane, int index = 0)
 	{
 		Ray ray;
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_EDITOR
+		ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+#elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
 				Debug.Log("[InputManager.GetTappedGameObject] Invalid Touch Index : "+index);
-			return null;
+			return Vector3.zero;
 		}
 		ray = Camera.main.ScreenPointToRay(Input.GetTouch(index).position);
 #else
