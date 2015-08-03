@@ -30,7 +30,7 @@ public class CharacterMover : MonoBehaviour {
 		}
 	}
 	
-	void Jump()
+	public void Jump()
 	{
 		if(isJump == false){
 			isJump = true;
