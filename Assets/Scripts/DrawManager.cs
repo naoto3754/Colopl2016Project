@@ -63,7 +63,45 @@ public class DrawManager : Singlton<DrawManager>
 			rig.constraints = RigidbodyConstraints.FreezeRotationX| 
 							  RigidbodyConstraints.FreezeRotationY| 
 							  RigidbodyConstraints.FreezePositionZ;
-			rig.mass = _Cnt;
+			rig.mass = _Cnt;			  
+		}
+		else if(InputManager.I.GetTapDown(1))
+		{
+			Debug.Log("test");
+			_Cnt = 1;
+			
+			Vector3 CurrentPosition = InputManager.I.GetTappedPointAcrossPlane(_DrawPlane);
+			_PreviousDrawPosition = CurrentPosition;
+			_ParentObject = new GameObject("DrawUnitParent");
+			_ParentObject.layer = LayerMask.NameToLayer("DrawObject");
+			GameObject obj = Instantiate(_DrawUnitPrefab,
+									     CurrentPosition,
+										 Quaternion.identity) as GameObject;
+			obj.transform.parent = _ParentObject.transform;
+			obj.layer = LayerMask.NameToLayer("DrawObject");
+		}
+		else if(InputManager.I.GetTap(1))
+		{
+			Vector3 CurrentPosition = InputManager.I.GetTappedPointAcrossPlane(_DrawPlane);
+			float distance = Vector3.Distance(CurrentPosition, _PreviousDrawPosition); 
+			if(distance > _DrawInterval)
+			{
+				int loopCnt = (int)(distance / _DrawInterval);
+				for(int i = 0; i < loopCnt; i++){
+					GameObject obj = Instantiate(_DrawUnitPrefab,
+												 Vector3.Lerp(_PreviousDrawPosition, CurrentPosition, (float)i/loopCnt),
+												 Quaternion.identity) as GameObject;
+					obj.transform.parent = _ParentObject.transform;
+					obj.layer = LayerMask.NameToLayer("DrawObject");
+				}
+				
+				_Cnt += loopCnt;
+				
+				_PreviousDrawPosition = CurrentPosition;
+			}
+		}
+		else if(InputManager.I.GetTapUp(1))
+		{
 							  
 		}	
 	}

@@ -42,7 +42,7 @@ public class InputManager : Singlton<InputManager>
 	public bool GetTapDown(int index = 0)
 	{
 #if UNITY_EDITOR
-		return Input.GetMouseButtonDown(0);
+		return Input.GetMouseButtonDown(index);
 #elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
@@ -51,7 +51,7 @@ public class InputManager : Singlton<InputManager>
 		}
 		return Input.GetTouch(index).phase == TouchPhase.Began;
 #else
-		return Input.GetMouseButtonDown(0);
+		return Input.GetMouseButtonDown(index);
 #endif
 	}
 	/// <summary>
@@ -60,7 +60,7 @@ public class InputManager : Singlton<InputManager>
 	public bool GetTap(int index = 0)
 	{
 #if UNITY_EDITOR
-		return Input.GetMouseButton(0);
+		return Input.GetMouseButton(index);
 #elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
@@ -69,7 +69,7 @@ public class InputManager : Singlton<InputManager>
 		}
 		return Input.GetTouch(index).phase == TouchPhase.Moved;
 #else
-		return Input.GetMouseButton(0);
+		return Input.GetMouseButton(index);
 #endif
 	}
 	/// <summary>
@@ -78,7 +78,7 @@ public class InputManager : Singlton<InputManager>
 	public bool GetTapUp(int index = 0)
 	{
 #if UNITY_EDITOR
-		return Input.GetMouseButtonUp(0);
+		return Input.GetMouseButtonUp(index);
 #elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
@@ -87,7 +87,7 @@ public class InputManager : Singlton<InputManager>
 		}
 		return Input.GetTouch(index).phase == TouchPhase.Ended;
 #else
-		return Input.GetMouseButtonUp(0);
+		return Input.GetMouseButtonUp(index);
 #endif
 	}
 	/// <summary>
