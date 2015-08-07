@@ -25,7 +25,7 @@ public class CharacterMover : MonoBehaviour {
 		int rand = Random.Range(0, 200);
 		if(rand == 0){
 			GameObject bomb = Instantiate(Bomb, transform.position, transform.rotation) as GameObject;
-			bomb.GetComponent<Bomb>().SetVelocity(new Vector3(10f,5f,0f));
+			bomb.GetComponent<Bomb>().SetVelocity(15f*(GoalPos.position-transform.position).normalized);
 		}
 		
 		float goalDir = GoalPos.localPosition.x - transform.localPosition.x;
