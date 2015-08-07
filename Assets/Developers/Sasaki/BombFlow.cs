@@ -5,17 +5,14 @@ public class BombFlow : MonoBehaviour {
 	[SerializeField]
 	private GameObject effect;
 	
-	private Renderer thisRend;
 	private Collider thisColl;
 	void Start () {
-		thisRend = GetComponent<Renderer>();
 		thisColl = GetComponent<Collider>();
 		SetActive(false);
 	}
 	
 	public void SetActive(bool b)
 	{
-		thisRend.enabled = b;
 		thisColl.enabled = b;
 	}
 	
