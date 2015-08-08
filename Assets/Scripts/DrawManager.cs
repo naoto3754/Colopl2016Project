@@ -67,7 +67,6 @@ public class DrawManager : Singlton<DrawManager>
 		}
 		else if(InputManager.I.GetTapDown(1))
 		{
-			Debug.Log("test");
 			_Cnt = 1;
 			
 			Vector3 CurrentPosition = InputManager.I.GetTappedPointAcrossPlane(_DrawPlane);
