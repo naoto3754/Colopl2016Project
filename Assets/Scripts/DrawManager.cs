@@ -1,13 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class DrawManager : Singlton<DrawManager>
 {
 	[SerializeField]
 	private GameObject _DrawUnitPrefab;
 	[SerializeField]
+	private bool _EraseLine;
+	[SerializeField]
+	private int _MaxNumberOfDraw;
+	[SerializeField]
 	private float _DrawIntervalScale;
 
+	private List<GameObject> _DrawUnits;
 	private float _DrawInterval;
 	private Plane _DrawPlane;
 	private Vector3 _PreviousDrawPosition;
@@ -17,6 +23,7 @@ public class DrawManager : Singlton<DrawManager>
 	
 	void Start()
 	{
+		_DrawUnits = new List<GameObject>();
 		_DrawInterval = _DrawUnitPrefab.transform.localScale.x*_DrawIntervalScale;
 		_DrawPlane = new Plane(new Vector3(0f,0f,0f), new Vector3(-1f,1f,0f), new Vector3(1f,1f,0f));
 	}
@@ -36,6 +43,7 @@ public class DrawManager : Singlton<DrawManager>
 										 Quaternion.identity) as GameObject;
 			obj.transform.parent = _ParentObject.transform;
 			obj.layer = LayerMask.NameToLayer("DrawObject");
+			_DrawUnits.Add(obj);
 		}
 		else if(InputManager.I.GetTap())
 		{
@@ -50,6 +58,7 @@ public class DrawManager : Singlton<DrawManager>
 												 Quaternion.identity) as GameObject;
 					obj.transform.parent = _ParentObject.transform;
 					obj.layer = LayerMask.NameToLayer("DrawObject");
+					_DrawUnits.Add(obj);
 				}
 				
 				_Cnt += loopCnt;
@@ -63,8 +72,11 @@ public class DrawManager : Singlton<DrawManager>
 			rig.constraints = RigidbodyConstraints.FreezeRotationX| 
 							  RigidbodyConstraints.FreezeRotationY| 
 							  RigidbodyConstraints.FreezePositionZ;
-			rig.mass = _Cnt;			  
+			rig.mass = _Cnt;
+			//  _DrawUnits.Clear();		  
 		}
+		
+		
 		else if(InputManager.I.GetTapDown(1))
 		{
 			_Cnt = 1;
@@ -78,6 +90,7 @@ public class DrawManager : Singlton<DrawManager>
 										 Quaternion.identity) as GameObject;
 			obj.transform.parent = _ParentObject.transform;
 			obj.layer = LayerMask.NameToLayer("DrawObject");
+			_DrawUnits.Add(obj);
 		}
 		else if(InputManager.I.GetTap(1))
 		{
@@ -92,6 +105,7 @@ public class DrawManager : Singlton<DrawManager>
 												 Quaternion.identity) as GameObject;
 					obj.transform.parent = _ParentObject.transform;
 					obj.layer = LayerMask.NameToLayer("DrawObject");
+					_DrawUnits.Add(obj);
 				}
 				
 				_Cnt += loopCnt;
@@ -101,7 +115,16 @@ public class DrawManager : Singlton<DrawManager>
 		}
 		else if(InputManager.I.GetTapUp(1))
 		{
-							  
+			//  _DrawUnits.Clear();
 		}	
+		if(_EraseLine){
+			if(_DrawUnits.Count > _MaxNumberOfDraw)
+			{
+				for(int i = 0; i < _DrawUnits.Count - _MaxNumberOfDraw; i++){
+					Destroy(_DrawUnits[i]);
+				}
+				_DrawUnits.RemoveRange(0, _DrawUnits.Count - _MaxNumberOfDraw);
+			}
+		}
 	}
 }
