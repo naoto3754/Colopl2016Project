@@ -6,16 +6,12 @@ public class CharacterMover : MonoBehaviour {
 	{
 		MYSELF,
 		AUTORUN_HELP,
+		AUTORUN_BUTTON,
 		AUTORUN_DISTURB
 	}
 
 	[SerializeField]
 	private ControlType CharacterControlType;
-	public ControlType CharaControlType
-	{
-		get { return CharaControlType; }
-	}
-	
 	[SerializeField]
 	private float JumpPower = 2f;
 	[SerializeField]
@@ -25,16 +21,19 @@ public class CharacterMover : MonoBehaviour {
 	[SerializeField]
 	private GameObject Bomb;
 
+	private bool doStart;
 	private bool isJump;
 	private Rigidbody rig;
 	private Animator anim;
 	
 	void Start () {
+		doStart = false;
 		isJump = false;
 		rig = GetComponent<Rigidbody>();
 		switch(CharacterControlType){
 		case ControlType.MYSELF:
 		case ControlType.AUTORUN_HELP:
+		case ControlType.AUTORUN_BUTTON:
 			GetComponentInChildren<CharacterLookForward>().gameObject.SetActive(false);
 			break;
 		}
@@ -47,6 +46,19 @@ public class CharacterMover : MonoBehaviour {
 			if(Input.GetKeyDown(KeyCode.Space))
 			{
 				Jump();
+			}
+			break;
+		case ControlType.AUTORUN_HELP:			
+			rig.velocity = new Vector3(SpeedScale*0.5f, rig.velocity.y, 0f);
+			break;
+		case ControlType.AUTORUN_BUTTON:
+			if(doStart)
+			{
+				rig.velocity = new Vector3(SpeedScale, rig.velocity.y, 0f);
+			}
+			else if(Input.GetKeyDown(KeyCode.S))
+			{
+				doStart = true;
 			}
 			break;
 		case ControlType.AUTORUN_DISTURB:
@@ -66,9 +78,6 @@ public class CharacterMover : MonoBehaviour {
 			}else{
 				rig.velocity = new Vector3(0f, rig.velocity.y, 0f);
 			}
-			break;
-		case ControlType.AUTORUN_HELP:			
-			rig.velocity = new Vector3(SpeedScale*0.5f, rig.velocity.y, 0f);
 			break;
 		}
 	}
