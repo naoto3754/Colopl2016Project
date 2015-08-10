@@ -17,7 +17,7 @@ public class BombFlow : MonoBehaviour {
 	}
 	
 	void OnTriggerEnter(Collider col){
-		if(col.gameObject.layer != LayerMask.NameToLayer("Floor")){
+		if(col.gameObject.layer == LayerMask.NameToLayer("DrawObject")){
 			GameObject _ParentObject = new GameObject("DrawUnitParent");
 			_ParentObject.layer = LayerMask.NameToLayer("DrawObject");
 			Rigidbody rig = _ParentObject.AddComponent<Rigidbody>();

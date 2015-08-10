@@ -72,7 +72,7 @@ public class CharacterMover : MonoBehaviour {
 			if(Mathf.Abs(goalDir) > 0.1f){
 				if(isJump == false)
 					rig.velocity = new Vector3(Mathf.Sign(goalDir)*SpeedScale, rig.velocity.y, 0f);
-			}else if(GoalPos.localPosition.y - transform.localPosition.y > 0f){
+			}else if(GoalPos.localPosition.z - transform.localPosition.z < 0f){
 				rig.velocity = new Vector3(0f, rig.velocity.y, 0f);
 				Jump();
 			}else{

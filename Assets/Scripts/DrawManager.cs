@@ -12,6 +12,8 @@ public class DrawManager : Singlton<DrawManager>
 	private int _MaxNumberOfDraw;
 	[SerializeField]
 	private float _DrawIntervalScale;
+	[SerializeField]
+	private Color _LineColor;
 
 	private List<GameObject> _DrawUnits;
 	private float _DrawInterval;
@@ -43,6 +45,7 @@ public class DrawManager : Singlton<DrawManager>
 										 Quaternion.identity) as GameObject;
 			obj.transform.parent = _ParentObject.transform;
 			obj.layer = LayerMask.NameToLayer("DrawObject");
+			obj.GetComponent<Renderer>().material.color = _LineColor;
 			_DrawUnits.Add(obj);
 		}
 		else if(InputManager.I.GetTap())
@@ -58,6 +61,7 @@ public class DrawManager : Singlton<DrawManager>
 												 Quaternion.identity) as GameObject;
 					obj.transform.parent = _ParentObject.transform;
 					obj.layer = LayerMask.NameToLayer("DrawObject");
+					obj.GetComponent<Renderer>().material.color = _LineColor;
 					_DrawUnits.Add(obj);
 				}
 				
@@ -90,6 +94,7 @@ public class DrawManager : Singlton<DrawManager>
 										 Quaternion.identity) as GameObject;
 			obj.transform.parent = _ParentObject.transform;
 			obj.layer = LayerMask.NameToLayer("DrawObject");
+			obj.GetComponent<Renderer>().material.color = _LineColor;
 			_DrawUnits.Add(obj);
 		}
 		else if(InputManager.I.GetTap(1))
@@ -105,6 +110,7 @@ public class DrawManager : Singlton<DrawManager>
 												 Quaternion.identity) as GameObject;
 					obj.transform.parent = _ParentObject.transform;
 					obj.layer = LayerMask.NameToLayer("DrawObject");
+					obj.GetComponent<Renderer>().material.color = _LineColor;
 					_DrawUnits.Add(obj);
 				}
 				
