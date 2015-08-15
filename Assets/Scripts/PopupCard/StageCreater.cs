@@ -30,10 +30,12 @@ public class StageCreater : Singlton<StageCreater> {
 		rightPaper.transform.localScale = scale;
 		rightPaper.transform.Rotate(0f,90f,0f);
 		
-		foreach(Rect rect in DummyCard.I.CardRects)
+		foreach(CardRect rect in DummyCard.I.CardRects)
 		{
-			GameObject block = Instantiate(_Block, new Vector3(0f, rect.center.y, 0f+zOffset), Quaternion.identity) as GameObject;
-			block.transform.localScale = new Vector3(rect.width/2, rect.height, rect.width/2);
+			GameObject block = Instantiate(_Block, new Vector3(rect.foldlines[1], rect.center.y, 0f+zOffset), Quaternion.identity) as GameObject;
+			block.transform.localScale = new Vector3(rect.width/2-(rect.center.x-rect.foldlines[1]),
+													 rect.height,
+													 rect.width/2+(rect.center.x-rect.foldlines[1]));
 		}
 	}
 	

@@ -21,18 +21,19 @@ public class CharacterController : Singlton<CharacterController> {
 		int loops = 20;
 		for(int i = 0; i < loops; i++)
 		{
-			float delta = _Speed * Input.GetAxis("Horizontal") / loops;
+			float deltaHol = _Speed * Input.GetAxis("Horizontal") / loops;
+			float deltaVer = _Speed * Input.GetAxis("Vertical") / loops;
 			
 			if(DummyCard.I.MoveXaxis(_DummyCharacter.transform.position))
 			{
-				_Character.transform.Translate(delta, 0f, 0f);
+				_Character.transform.Translate(deltaHol, deltaVer, 0f);
 			}
 			else
 			{
-				_Character.transform.Translate(0f, 0f, -delta);
+				_Character.transform.Translate(0f, deltaVer, -deltaHol);
 			}
 			
-			_DummyCharacter.transform.Translate(delta, 0f, 0f);
+			_DummyCharacter.transform.Translate(deltaHol, deltaVer, 0f);
 		}
 	}
 }
