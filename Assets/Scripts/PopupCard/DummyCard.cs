@@ -2,14 +2,19 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class DummyCard : MonoBehaviour {
+public class DummyCard : Singlton<DummyCard> {
 	private List<Rect> _CardRects;
+	public List<Rect> CardRects
+	{
+		get { return _CardRects; }
+	}
 	
-	void Awake () {
+	public override void OnInitialize() 
+	{
 		_CardRects = new List<Rect>();
 		foreach(Transform child in transform)
 		{
-			_CardRects.Add(new Rect(child.localPosition.x - child.lossyScale.x/2, child.localPosition.y - child.lossyScale.y/2,
+			_CardRects.Add(new Rect(child.position.x - child.lossyScale.x/2, child.position.y - child.lossyScale.y/2,
 									child.lossyScale.x, child.lossyScale.y));
 		}
 	}

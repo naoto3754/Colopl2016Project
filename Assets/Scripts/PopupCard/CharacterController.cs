@@ -1,13 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CharacterController : MonoBehaviour {
-	[SerializeField]
+public class CharacterController : Singlton<CharacterController> {
 	private GameObject _Character;
+	public GameObject Character
+	{
+		set { _Character = value; }
+	}
 	[SerializeField]
 	private GameObject _DummyCharacter;
-	[SerializeField]
-	private DummyCard _DummyCard;
+	public GameObject DummyCharacter
+	{
+		get { return _DummyCharacter; }
+	}
+	
 	[SerializeField]
 	private float _Speed;
 	
@@ -17,7 +23,7 @@ public class CharacterController : MonoBehaviour {
 		{
 			float delta = _Speed * Input.GetAxis("Horizontal") / loops;
 			
-			if(_DummyCard.MoveXaxis(_DummyCharacter.transform.position))
+			if(DummyCard.I.MoveXaxis(_DummyCharacter.transform.position))
 			{
 				_Character.transform.Translate(delta, 0f, 0f);
 			}
@@ -25,7 +31,6 @@ public class CharacterController : MonoBehaviour {
 			{
 				_Character.transform.Translate(0f, 0f, -delta);
 			}
-			
 			
 			_DummyCharacter.transform.Translate(delta, 0f, 0f);
 		}
