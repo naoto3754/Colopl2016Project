@@ -9,14 +9,39 @@ public class DummyCard : Singlton<DummyCard> {
 		get { return _CardRects; }
 	}
 	
+	private List<CardRect> _Ladders;
+	public List<CardRect> Ladders
+	{
+		get { return _Ladders; }
+	}
+	
+	private List<CardRect> _Lines;
+	public List<CardRect> Lines
+	{
+		get { return _Lines; }
+	}
+	
 	public override void OnInitialize() 
 	{
 		_CardRects = new List<CardRect>();
+		_Ladders = new List<CardRect>();
+		_Lines = new List<CardRect>();
 		foreach(Transform child in transform)
 		{
-			float parentLine = CalcParentLine(child);
-			_CardRects.Add(new CardRect(child.position, child.lossyScale.x, child.lossyScale.y,
-										parentLine+(child.position.x-parentLine)*2, parentLine));
+			switch(child.gameObject.tag)
+			{
+			case "FoldPaper":
+				float parentLine = CalcParentLine(child);
+				_CardRects.Add(new CardRect(child.position, child.lossyScale.x, child.lossyScale.y,
+											parentLine+(child.position.x-parentLine)*2, parentLine));
+				break;
+			case "Ladder":
+				_Ladders.Add(new CardRect(child.position, child.lossyScale.x, child.lossyScale.y));
+				break;
+			case "Line":
+				_Lines.Add(new CardRect(child.position, child.lossyScale.x, child.lossyScale.y));
+				break;
+			}
 		}
 	}
 	
@@ -37,6 +62,39 @@ public class DummyCard : Singlton<DummyCard> {
 			}
 		}
 		return ret;
+	}
+	
+	public bool CanUseLadder(Vector3 charaPos, float delta)
+	{
+		foreach(CardRect rect in _Ladders)
+		{
+			if(rect.Contains(charaPos+delta*Vector3.up))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public bool IsGrounded(Vector3 charaPos, float delta)
+	{
+		if(charaPos.y-delta < 0f)
+			return true;
+		foreach(CardRect rect in _CardRects)
+		{
+			if(rect.Contains(charaPos-delta*Vector3.up))
+			{
+				return true;
+			}
+		}
+		foreach(CardRect rect in _Lines)
+		{
+			if(rect.Contains(charaPos-delta*Vector3.up))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private float CalcParentLine(Transform child)
@@ -71,7 +129,7 @@ public class CardRect
 	public float bottom{ get { return  center.y - height/2; } }
 	public float up{ get { return  center.y + height/2; } }
 	
-	public CardRect(Vector2 center, float width, float height, float fline1, float fline2)
+	public CardRect(Vector2 center, float width, float height, float fline1 = 0f, float fline2 = 0f)
 	{
 		this.center = center;
 		this.width = width;

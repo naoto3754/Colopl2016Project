@@ -16,6 +16,8 @@ public class CharacterController : Singlton<CharacterController> {
 	
 	[SerializeField]
 	private float _Speed;
+	[SerializeField]
+	private float _DropSpeed;
 	
 	void Update () {
 		int loops = 20;
@@ -24,16 +26,23 @@ public class CharacterController : Singlton<CharacterController> {
 			float deltaHol = _Speed * Input.GetAxis("Horizontal") / loops;
 			float deltaVer = _Speed * Input.GetAxis("Vertical") / loops;
 			
-			if(DummyCard.I.MoveXaxis(_DummyCharacter.transform.position))
+			if(DummyCard.I.CanUseLadder(_DummyCharacter.transform.position, deltaVer))
 			{
-				_Character.transform.Translate(deltaHol, deltaVer, 0f);
+				_Character.transform.Translate(0f, deltaVer, 0f);
+				_DummyCharacter.transform.Translate(0f, deltaVer, 0f);
 			}
-			else
+			else if(!DummyCard.I.IsGrounded(_DummyCharacter.transform.position, _DropSpeed))
 			{
-				_Character.transform.Translate(0f, deltaVer, -deltaHol);
+				_Character.transform.Translate(0f, -_DropSpeed/loops, 0f);
+				_DummyCharacter.transform.Translate(0f, -_DropSpeed/loops, 0f);
 			}
 			
-			_DummyCharacter.transform.Translate(deltaHol, deltaVer, 0f);
+			if(DummyCard.I.MoveXaxis(_DummyCharacter.transform.position))
+				_Character.transform.Translate(deltaHol, 0f, 0f);
+			else
+				_Character.transform.Translate(0f, 0f, -deltaHol);
+			_DummyCharacter.transform.Translate(deltaHol, 0f, 0f);
+			
 		}
 	}
 }

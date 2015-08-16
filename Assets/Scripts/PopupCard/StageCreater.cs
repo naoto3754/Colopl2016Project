@@ -4,6 +4,10 @@ using System.Collections;
 public class StageCreater : Singlton<StageCreater> {
 	[SerializeField]
 	private GameObject _Paper;
+	[SerializeField]
+	private GameObject _Ladder;
+	[SerializeField]
+	private GameObject _Line;
 	
 	private float zOffset = -50f;
 	
@@ -17,12 +21,8 @@ public class StageCreater : Singlton<StageCreater> {
 		CharacterController.I.Character = character;
 		
 		Vector3 cardSize = DummyCard.I.gameObject.transform.lossyScale;
-		Vector3 pos = new Vector3(-cardSize.x/4, cardSize.y/2, 0f+zOffset);
-		Vector3 scale = new Vector3(cardSize.x/2, cardSize.y, 1f);
-		//  Create(pos, scale, false);
-		
-		pos = new Vector3(0f, cardSize.y/2, -cardSize.x/4+zOffset);
-		//  Create(pos, scale, true);
+		Vector3 pos;
+		Vector3 scale;
 		
 		foreach(CardRect rect in DummyCard.I.CardRects)
 		{
@@ -30,26 +30,46 @@ public class StageCreater : Singlton<StageCreater> {
 			float zWidth = rect.width/2+(rect.center.x-rect.foldlines[1]);
 			pos = new Vector3(rect.foldlines[1]-xWidth/2, rect.center.y, -zWidth+zOffset);
 			scale = new Vector3(xWidth, rect.height, 1f);
-			Create(pos, scale, false);
+			CreatePaper(pos, scale, false);
 			
 			pos = new Vector3(rect.left, rect.center.y, -zWidth/2+zOffset);
 			scale = new Vector3(zWidth, rect.height, 1f);
-			Create(pos, scale, true);
+			CreatePaper(pos, scale, true);
 
 			if(Mathf.Abs(rect.center.x) < rect.width/2)
 			{
 				pos = new Vector3(-cardSize.x/4-xWidth/2, rect.center.y, 0+zOffset);
 				scale = new Vector3(cardSize.x/2-xWidth, rect.height, 1f);
-				Create(pos, scale, false);
+				CreatePaper(pos, scale, false);
 			
 				pos = new Vector3(0f, rect.center.y, -cardSize.x/4-zWidth/2+zOffset);
 				scale = new Vector3(cardSize.x/2-zWidth, rect.height, 1f);
-				Create(pos, scale, true);
+				CreatePaper(pos, scale, true);
 			}
+		}
+		
+		foreach(CardRect rect in DummyCard.I.Ladders)
+		{
+			GameObject ladder = Instantiate(_Ladder, 
+											new Vector3(Mathf.Min(0.0001f, rect.center.x),rect.center.y,-Mathf.Max(0.0001f, rect.center.x)+zOffset),
+											Quaternion.identity) as GameObject;
+			ladder.transform.localScale = new Vector3(rect.width, rect.height, 1f);
+			if(rect.center.x > 0f)
+				ladder.transform.Rotate(0f,90f,0f);
+		}
+		
+		foreach(CardRect rect in DummyCard.I.Lines)
+		{
+			GameObject ladder = Instantiate(_Line, 
+											new Vector3(Mathf.Min(-0.0001f, rect.center.x),rect.center.y,-Mathf.Max(0.0001f, rect.center.x)+zOffset),
+											Quaternion.identity) as GameObject;
+			ladder.transform.localScale = new Vector3(rect.width, rect.height, 1f);
+			if(rect.center.x > 0f)
+				ladder.transform.Rotate(0f,90f,0f);
 		}
 	}
 	
-	private void Create(Vector3 pos, Vector3 scale, bool rotate)
+	private void CreatePaper(Vector3 pos, Vector3 scale, bool rotate)
 	{
 		GameObject paper = Instantiate(_Paper, pos, Quaternion.identity) as GameObject;  
 		paper.transform.localScale = scale;
