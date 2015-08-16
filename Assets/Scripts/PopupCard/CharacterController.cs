@@ -20,7 +20,7 @@ public class CharacterController : Singlton<CharacterController> {
 	private float _DropSpeed;
 	
 	void Update () {
-		int loops = 20;
+		int loops = 50;
 		for(int i = 0; i < loops; i++)
 		{
 			float deltaHol = _Speed * Input.GetAxis("Horizontal") / loops;

@@ -28,20 +28,34 @@ public class StageCreater : Singlton<StageCreater> {
 		{
 			float xWidth = rect.width/2-(rect.center.x-rect.foldlines[1]);
 			float zWidth = rect.width/2+(rect.center.x-rect.foldlines[1]);
-			pos = new Vector3(rect.foldlines[1]-xWidth/2, rect.center.y, -zWidth+zOffset);
-			scale = new Vector3(xWidth, rect.height, 1f);
-			CreatePaper(pos, scale, false);
-			
-			pos = new Vector3(rect.left, rect.center.y, -zWidth/2+zOffset);
-			scale = new Vector3(zWidth, rect.height, 1f);
-			CreatePaper(pos, scale, true);
+			if(rect.foldlines[1] <= 0f)
+			{
+				pos = new Vector3(rect.foldlines[1]-xWidth/2, rect.center.y, -zWidth+zOffset);
+				scale = new Vector3(xWidth, rect.height, 1f);
+				CreatePaper(pos, scale, false);
+				
+				pos = new Vector3(rect.left, rect.center.y, -zWidth/2+zOffset);
+				scale = new Vector3(zWidth, rect.height, 1f);
+				CreatePaper(pos, scale, true);
+			}
+			else
+			{
+				pos = new Vector3(-zWidth, rect.center.y, -rect.foldlines[1]-xWidth/2+zOffset);
+				scale = new Vector3(xWidth, rect.height, 1f);
+				CreatePaper(pos, scale, true);
+				
+				pos = new Vector3(-zWidth/2, rect.center.y, -rect.right+zOffset);
+				scale = new Vector3(zWidth, rect.height, 1f);
+				CreatePaper(pos, scale, false);
+
+			}
 
 			if(Mathf.Abs(rect.center.x) < rect.width/2)
 			{
 				pos = new Vector3(-cardSize.x/4-xWidth/2, rect.center.y, 0+zOffset);
 				scale = new Vector3(cardSize.x/2-xWidth, rect.height, 1f);
 				CreatePaper(pos, scale, false);
-			
+				
 				pos = new Vector3(0f, rect.center.y, -cardSize.x/4-zWidth/2+zOffset);
 				scale = new Vector3(cardSize.x/2-zWidth, rect.height, 1f);
 				CreatePaper(pos, scale, true);
