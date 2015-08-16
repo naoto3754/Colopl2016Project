@@ -19,10 +19,10 @@ public class StageCreater : Singlton<StageCreater> {
 		Vector3 cardSize = DummyCard.I.gameObject.transform.lossyScale;
 		Vector3 pos = new Vector3(-cardSize.x/4, cardSize.y/2, 0f+zOffset);
 		Vector3 scale = new Vector3(cardSize.x/2, cardSize.y, 1f);
-		Create(pos, scale, false);
+		//  Create(pos, scale, false);
 		
 		pos = new Vector3(0f, cardSize.y/2, -cardSize.x/4+zOffset);
-		Create(pos, scale, true);
+		//  Create(pos, scale, true);
 		
 		foreach(CardRect rect in DummyCard.I.CardRects)
 		{
@@ -36,6 +36,16 @@ public class StageCreater : Singlton<StageCreater> {
 			scale = new Vector3(zWidth, rect.height, 1f);
 			Create(pos, scale, true);
 
+			if(Mathf.Abs(rect.center.x) < rect.width/2)
+			{
+				pos = new Vector3(-cardSize.x/4-xWidth/2, rect.center.y, 0+zOffset);
+				scale = new Vector3(cardSize.x/2-xWidth, rect.height, 1f);
+				Create(pos, scale, false);
+			
+				pos = new Vector3(0f, rect.center.y, -cardSize.x/4-zWidth/2+zOffset);
+				scale = new Vector3(cardSize.x/2-zWidth, rect.height, 1f);
+				Create(pos, scale, true);
+			}
 		}
 	}
 	
