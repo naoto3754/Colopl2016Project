@@ -4,8 +4,6 @@ using System.Collections;
 public class StageCreater : Singlton<StageCreater> {
 	[SerializeField]
 	private GameObject _Paper;
-	[SerializeField]
-	private GameObject _Block;
 	
 	private float zOffset = -50f;
 	
@@ -19,27 +17,33 @@ public class StageCreater : Singlton<StageCreater> {
 		CharacterController.I.Character = character;
 		
 		Vector3 cardSize = DummyCard.I.gameObject.transform.lossyScale;
-		Vector3 leftPos = new Vector3(-cardSize.x/4, cardSize.y/2, 0f+zOffset);
-		Vector3 rightPos = new Vector3(0f, cardSize.y/2, -cardSize.x/4+zOffset);
+		Vector3 pos = new Vector3(-cardSize.x/4, cardSize.y/2, 0f+zOffset);
 		Vector3 scale = new Vector3(cardSize.x/2, cardSize.y, 1f);
+		Create(pos, scale, false);
 		
-		GameObject leftPaper = Instantiate(_Paper, leftPos, Quaternion.identity) as GameObject;  
-		leftPaper.transform.localScale = scale;
-		
-		GameObject rightPaper = Instantiate(_Paper, rightPos, Quaternion.identity) as GameObject;  
-		rightPaper.transform.localScale = scale;
-		rightPaper.transform.Rotate(0f,90f,0f);
+		pos = new Vector3(0f, cardSize.y/2, -cardSize.x/4+zOffset);
+		Create(pos, scale, true);
 		
 		foreach(CardRect rect in DummyCard.I.CardRects)
 		{
-			GameObject block = Instantiate(_Block, new Vector3(rect.foldlines[1], rect.center.y, 0f+zOffset), Quaternion.identity) as GameObject;
-			block.transform.localScale = new Vector3(rect.width/2-(rect.center.x-rect.foldlines[1]),
-													 rect.height,
-													 rect.width/2+(rect.center.x-rect.foldlines[1]));
+			float xWidth = rect.width/2-(rect.center.x-rect.foldlines[1]);
+			float zWidth = rect.width/2+(rect.center.x-rect.foldlines[1]);
+			pos = new Vector3(rect.foldlines[1]-xWidth/2, rect.center.y, -zWidth+zOffset);
+			scale = new Vector3(xWidth, rect.height, 1f);
+			Create(pos, scale, false);
+			
+			pos = new Vector3(rect.left, rect.center.y, -zWidth/2+zOffset);
+			scale = new Vector3(zWidth, rect.height, 1f);
+			Create(pos, scale, true);
+
 		}
 	}
 	
-	void Update () {
-	
+	private void Create(Vector3 pos, Vector3 scale, bool rotate)
+	{
+		GameObject paper = Instantiate(_Paper, pos, Quaternion.identity) as GameObject;  
+		paper.transform.localScale = scale;
+		if(rotate)
+			paper.transform.Rotate(0f,90f,0f);		
 	}
 }
