@@ -10,11 +10,14 @@ public class StageCreater : Singlton<StageCreater> {
 	private GameObject _Line;
 	
 	private float zOffset = -50f;
+	private GameObject _Root;
 	
 	void Start () {
+		_Root = new GameObject("StageRoot");
 		GameObject character = Instantiate(CharacterController.I.DummyCharacter,
 										   CharacterController.I.DummyCharacter.transform.position+new Vector3(0f,0f,zOffset),
 										   Quaternion.identity) as GameObject;
+		character.transform.parent = _Root.transform;
 		character.layer = 0;
 		foreach(Transform child in character.transform)
 			child.gameObject.layer = 0;
@@ -67,6 +70,7 @@ public class StageCreater : Singlton<StageCreater> {
 			GameObject ladder = Instantiate(_Ladder, 
 											new Vector3(Mathf.Min(0.0001f, rect.center.x),rect.center.y,-Mathf.Max(0.0001f, rect.center.x)+zOffset),
 											Quaternion.identity) as GameObject;
+			ladder.transform.parent = _Root.transform;
 			ladder.transform.localScale = new Vector3(rect.width, rect.height, 1f);
 			if(rect.center.x > 0f)
 				ladder.transform.Rotate(0f,90f,0f);
@@ -74,18 +78,20 @@ public class StageCreater : Singlton<StageCreater> {
 		
 		foreach(CardRect rect in DummyCard.I.Lines)
 		{
-			GameObject ladder = Instantiate(_Line, 
+			GameObject line = Instantiate(_Line, 
 											new Vector3(Mathf.Min(-0.0001f, rect.center.x),rect.center.y,-Mathf.Max(0.0001f, rect.center.x)+zOffset),
 											Quaternion.identity) as GameObject;
-			ladder.transform.localScale = new Vector3(rect.width, rect.height, 1f);
+			line.transform.parent = _Root.transform;
+			line.transform.localScale = new Vector3(rect.width, rect.height, 1f);
 			if(rect.center.x > 0f)
-				ladder.transform.Rotate(0f,90f,0f);
+				line.transform.Rotate(0f,90f,0f);
 		}
 	}
 	
 	private void CreatePaper(Vector3 pos, Vector3 scale, bool rotate)
 	{
-		GameObject paper = Instantiate(_Paper, pos, Quaternion.identity) as GameObject;  
+		GameObject paper = Instantiate(_Paper, pos, Quaternion.identity) as GameObject;
+		paper.transform.parent = _Root.transform;  
 		paper.transform.localScale = scale;
 		if(rotate)
 			paper.transform.Rotate(0f,90f,0f);		
