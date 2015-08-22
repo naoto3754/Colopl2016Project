@@ -27,8 +27,16 @@ public class CharacterController : Singlton<CharacterController> {
 		float deltaDrop = Time.deltaTime * _DropSpeed;
 		
 		float deltaY = DummyCard.I.CalcAmountOfMovementY(_DummyCharacter.transform.position, deltaVer);
-		_Character.transform.Translate(0f, deltaY, 0f);
-		_DummyCharacter.transform.Translate(0f, deltaY, 0f);
+		if(DummyCard.I.CanUseLadder(_DummyCharacter.transform.position)){
+			_Character.transform.Translate(0f, deltaY, 0f);
+			_DummyCharacter.transform.Translate(0f, deltaY, 0f);
+		}
+		else
+		{
+			deltaY = DummyCard.I.CalcAmountOfMovementY(_DummyCharacter.transform.position, -deltaDrop);
+			_Character.transform.Translate(0f, deltaY, 0f);
+			_DummyCharacter.transform.Translate(0f, deltaY, 0f);
+		}	
 			
 		float[] moveDir = DummyCard.I.CalcAmountOfMovementXZ(_DummyCharacter.transform.position, deltaHol, ref _MoveX);
 			

@@ -7,23 +7,28 @@ public class DummyCard : Singlton<DummyCard> {
 	private GameObject FoldLines;
 	[SerializeField]
 	private GameObject GroundLines;
+	[SerializeField]
+	private GameObject Ladders;
 	
 	private List<Line> _FoldLine;
-	public List<Line> FoldLine
-	{
-		get { return _FoldLine; }
-	}
+	//  public List<Line> FoldLine
+	//  {
+	//  	get { return _FoldLine; }
+	//  }
 	
 	private List<Line> _GroundLine;
-	public List<Line> GroundLine
-	{
-		get { return _GroundLine; }
-	}
+	//  public List<Line> GroundLine
+	//  {
+	//  	get { return _GroundLine; }
+	//  }
+	
+	private List<CardRect> _Ladder;
 	
 	public override void OnInitialize()
 	{
 		_FoldLine = new List<Line>();
 		_GroundLine = new List<Line>();
+		_Ladder = new List<CardRect>();
 		
 		foreach(Transform line in FoldLines.transform)
 		{
@@ -32,6 +37,10 @@ public class DummyCard : Singlton<DummyCard> {
 		foreach(Transform line in GroundLines.transform)
 		{
 			_GroundLine.Add(new Line(line.position, line.position+line.localScale));
+		}
+		foreach(Transform ladder in Ladders.transform)
+		{
+			_Ladder.Add(new CardRect(ladder.position,ladder.localScale.x,ladder.localScale.y));
 		}
 	}
 	
@@ -67,6 +76,16 @@ public class DummyCard : Singlton<DummyCard> {
 			return new float[] {0f , -delta};
 	}
 	
+	public bool CanUseLadder(Vector3 charaPos)
+	{
+		foreach(CardRect rect in _Ladder)
+		{
+			if(rect.Contains(charaPos))
+				return true;
+		}
+		return false;
+	}
+	
 	public class Line
 	{
 		public Vector2[] points = new Vector2[2];
@@ -88,4 +107,30 @@ public class DummyCard : Singlton<DummyCard> {
 			return lhs.x * rhs.y - rhs.x * lhs.y;
 		}
 	}
+	
+	public class CardRect
+	{
+		public Vector2 center;
+		public float width;
+		public float height;
+		public float left{ get { return  center.x - width/2; } }
+		public float right{ get { return  center.x + width/2; } }
+		public float bottom{ get { return  center.y - height/2; } }
+		public float up{ get { return  center.y + height/2; } }
+
+		public CardRect(Vector2 center, float width, float height)
+		{
+			this.center = center;
+			this.width = width;
+			this.height = height;
+		}
+		 
+		public bool Contains(Vector2 point)
+		{
+			Vector2 diff = center - point;
+			return Mathf.Abs(diff.x) <= width/2 && Mathf.Abs(diff.y) <= height/2;
+		}
+
+	}
+
 }
