@@ -44,36 +44,47 @@ public class DummyCard : Singlton<DummyCard> {
 		}
 	}
 	
-	public float CalcAmountOfMovementY(Vector3 charaPos, float deltaY)
+	public Vector3 CalcAmountOfMovement(Vector2 charaPos, Vector2 delta, ref bool moveX)
 	{
+		Vector3 retVec = Vector3.zero;
+		retVec.y = delta.y;
+		if(moveX)
+			retVec.x = delta.x;
+		else
+			retVec.z = -delta.x;
 		foreach(Line groundline in _GroundLine)
 		{
-			if(groundline.ThroughLine(charaPos, charaPos+new Vector3(0f, deltaY, 0f)))
+			if(groundline.ThroughLine(charaPos, charaPos+delta))
 			{
-				float ret = groundline.points[0].y - charaPos.y;	
-				return ret - Mathf.Sign(ret)*0.01f;
+				float ret = groundline.points[0].y - charaPos.y;
+				delta.y = ret - Mathf.Sign(ret)*0.01f;	
+				retVec.y = ret - Mathf.Sign(ret)*0.01f;
+				break;
 			}
 		}
-		return deltaY;
-	}
-	
-	public float[] CalcAmountOfMovementXZ(Vector3 charaPos, float delta, ref bool moveX)
-	{
-		foreach(Line foldline in _FoldLine)
+		if(Mathf.Abs(delta.x) > 0f)
 		{
-			if(foldline.ThroughLine(charaPos, charaPos+new Vector3(delta, 0f, 0f)))
+			foreach(Line foldline in _FoldLine)
 			{
-				moveX = !moveX;
-				if(!moveX)
-					return new float[] {foldline.points[0].x -charaPos.x, -(charaPos.x+delta-foldline.points[0].x)};
-				else
-					return new float[] {charaPos.x+delta-foldline.points[0].x, -(foldline.points[0].x - charaPos.x)};
-			}	
+				if(foldline.ThroughLine(charaPos, charaPos+delta))
+				{
+					moveX = !moveX;
+					if(!moveX)
+					{
+						retVec.x = foldline.points[0].x -charaPos.x;
+						retVec.z = -(charaPos.x+delta.x-foldline.points[0].x);
+						break;
+					}
+					else
+					{
+						retVec.x = charaPos.x+delta.x-foldline.points[0].x;
+						retVec.z = -(foldline.points[0].x - charaPos.x);
+						break;
+					}
+				}
+			}
 		}
-		if(moveX)
-			return new float[] {delta , 0f};
-		else
-			return new float[] {0f , -delta};
+		return retVec;
 	}
 	
 	public bool CanUseLadder(Vector3 charaPos)
