@@ -26,17 +26,11 @@ public class CharacterController : Singlton<CharacterController> {
 		float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical");
 		float deltaDrop = Time.deltaTime * _DropSpeed;
 		
-		//  if(DummyCard.I.CanUseLadder(_DummyCharacter.transform.position, deltaVer))
-		//  {
-			_Character.transform.Translate(0f, deltaVer, 0f);
-			_DummyCharacter.transform.Translate(0f, deltaVer, 0f);
-		//  }
-		//  else if(!DummyCard.I.IsGrounded(_DummyCharacter.transform.position, deltaDrop))
-		//  {
-		//  	_Character.transform.Translate(0f, -deltaDrop, 0f);
-		//  	_DummyCharacter.transform.Translate(0f, -deltaDrop, 0f);
-		//  }
-		float[] moveDir = DummyCard.I.CalcAmountOfMovement(_DummyCharacter.transform.position, deltaHol, ref _MoveX);
+		float deltaY = DummyCard.I.CalcAmountOfMovementY(_DummyCharacter.transform.position, deltaVer);
+		_Character.transform.Translate(0f, deltaY, 0f);
+		_DummyCharacter.transform.Translate(0f, deltaY, 0f);
+			
+		float[] moveDir = DummyCard.I.CalcAmountOfMovementXZ(_DummyCharacter.transform.position, deltaHol, ref _MoveX);
 			
 		_Character.transform.Translate(moveDir[0], 0f, moveDir[1]);
 		_DummyCharacter.transform.Translate(deltaHol, 0f, 0f);
