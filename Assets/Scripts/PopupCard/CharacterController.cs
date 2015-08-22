@@ -19,31 +19,27 @@ public class CharacterController : Singlton<CharacterController> {
 	[SerializeField]
 	private float _DropSpeed;
 	
+	private bool _MoveX = true;
+	
 	void Update () {
-		int loops = 50;
-		for(int i = 0; i < loops; i++)
-		{
-			float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal") / loops;
-			float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical") / loops;
-			float deltaDrop = Time.deltaTime * _DropSpeed / loops;
+		float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal");
+		float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical");
+		float deltaDrop = Time.deltaTime * _DropSpeed;
+		
+		//  if(DummyCard.I.CanUseLadder(_DummyCharacter.transform.position, deltaVer))
+		//  {
+			_Character.transform.Translate(0f, deltaVer, 0f);
+			_DummyCharacter.transform.Translate(0f, deltaVer, 0f);
+		//  }
+		//  else if(!DummyCard.I.IsGrounded(_DummyCharacter.transform.position, deltaDrop))
+		//  {
+		//  	_Character.transform.Translate(0f, -deltaDrop, 0f);
+		//  	_DummyCharacter.transform.Translate(0f, -deltaDrop, 0f);
+		//  }
+		float[] moveDir = DummyCard.I.CalcAmountOfMovement(_DummyCharacter.transform.position, deltaHol, ref _MoveX);
 			
-			if(DummyCard.I.CanUseLadder(_DummyCharacter.transform.position, deltaVer))
-			{
-				_Character.transform.Translate(0f, deltaVer, 0f);
-				_DummyCharacter.transform.Translate(0f, deltaVer, 0f);
-			}
-			else if(!DummyCard.I.IsGrounded(_DummyCharacter.transform.position, deltaDrop))
-			{
-				_Character.transform.Translate(0f, -deltaDrop, 0f);
-				_DummyCharacter.transform.Translate(0f, -deltaDrop, 0f);
-			}
+		_Character.transform.Translate(moveDir[0], 0f, moveDir[1]);
+		_DummyCharacter.transform.Translate(deltaHol, 0f, 0f);
 			
-			if(DummyCard.I.MoveXaxis(_DummyCharacter.transform.position))
-				_Character.transform.Translate(deltaHol, 0f, 0f);
-			else
-				_Character.transform.Translate(0f, 0f, -deltaHol);
-			_DummyCharacter.transform.Translate(deltaHol, 0f, 0f);
-			
-		}
 	}
 }
