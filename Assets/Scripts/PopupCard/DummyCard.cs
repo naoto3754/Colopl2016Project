@@ -9,26 +9,21 @@ public class DummyCard : Singlton<DummyCard> {
 	private GameObject GroundLines;
 	[SerializeField]
 	private GameObject Ladders;
+	[SerializeField]
+	private GameObject Slopes;
 	
 	private List<Line> _FoldLine;
-	//  public List<Line> FoldLine
-	//  {
-	//  	get { return _FoldLine; }
-	//  }
-	
 	private List<Line> _GroundLine;
-	//  public List<Line> GroundLine
-	//  {
-	//  	get { return _GroundLine; }
-	//  }
-	
 	private List<CardRect> _Ladder;
+	private List<Line> _Slope;
+	
 	
 	public override void OnInitialize()
 	{
 		_FoldLine = new List<Line>();
 		_GroundLine = new List<Line>();
 		_Ladder = new List<CardRect>();
+		_Slope = new List<Line>();
 		
 		foreach(Transform line in FoldLines.transform)
 		{
@@ -41,6 +36,10 @@ public class DummyCard : Singlton<DummyCard> {
 		foreach(Transform ladder in Ladders.transform)
 		{
 			_Ladder.Add(new CardRect(ladder.position,ladder.localScale.x,ladder.localScale.y));
+		}
+		foreach(Transform slope in Slopes.transform)
+		{
+			_Slope.Add(new Line(slope.position, slope.position+slope.localScale));
 		}
 	}
 	
@@ -59,6 +58,17 @@ public class DummyCard : Singlton<DummyCard> {
 				float ret = groundline.points[0].y - charaPos.y;
 				delta.y = ret - Mathf.Sign(ret)*0.01f;	
 				retVec.y = ret - Mathf.Sign(ret)*0.01f;
+				break;
+			}
+		}
+		foreach(Line slope in _Slope)
+		{
+			if(slope.ThroughLine(charaPos, charaPos+delta))
+			{
+				float ret = slope.LarpYCoord(charaPos.x+delta.x) - charaPos.y;
+				Debug.Log(ret);
+				delta.y = ret + 0.01f;	
+				retVec.y = ret + 0.01f;
 				break;
 			}
 		}
@@ -116,6 +126,18 @@ public class DummyCard : Singlton<DummyCard> {
 		private float Cross(Vector2 lhs, Vector2 rhs)
 		{
 			return lhs.x * rhs.y - rhs.x * lhs.y;
+		}
+		
+		public float LarpYCoord(float x)
+		{
+			Vector2 leftPoint = points[0].x < points[1].x ? points[0] : points[1];
+			Vector2 rightPoint = points[0].x < points[1].x ? points[1] : points[0];
+			if(x < leftPoint.x)
+				return leftPoint.y;
+			else if(x < rightPoint.x)
+				return Mathf.Lerp(leftPoint.y,rightPoint.y,(x-leftPoint.x)/(rightPoint.x-leftPoint.x));
+			else
+				return rightPoint.y;
 		}
 	}
 	
