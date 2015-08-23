@@ -11,11 +11,14 @@ public class DummyCard : Singlton<DummyCard> {
 	private GameObject Ladders;
 	[SerializeField]
 	private GameObject Slopes;
+	[SerializeField]
+	private GameObject Walls;
 	
 	private List<Line> _FoldLine;
 	private List<Line> _GroundLine;
 	private List<CardRect> _Ladder;
 	private List<Line> _Slope;
+	private List<Line> _Wall;
 	
 	
 	public override void OnInitialize()
@@ -24,23 +27,18 @@ public class DummyCard : Singlton<DummyCard> {
 		_GroundLine = new List<Line>();
 		_Ladder = new List<CardRect>();
 		_Slope = new List<Line>();
+		_Wall = new List<Line>();
 		
 		foreach(Transform line in FoldLines.transform)
-		{
 			_FoldLine.Add(new Line(line.position, line.position+line.localScale));
-		}
 		foreach(Transform line in GroundLines.transform)
-		{
 			_GroundLine.Add(new Line(line.position, line.position+line.localScale));
-		}
 		foreach(Transform ladder in Ladders.transform)
-		{
 			_Ladder.Add(new CardRect(ladder.position,ladder.localScale.x,ladder.localScale.y));
-		}
 		foreach(Transform slope in Slopes.transform)
-		{
 			_Slope.Add(new Line(slope.position, slope.position+slope.localScale));
-		}
+		foreach(Transform wall in Walls.transform)
+			_Wall.Add(new Line(wall.position, wall.position+wall.localScale));
 	}
 	
 	public Vector3 CalcAmountOfMovement(Vector2 charaPos, Vector2 delta, ref bool moveX)
@@ -57,7 +55,7 @@ public class DummyCard : Singlton<DummyCard> {
 			{
 				float ret = groundline.points[0].y - charaPos.y;
 				delta.y = ret - Mathf.Sign(ret)*0.01f;	
-				retVec.y = ret - Mathf.Sign(ret)*0.01f;
+				retVec.y = delta.y;
 				break;
 			}
 		}
@@ -66,14 +64,26 @@ public class DummyCard : Singlton<DummyCard> {
 			if(slope.ThroughLine(charaPos, charaPos+delta))
 			{
 				float ret = slope.LarpYCoord(charaPos.x+delta.x) - charaPos.y;
-				Debug.Log(ret);
 				delta.y = ret + 0.01f;	
-				retVec.y = ret + 0.01f;
+				retVec.y = delta.y;
 				break;
 			}
 		}
 		if(Mathf.Abs(delta.x) > 0f)
 		{
+			foreach(Line wall in _Wall)
+			{
+				if(wall.ThroughLine(charaPos, charaPos+delta))
+				{
+					float ret = wall.points[0].x - charaPos.x;
+					delta.x = ret - Mathf.Sign(ret)*0.01f;
+					if(moveX)
+						retVec.x = delta.x;
+					else
+						retVec.z = -delta.x;
+					break;
+				}
+			}
 			foreach(Line foldline in _FoldLine)
 			{
 				if(foldline.ThroughLine(charaPos, charaPos+delta))

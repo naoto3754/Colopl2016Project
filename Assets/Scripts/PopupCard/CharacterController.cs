@@ -34,7 +34,7 @@ public class CharacterController : Singlton<CharacterController> {
 		Vector3 moveDir = DummyCard.I.CalcAmountOfMovement(_DummyCharacter.transform.position, new Vector2(deltaHol, deltaVer), ref _MoveX);
 			
 		_Character.transform.Translate(moveDir);
-		_DummyCharacter.transform.Translate(deltaHol, moveDir.y, 0f);
+		_DummyCharacter.transform.Translate(moveDir.x+(-moveDir.z), moveDir.y, 0f);
 			
 	}
 }
