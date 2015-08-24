@@ -33,8 +33,28 @@ public class CharacterController : Singlton<CharacterController> {
 			
 		Vector3 moveDir = DummyCard.I.CalcAmountOfMovement(_DummyCharacter.transform.position, new Vector2(deltaHol, deltaVer), ref _MoveX);
 			
-		_Character.transform.Translate(moveDir);
+		_Character.transform.localPosition += moveDir;
 		_DummyCharacter.transform.Translate(moveDir.x+(-moveDir.z), moveDir.y, 0f);
-			
+	
+		if(Mathf.Abs(moveDir.x+(-moveDir.z)) > 0.01f)
+			_Character.GetComponent<Animator>().Play("walk");
+		else
+			_Character.GetComponent<Animator>().Play("idle");
+	
+		if(_MoveX)
+		{
+			if(moveDir.x > 0f)
+				_Character.transform.forward = Vector3.forward;
+			else if(moveDir.x < 0f)
+				_Character.transform.forward = Vector3.back;
+
+		}
+		else
+		{
+			if(moveDir.z < 0f)
+				_Character.transform.forward = Vector3.right;
+			else if(moveDir.z > 0f)
+				_Character.transform.forward = Vector3.left;
+		}
 	}
 }

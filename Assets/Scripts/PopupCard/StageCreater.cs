@@ -15,7 +15,7 @@ public class StageCreater : Singlton<StageCreater> {
 	void Start () {
 		_Root = new GameObject("StageRoot");
 		GameObject character = Instantiate(CharacterController.I.DummyCharacter,
-										   CharacterController.I.DummyCharacter.transform.position+new Vector3(0f,0f,zOffset),
+										   CharacterController.I.DummyCharacter.transform.position+new Vector3(-0.02f,0f,zOffset),
 										   Quaternion.identity) as GameObject;
 		character.transform.parent = _Root.transform;
 		character.layer = 0;
