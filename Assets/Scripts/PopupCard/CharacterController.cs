@@ -36,11 +36,18 @@ public class CharacterController : Singlton<CharacterController> {
 		_Character.transform.localPosition += moveDir;
 		_DummyCharacter.transform.Translate(moveDir.x+(-moveDir.z), moveDir.y, 0f);
 	
+		UpdateCharacterState(moveDir);
+	}
+	
+	/// <summary>
+	/// 移動方向からキャラクターの向きやアニメーションを決定する
+	/// </summary>
+	private void UpdateCharacterState(Vector3 moveDir)
+	{
 		if(Mathf.Abs(moveDir.x+(-moveDir.z)) > 0.01f)
 			_Character.GetComponent<Animator>().Play("walk");
 		else
 			_Character.GetComponent<Animator>().Play("idle");
-	
 		if(_MoveX)
 		{
 			if(moveDir.x > 0f)

@@ -40,7 +40,9 @@ public class DummyCard : Singlton<DummyCard> {
 		foreach(Transform wall in Walls.transform)
 			_Wall.Add(new Line(wall.position, wall.position+wall.localScale));
 	}
-	
+	/// <summary>
+	/// 移動量を計算
+	/// </summary>
 	public Vector3 CalcAmountOfMovement(Vector2 charaPos, Vector2 delta, ref bool moveX)
 	{
 		Vector3 retVec = Vector3.zero;
@@ -106,7 +108,9 @@ public class DummyCard : Singlton<DummyCard> {
 		}
 		return retVec;
 	}
-	
+	/// <summary>
+	/// はしごの矩形に含まれているか判定
+	/// </summary>
 	public bool CanUseLadder(Vector3 charaPos)
 	{
 		foreach(CardRect rect in _Ladder)
@@ -117,6 +121,9 @@ public class DummyCard : Singlton<DummyCard> {
 		return false;
 	}
 	
+	/*            *
+	 * Line Class *
+	 *            */
 	public class Line
 	{
 		public Vector2[] points = new Vector2[2];
@@ -126,18 +133,24 @@ public class DummyCard : Singlton<DummyCard> {
 			points[0] = start;
 			points[1] = end;
 		}
-		
+		/// <summary>
+		/// 線の交差を判定
+		/// </summary>
 		public bool ThroughLine(Vector2 startpos, Vector2 endpos)
 		{
 			return Cross(points[1]-points[0], startpos-points[0])*Cross(points[1]-points[0], endpos-points[0]) < 0 &&
 				   Cross(endpos-startpos, points[0]-startpos)*Cross(endpos-startpos, points[1]-startpos) < 0;
 		}
-		
+		/// <summary>
+		/// 外積を求める
+		/// </summary>
 		private float Cross(Vector2 lhs, Vector2 rhs)
 		{
 			return lhs.x * rhs.y - rhs.x * lhs.y;
 		}
-		
+		/// <summary>
+		/// x座標から対応するy座標を求める
+		/// </summary>
 		public float LarpYCoord(float x)
 		{
 			Vector2 leftPoint = points[0].x < points[1].x ? points[0] : points[1];
@@ -151,6 +164,9 @@ public class DummyCard : Singlton<DummyCard> {
 		}
 	}
 	
+	/*            *
+	 * CardRect Class *
+	 *            */
 	public class CardRect
 	{
 		public Vector2 center;
@@ -167,7 +183,9 @@ public class DummyCard : Singlton<DummyCard> {
 			this.width = width;
 			this.height = height;
 		}
-		 
+		/// <summary>
+		/// 点が矩形に含まれているかを判定
+		/// </summary>
 		public bool Contains(Vector2 point)
 		{
 			Vector2 diff = center - point;
