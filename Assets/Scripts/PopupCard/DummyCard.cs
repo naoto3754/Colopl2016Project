@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class DummyCard : Singlton<DummyCard> {
 	[SerializeField]
@@ -43,14 +44,11 @@ public class DummyCard : Singlton<DummyCard> {
 	/// <summary>
 	/// 移動量を計算
 	/// </summary>
-	public Vector3 CalcAmountOfMovement(Vector2 charaPos, Vector2 delta, ref bool moveX)
+	public Vector2 CalcAmountOfMovement(Vector2 charaPos, Vector2 delta)
 	{
-		Vector3 retVec = Vector3.zero;
+		Vector2 retVec = Vector3.zero;
+		retVec.x = delta.x;
 		retVec.y = delta.y;
-		if(moveX)
-			retVec.x = delta.x;
-		else
-			retVec.z = -delta.x;
 		foreach(Line groundline in _GroundLine)
 		{
 			if(groundline.ThroughLine(charaPos, charaPos+delta))
@@ -79,34 +77,28 @@ public class DummyCard : Singlton<DummyCard> {
 				{
 					float ret = wall.points[0].x - charaPos.x;
 					delta.x = ret - Mathf.Sign(ret)*0.01f;
-					if(moveX)
-						retVec.x = delta.x;
-					else
-						retVec.z = -delta.x;
+					retVec.x = delta.x;
 					break;
-				}
-			}
-			foreach(Line foldline in _FoldLine)
-			{
-				if(foldline.ThroughLine(charaPos, charaPos+delta))
-				{
-					moveX = !moveX;
-					if(!moveX)
-					{
-						retVec.x = foldline.points[0].x -charaPos.x;
-						retVec.z = -(charaPos.x+delta.x-foldline.points[0].x);
-						break;
-					}
-					else
-					{
-						retVec.x = charaPos.x+delta.x-foldline.points[0].x;
-						retVec.z = -(foldline.points[0].x - charaPos.x);
-						break;
-					}
 				}
 			}
 		}
 		return retVec;
+	}
+	/// <summary>
+	/// 与えられた距離内にある折り目までの距離を返す
+	/// </summary>
+	public float CalcFoldLineDistance(Vector2 charaPos, float delta)
+	{
+		float ret = delta+Mathf.Sign(delta)*1f;
+		foreach(Line foldline in _FoldLine)
+		{
+			if(foldline.ThroughLine(charaPos, charaPos+delta*Vector2.right))
+			{
+				ret = foldline.points[0].x -charaPos.x;
+				break;
+			}
+		}
+		return ret;
 	}
 	/// <summary>
 	/// はしごの矩形に含まれているか判定
@@ -119,6 +111,37 @@ public class DummyCard : Singlton<DummyCard> {
 				return true;
 		}
 		return false;
+	}
+	
+	/// <summary>
+	/// 折り目のy座標をソートした配列を取得
+	/// </summary>
+	public IEnumerable<float> GetSortYCoordList()
+	{
+		List<float> retList = new List<float>();
+		foreach(Line line in _FoldLine)
+		{
+			if(retList.Contains(line.points[0].y) == false)
+				retList.Add(line.points[0].y);
+			if(retList.Contains(line.points[1].y) == false)
+				retList.Add(line.points[1].y);
+		}
+		
+		return retList.OrderBy(x => x);
+	}
+	/// <summary>
+	/// 引数のy座標を含む折り目のx座標をソートした配列を取得
+	/// </summary>
+	public IEnumerable<float> GetSortXCoordList(float y)
+	{
+		List<float> retList = new List<float>();
+		foreach(Line line in _FoldLine)
+		{
+			if((line.points[0].y - y)*(line.points[1].y - y) < 0f)
+				retList.Add(line.points[0].x);
+		}
+		
+		return retList.OrderBy(x => x);
 	}
 	
 	/*            *

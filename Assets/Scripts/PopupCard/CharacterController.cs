@@ -2,10 +2,15 @@
 using System.Collections;
 
 public class CharacterController : Singlton<CharacterController> {
-	private GameObject _Character;
-	public GameObject Character
+	private GameObject _CharacterX;
+	public GameObject CharacterX
 	{
-		set { _Character = value; }
+		set { _CharacterX = value; }
+	}
+	private GameObject _CharacterZ;
+	public GameObject CharacterZ
+	{
+		set { _CharacterZ = value; }
 	}
 	[SerializeField]
 	private GameObject _DummyCharacter;
@@ -20,6 +25,8 @@ public class CharacterController : Singlton<CharacterController> {
 	private float _DropSpeed;
 	
 	private bool _MoveX = true;
+	private bool _OverFoldLine = false;
+	private int _EnterDirection;
 	
 	void Update () {
 		float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal");
@@ -31,37 +38,148 @@ public class CharacterController : Singlton<CharacterController> {
 			deltaVer = -deltaDrop;
 		}
 			
-		Vector3 moveDir = DummyCard.I.CalcAmountOfMovement(_DummyCharacter.transform.position, new Vector2(deltaHol, deltaVer), ref _MoveX);
+		Vector2 moveDir = DummyCard.I.CalcAmountOfMovement(_DummyCharacter.transform.position, new Vector2(deltaHol, deltaVer));
 			
-		_Character.transform.localPosition += moveDir;
-		_DummyCharacter.transform.Translate(moveDir.x+(-moveDir.z), moveDir.y, 0f);
-	
+		UpdateCharacterXZPosition(moveDir);
 		UpdateCharacterState(moveDir);
+	}
+	
+	private void UpdateCharacterXZPosition(Vector2 moveDir)
+	{
+		_CharacterX.transform.localPosition += new Vector3(moveDir.x, moveDir.y, 0f);
+		_CharacterZ.transform.localPosition += new Vector3(0f, moveDir.y, -moveDir.x);
+		_DummyCharacter.transform.Translate(moveDir.x, moveDir.y, 0f);
+		
+		if(Mathf.Abs(moveDir.x) > 0f)
+		{	
+			float delta = Mathf.Sign(moveDir.x)*_DummyCharacter.transform.localScale.x/2;
+			float foldlineDist = DummyCard.I.CalcFoldLineDistance(_DummyCharacter.transform.position, delta);
+			if(Mathf.Abs(foldlineDist) < Mathf.Abs(delta))
+			{
+				if(_OverFoldLine == false)
+				{
+					if(_MoveX)
+					{
+						_CharacterZ.transform.position = _CharacterX.transform.position+new Vector3(foldlineDist,0f,foldlineDist);
+					}
+					else
+					{
+						_CharacterX.transform.position = _CharacterZ.transform.position+new Vector3(-foldlineDist,0f,-foldlineDist);
+					}
+					_EnterDirection = (int)Mathf.Sign(moveDir.x);
+					_OverFoldLine = true;
+				}
+			}
+			else if(_OverFoldLine == true)
+			{
+				if(_EnterDirection == (int)Mathf.Sign(moveDir.x))
+				{
+					_MoveX = !_MoveX;
+				}
+				_OverFoldLine = false;
+			}
+		}
 	}
 	
 	/// <summary>
 	/// 移動方向からキャラクターの向きやアニメーションを決定する
 	/// </summary>
-	private void UpdateCharacterState(Vector3 moveDir)
+	private void UpdateCharacterState(Vector2 moveDir)
 	{
-		if(Mathf.Abs(moveDir.x+(-moveDir.z)) > 0.01f)
-			_Character.GetComponent<Animator>().Play("walk");
-		else
-			_Character.GetComponent<Animator>().Play("idle");
-		if(_MoveX)
+		//アニメーション
+		if(Mathf.Abs(moveDir.x) > 0.01f)
 		{
-			if(moveDir.x > 0f)
-				_Character.transform.forward = Vector3.forward;
-			else if(moveDir.x < 0f)
-				_Character.transform.forward = Vector3.back;
-
+			_CharacterX.GetComponent<Animator>().Play("walk");
+			_CharacterZ.GetComponent<Animator>().Play("walk");
 		}
 		else
 		{
-			if(moveDir.z < 0f)
-				_Character.transform.forward = Vector3.right;
-			else if(moveDir.z > 0f)
-				_Character.transform.forward = Vector3.left;
+			_CharacterX.GetComponent<Animator>().Play("idle");
+			_CharacterZ.GetComponent<Animator>().Play("idle");
 		}
+		//キャラクター向き
+		if(moveDir.x > 0f)
+		{
+			_CharacterX.transform.forward = Vector3.forward;
+			_CharacterZ.transform.forward = Vector3.right;
+		}
+		else if(moveDir.x < 0f)
+		{
+			_CharacterX.transform.forward = Vector3.back;
+			_CharacterZ.transform.forward = Vector3.left;
+		}
+		//キャラクター部分透過
+		UpdateSubTransparent(moveDir);
+	}
+	
+	private void UpdateSubTransparent(Vector2 moveDir)
+	{
+		int r = 0;
+		float delta = _DummyCharacter.transform.localScale.x;
+		float foldlineDist = DummyCard.I.CalcFoldLineDistance(_DummyCharacter.transform.position-delta/2*Vector3.right, delta);
+		foldlineDist = Mathf.Min(foldlineDist, delta);
+		foreach(float x in DummyCard.I.GetSortXCoordList(_DummyCharacter.transform.position.y))
+		{
+			if(_DummyCharacter.transform.position.x-delta/2 < x)
+			{
+				if(r == 0) //x方向移動
+				{
+					if(foldlineDist == delta)
+					{
+						SetCharacterTransparent(1f,0f,0f,1f);
+						return;
+					}
+					if(moveDir.x > 0f){
+						SetCharacterTransparent(foldlineDist/delta,0f,1f,foldlineDist/delta);
+						return;
+					}
+					else if(moveDir.x < 0f)
+					{
+						SetCharacterTransparent(1f,1f-foldlineDist/delta,1f-foldlineDist/delta,0f);
+						return;
+					}	
+				}
+				else //z方向移動
+				{
+					if(foldlineDist == delta)
+					{
+						SetCharacterTransparent(0f,1f,1f,0f);
+						return;
+					}
+					if(moveDir.x > 0f){
+						SetCharacterTransparent(1f,foldlineDist/delta,foldlineDist/delta,0f);
+						return;
+					}
+					else if(moveDir.x < 0f)
+					{
+						SetCharacterTransparent(1f-foldlineDist/delta,0f,1f,1f-foldlineDist/delta);
+						return;
+					}
+				}
+			}	
+			r = (int)Mathf.Repeat(r+1, 2);
+		}
+		if(foldlineDist == delta)
+		{
+			SetCharacterTransparent(0f,1f,1f,0f);
+			return;
+		}
+		if(moveDir.x > 0f){
+			SetCharacterTransparent(1f,foldlineDist/delta,foldlineDist/delta,0f);
+			return;
+		}
+		else if(moveDir.x < 0f)
+		{
+			SetCharacterTransparent(1f-foldlineDist/delta,1f,0f,1f-foldlineDist/delta);
+			return;
+		}
+	}
+	
+	private void SetCharacterTransparent(float xForward, float xBack, float zForward, float zBack)
+	{
+		_CharacterX.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", xForward);
+		_CharacterX.GetComponent<Renderer>().material.SetFloat("_BackThreshold", xBack);
+		_CharacterZ.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", zForward);
+		_CharacterZ.GetComponent<Renderer>().material.SetFloat("_BackThreshold", zBack);
 	}
 }
