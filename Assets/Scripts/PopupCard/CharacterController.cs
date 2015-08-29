@@ -46,8 +46,8 @@ public class CharacterController : Singlton<CharacterController> {
 	
 	private void UpdateCharacterXZPosition(Vector2 moveDir)
 	{
-		_CharacterX.transform.localPosition += new Vector3(moveDir.x, moveDir.y, 0f);
-		_CharacterZ.transform.localPosition += new Vector3(0f, moveDir.y, -moveDir.x);
+		_CharacterX.transform.position += new Vector3(moveDir.x, moveDir.y, 0f);
+		_CharacterZ.transform.position += new Vector3(0f, moveDir.y, -moveDir.x);
 		_DummyCharacter.transform.Translate(moveDir.x, moveDir.y, 0f);
 		
 		if(Mathf.Abs(moveDir.x) > 0f)
@@ -60,11 +60,19 @@ public class CharacterController : Singlton<CharacterController> {
 				{
 					if(_MoveX)
 					{
-						_CharacterZ.transform.position = _CharacterX.transform.position+new Vector3(foldlineDist,0f,foldlineDist);
+						Vector3 zCharaPos;
+						zCharaPos.x = _CharacterX.transform.position.x + foldlineDist;
+						zCharaPos.y = _CharacterZ.transform.position.y;
+						zCharaPos.z = _CharacterX.transform.position.z + foldlineDist;
+						_CharacterZ.transform.position = zCharaPos;
 					}
 					else
 					{
-						_CharacterX.transform.position = _CharacterZ.transform.position+new Vector3(-foldlineDist,0f,-foldlineDist);
+						Vector3 xCharaPos;
+						xCharaPos.x = _CharacterZ.transform.position.x - foldlineDist;
+						xCharaPos.y = _CharacterX.transform.position.y;
+						xCharaPos.z = _CharacterZ.transform.position.z - foldlineDist;
+						_CharacterX.transform.position = xCharaPos;
 					}
 					_EnterDirection = (int)Mathf.Sign(moveDir.x);
 					_OverFoldLine = true;
@@ -117,14 +125,13 @@ public class CharacterController : Singlton<CharacterController> {
 		int r = 0;
 		float delta = _DummyCharacter.transform.localScale.x;
 		float foldlineDist = DummyCard.I.CalcFoldLineDistance(_DummyCharacter.transform.position-delta/2*Vector3.right, delta);
-		foldlineDist = Mathf.Min(foldlineDist, delta);
 		foreach(float x in DummyCard.I.GetSortXCoordList(_DummyCharacter.transform.position.y))
 		{
 			if(_DummyCharacter.transform.position.x-delta/2 < x)
 			{
 				if(r == 0) //x方向移動
 				{
-					if(foldlineDist == delta)
+					if(foldlineDist == delta+1f)
 					{
 						SetCharacterTransparent(1f,0f,0f,1f);
 						return;
@@ -141,7 +148,7 @@ public class CharacterController : Singlton<CharacterController> {
 				}
 				else //z方向移動
 				{
-					if(foldlineDist == delta)
+					if(foldlineDist == delta+1f)
 					{
 						SetCharacterTransparent(0f,1f,1f,0f);
 						return;
@@ -159,7 +166,7 @@ public class CharacterController : Singlton<CharacterController> {
 			}	
 			r = (int)Mathf.Repeat(r+1, 2);
 		}
-		if(foldlineDist == delta)
+		if(foldlineDist == delta+1f)
 		{
 			SetCharacterTransparent(0f,1f,1f,0f);
 			return;
