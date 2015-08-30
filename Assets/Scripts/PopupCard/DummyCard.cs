@@ -187,9 +187,9 @@ public class DummyCard : Singlton<DummyCard> {
 		}
 	}
 	
-	/*            *
+	/*                *
 	 * CardRect Class *
-	 *            */
+	 *                */
 	public class CardRect
 	{
 		public Vector2 center;
