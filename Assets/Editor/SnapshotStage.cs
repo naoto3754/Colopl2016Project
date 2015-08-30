@@ -23,7 +23,7 @@ public class SnapshotStage : EditorWindow
 	private void SaveStageImage()
 	{
 		RenderTexture rt = GameObject.Find("SnapshotCamera").GetComponent<Camera>().targetTexture;
-		Texture2D texture = new Texture2D( rt.width, rt.height, TextureFormat.ARGB32, false, false );
+		Texture2D texture = new Texture2D( rt.width, rt.height, TextureFormat.RGBAFloat, false, false );
 		
 		Camera.main.Render();
 		RenderTexture.active = rt;
