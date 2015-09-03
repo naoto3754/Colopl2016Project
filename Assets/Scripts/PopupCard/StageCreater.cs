@@ -38,6 +38,8 @@ public class StageCreater : Singlton<StageCreater> {
 		character.layer = 0;
 		foreach(Transform child in character.transform)
 			child.gameObject.layer = 0;
+		//TODO:色を決める
+		character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(1f,0.5f,0.5f));
 		CharacterController.I.CharacterX = character;
 		//Z方向に動くキャラクター
 		character = Instantiate(CharacterController.I.DummyCharacter,
@@ -45,8 +47,11 @@ public class StageCreater : Singlton<StageCreater> {
 								Quaternion.identity) as GameObject;
 		character.transform.Rotate(0f,90f,0f);
 		character.transform.parent = _Root.transform;
-		character.GetComponent<Renderer>().material.SetColor("_MainColor",new Color(0.8f,0.8f,0.8f));
-		character.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold",1f);
+		//TODO:色を決める
+		character.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(0.8f,0.8f,0.8f));
+		character.transform.GetChild(0).GetComponent<Renderer>().material.SetFloat("_ForwardThreshold",0f);
+		character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(0.8f,0.4f,0.4f));
+		character.transform.GetChild(1).GetComponent<Renderer>().material.SetFloat("_ForwardThreshold",0f);
 		character.layer = 0;
 		foreach(Transform child in character.transform)
 			child.gameObject.layer = 0;
