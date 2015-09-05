@@ -187,8 +187,8 @@ public class CharacterController : Singlton<CharacterController> {
 	
 	private void SetCharacterTransparent(float xForward, float xBack, float zForward, float zBack)
 	{
-		_CharacterX.transform.GetChild(0).position = _CharacterX.transform.GetChild(1).position + new Vector3(-0.001f,0f,-0.001f);
-		_CharacterZ.transform.GetChild(0).position = _CharacterZ.transform.GetChild(1).position + new Vector3(-0.001f,0f,-0.001f);
+		_CharacterX.transform.GetChild(0).position = _CharacterX.transform.GetChild(1).position + new Vector3(-0.001f,0f,0f);
+		_CharacterZ.transform.GetChild(0).position = _CharacterZ.transform.GetChild(1).position + new Vector3(0f,0f,-0.001f);
 		foreach(Material material in _CharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material))
 		{
 			material.SetFloat("_ForwardThreshold", xForward);
