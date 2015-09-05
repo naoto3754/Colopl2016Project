@@ -24,12 +24,15 @@ public class StageCreater : Singlton<StageCreater> {
 	void Start () {
 		_Root = new GameObject("StageRoot");
 		InstantiateCharacter();
-		//  InstantiateStage();
+		InstantiateStage();
+		InstantiateDecoration();
 	}
 	
+	/// <summary>
+	/// キャラクターを生成する
+	/// </summary>
 	private void InstantiateCharacter()
 	{
-		//キャラクターを生成
 		//X方向に動くキャラクター
 		GameObject character = Instantiate(CharacterController.I.DummyCharacter,
 										   CharacterController.I.DummyCharacter.transform.position+new Vector3(-OFFSET,0f,_ZOffset),
@@ -39,7 +42,7 @@ public class StageCreater : Singlton<StageCreater> {
 		foreach(Transform child in character.transform)
 			child.gameObject.layer = 0;
 		//TODO:色を決める
-		character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(1f,0.5f,0.5f));
+		character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(0.8f,0.4f,0.4f));
 		CharacterController.I.CharacterX = character;
 		//Z方向に動くキャラクター
 		character = Instantiate(CharacterController.I.DummyCharacter,
@@ -48,9 +51,9 @@ public class StageCreater : Singlton<StageCreater> {
 		character.transform.Rotate(0f,90f,0f);
 		character.transform.parent = _Root.transform;
 		//TODO:色を決める
-		character.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(0.8f,0.8f,0.8f));
+		character.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(1f,1f,1f));
 		character.transform.GetChild(0).GetComponent<Renderer>().material.SetFloat("_ForwardThreshold",0f);
-		character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(0.8f,0.4f,0.4f));
+		character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(1f,0.5f,0.5f));
 		character.transform.GetChild(1).GetComponent<Renderer>().material.SetFloat("_ForwardThreshold",0f);
 		character.layer = 0;
 		foreach(Transform child in character.transform)
@@ -58,6 +61,9 @@ public class StageCreater : Singlton<StageCreater> {
 		CharacterController.I.CharacterZ = character;
 	}
 	
+	/// <summary>
+	/// ステージのカード部分をを生成する
+	/// </summary>
 	private void InstantiateStage()
 	{
 		//ステージオブジェクト生成
@@ -76,13 +82,11 @@ public class StageCreater : Singlton<StageCreater> {
 				GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
 				if(setX)
 				{
-					//  Debug.Log("X : x="+x+", prevX="+prevX);
 					paper.transform.position = new Vector3((x-prevX)/2+xOffset,(y-prevY)/2+yOffset,zOffset);
 					xOffset += x-prevX;
 				}
 				else
 				{
-					//  Debug.Log("Z : x"+x+"prevX"+prevX);
 					paper.transform.position = new Vector3(xOffset,(y-prevY)/2+yOffset,-(x-prevX)/2+zOffset);
 					paper.transform.forward = Vector3.right;
 					zOffset -= x-prevX;
@@ -91,7 +95,6 @@ public class StageCreater : Singlton<StageCreater> {
 				setX = !setX;
 				prevX = x;
 			}
-			//  Debug.Log("last");
 			GameObject lastPaper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
 			lastPaper.transform.position = new Vector3(xOffset,(y-prevY)/2+yOffset,-(StageWidth/2-prevX)/2+zOffset);
 			lastPaper.transform.forward = Vector3.right;
@@ -99,5 +102,54 @@ public class StageCreater : Singlton<StageCreater> {
 			yOffset += y - prevY;
 			prevY = y;
 		}
+	}
+	
+	/// <summary>
+	/// 見た目に必要なオブジェクトを生成する
+	/// </summary>
+	private void InstantiateDecoration()
+	{
+		foreach(GameObject decos in DummyCard.I.Decoration)
+		{
+			SetDecoration(decos);
+			foreach(Transform child in decos.transform)
+			{	
+				SetDecoration(child.gameObject);
+			}
+		}
+	}
+	
+	private void SetDecoration(GameObject deco)
+	{
+		if(deco.GetComponent<Renderer>()       == null &&
+			deco.GetComponent<SpriteRenderer>() == null &&
+			deco.GetComponent<LineRenderer>()   == null)
+				return;
+					
+		Vector3 decoPos = deco.transform.position;
+		Vector3 decoScale = deco.transform.localScale;
+		Vector3 decoSetPos = new Vector3(-StageWidth/2-0.01f,decoPos.y,_ZOffset-0.01f);
+		bool facingX = true;
+		float prevX = -StageWidth/2;
+		
+		foreach(float x in DummyCard.I.GetSortXCoordList(deco.transform.position.y))
+		{
+			if(decoPos.x - decoScale.x/2 < x)
+				break;
+				
+			if(facingX)
+				decoSetPos.x += x-prevX;
+			else
+				decoSetPos.z -= x-prevX;
+			facingX = !facingX;
+			prevX = x;
+		}
+		if(facingX)
+			decoSetPos.x += decoPos.x-prevX;
+		else
+			decoSetPos.z -= decoPos.x-prevX;
+		GameObject newDeco = Instantiate(deco, decoSetPos, deco.transform.rotation) as GameObject;
+		if(!facingX)
+			newDeco.transform.eulerAngles += new Vector3(0f,90f,0f);
 	}
 }
