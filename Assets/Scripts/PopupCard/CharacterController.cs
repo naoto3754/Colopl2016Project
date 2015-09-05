@@ -24,6 +24,8 @@ public class CharacterController : Singlton<CharacterController> {
 	private float _Speed;
 	[SerializeField]
 	private float _DropSpeed;
+	[SerializeField]
+	ColorData color = ColorData.RED;
 	
 	private bool _MoveX = true;
 	private bool _OverFoldLine = false;

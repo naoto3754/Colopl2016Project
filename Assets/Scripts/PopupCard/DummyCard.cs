@@ -150,11 +150,14 @@ public class DummyCard : Singlton<DummyCard> {
 	public class Line
 	{
 		public Vector2[] points = new Vector2[2];
+
+		ColorData color;
 		
-		public Line(Vector2 start, Vector2 end)
+		public Line(Vector2 start, Vector2 end, ColorData c = ColorData.NONE)
 		{
 			points[0] = start;
 			points[1] = end;
+			color = c;
 		}
 		/// <summary>
 		/// 線の交差を判定
