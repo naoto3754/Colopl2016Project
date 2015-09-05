@@ -33,9 +33,9 @@ public class DummyCard : Singlton<DummyCard> {
 		foreach(Transform line in FoldLines.transform)
 			_FoldLine.Add(new Line(line.position, line.position+line.localScale));
 		foreach(Transform line in GroundLines.transform)
-			_GroundLine.Add(new Line(line.position, line.position+line.localScale));
+			_GroundLine.Add(new Line(line.position, line.position+line.localScale, line.GetComponent<StageObjectParameter>().color));
 		foreach(Transform ladder in Ladders.transform)
-			_Ladder.Add(new CardRect(ladder.position,ladder.localScale.x,ladder.localScale.y));
+			_Ladder.Add(new CardRect(ladder.position,ladder.localScale.x,ladder.localScale.y, ladder.GetComponent<StageObjectParameter>().color));
 		foreach(Transform slope in Slopes.transform)
 			_Slope.Add(new Line(slope.position, slope.position+slope.localScale));
 		foreach(Transform wall in Walls.transform)
@@ -164,8 +164,11 @@ public class DummyCard : Singlton<DummyCard> {
 		/// </summary>
 		public bool ThroughLine(Vector2 startpos, Vector2 endpos)
 		{
-			return Cross(points[1]-points[0], startpos-points[0])*Cross(points[1]-points[0], endpos-points[0]) < 0 &&
-				   Cross(endpos-startpos, points[0]-startpos)*Cross(endpos-startpos, points[1]-startpos) < 0;
+			if(CharacterController.I.color == color || color == ColorData.NONE)
+				return Cross(points[1]-points[0], startpos-points[0])*Cross(points[1]-points[0], endpos-points[0]) < 0 &&
+					   Cross(endpos-startpos, points[0]-startpos)*Cross(endpos-startpos, points[1]-startpos) < 0;
+			else 
+				return false;
 		}
 		/// <summary>
 		/// 外積を求める
@@ -203,11 +206,14 @@ public class DummyCard : Singlton<DummyCard> {
 		public float bottom{ get { return  center.y - height/2; } }
 		public float up{ get { return  center.y + height/2; } }
 
-		public CardRect(Vector2 center, float width, float height)
+		ColorData color;
+
+		public CardRect(Vector2 center, float width, float height, ColorData c = ColorData.NONE)
 		{
 			this.center = center;
 			this.width = width;
 			this.height = height;
+			color = c;
 		}
 		/// <summary>
 		/// 点が矩形に含まれているかを判定
@@ -215,7 +221,11 @@ public class DummyCard : Singlton<DummyCard> {
 		public bool Contains(Vector2 point)
 		{
 			Vector2 diff = center - point;
-			return Mathf.Abs(diff.x) <= width/2 && Mathf.Abs(diff.y) <= height/2;
+			if (CharacterController.I.color == color || color == ColorData.NONE)
+				return Mathf.Abs (diff.x) <= width / 2 && Mathf.Abs (diff.y) <= height / 2;
+			else
+				return false;
+
 		}
 
 	}

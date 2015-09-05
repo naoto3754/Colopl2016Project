@@ -101,7 +101,7 @@ public class StageCreater : Singlton<StageCreater> {
 		}
 	}
 }
- enum ColorData {
+public enum ColorData {
 	NONE,
 	RED,
 	ORANGE,
