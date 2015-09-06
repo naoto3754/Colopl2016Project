@@ -7,15 +7,7 @@ public class DummyCard : Singlton<DummyCard> {
 	[SerializeField]
 	private GameObject FoldLines;
 	[SerializeField]
-	private GameObject GroundLines;
-	[SerializeField]
-	private GameObject Ladders;
-	[SerializeField]
-	private GameObject Slopes;
-	[SerializeField]
-	private GameObject Walls;
-	[SerializeField]
-	private GameObject Decorations;
+	private GameObject StageComponent;
 	
 	private List<Line> _FoldLine;
 	private List<Line> _GroundLine;
@@ -39,16 +31,34 @@ public class DummyCard : Singlton<DummyCard> {
 		
 		foreach(Transform line in FoldLines.transform)
 			_FoldLine.Add(new Line(line.position, line.position+line.localScale));
-		foreach(Transform line in GroundLines.transform)
-			_GroundLine.Add(new Line(line.position, line.position+line.localScale, line.GetComponent<StageObjectParameter>().color));
-		foreach(Transform ladder in Ladders.transform)
-			_Ladder.Add(new CardRect(ladder.position, ladder.localScale.x,ladder.localScale.y, ladder.GetComponent<StageObjectParameter>().color));
-		foreach(Transform slope in Slopes.transform)
-			_Slope.Add(new Line(slope.position, slope.position+slope.localScale, slope.GetComponent<StageObjectParameter>().color));
-		foreach(Transform wall in Walls.transform)
-			_Wall.Add(new Line(wall.position, wall.position+wall.localScale, wall.GetComponent<StageObjectParameter>().color));
-		foreach(Transform deco in Decorations.transform)
-			_Decoration.Add(deco.gameObject);
+		foreach(LineRenderer renderer in StageComponent.GetComponentsInChildren<LineRenderer>())
+		{
+			Vector3 linePos = renderer.transform.position;
+			Vector3 lineScale = renderer.transform.localScale;
+			if(lineScale.y == 0f)
+				_GroundLine.Add(new Line(linePos, linePos+lineScale, renderer.GetComponent<StageObjectParameter>().color));
+			else if(lineScale.x == 0f)
+				_Wall.Add(new Line(linePos, linePos+lineScale, renderer.GetComponent<StageObjectParameter>().color));
+			else
+				_Slope.Add(new Line(linePos, linePos+lineScale, renderer.GetComponent<StageObjectParameter>().color));
+			
+			if(renderer.GetComponent<StageObjectParameter>() != null &&
+			   renderer.GetComponent<StageObjectParameter>().UseAsDecoration)
+			   _Decoration.Add(renderer.gameObject);
+		}
+		foreach(SpriteRenderer renderer in StageComponent.GetComponentsInChildren<SpriteRenderer>())
+		{
+			_Decoration.Add(renderer.gameObject);
+		}
+		foreach(Ladder ladder in StageComponent.GetComponentsInChildren<Ladder>())
+		{
+			_Ladder.Add(new CardRect(ladder.transform.position, 
+									 ladder.transform.localScale.x,
+									 ladder.transform.localScale.y,
+									 ladder.GetComponent<StageObjectParameter>().color));
+		}
+		//  foreach(Transform ladder in Ladders.transform)
+		//  	_Ladder.Add(new CardRect(ladder.position, ladder.localScale.x,ladder.localScale.y, ladder.GetComponent<StageObjectParameter>().color));
 	}
 	/// <summary>
 	/// 移動量を計算

@@ -52,7 +52,7 @@ public class StageCreater : Singlton<StageCreater>
         foreach (Transform child in character.transform)
             child.gameObject.layer = 0;
         //TODO:色を決める
-        character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor", new Color(0.8f, 0.4f, 0.4f));
+        character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor", new Color(0.9f, 0.45f, 0.45f));
         CharacterController.I.CharacterX = character;
         //Z方向に動くキャラクター
         character = Instantiate(CharacterController.I.DummyCharacter,
@@ -204,8 +204,8 @@ public class StageCreater : Singlton<StageCreater>
                 GameObject newDeco2 = Instantiate(deco, newDecoPos, deco.transform.rotation) as GameObject;
                 ColorManager.MultiplyShadowColor(newDeco2);
                 
-                newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist/delta);
-                newDeco2.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist/delta);
+                newDeco.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist/delta);
+                newDeco2.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist/delta);
             }
             
         }

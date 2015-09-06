@@ -2,7 +2,7 @@
 using System.Collections;
 
 public class ColorManager{
-	private static readonly float SHADOW_SCALE = 0.8f;
+	private static readonly float SHADOW_SCALE = 0.9f;
 	
 	public static Color GetColorWithColorData(ColorData colordata)
 	{
