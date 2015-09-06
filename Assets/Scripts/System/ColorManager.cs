@@ -2,6 +2,8 @@
 using System.Collections;
 
 public class ColorManager{
+	private static readonly float SHADOW_SCALE = 0.8f;
+	
 	public static Color GetColorWithColorData(ColorData colordata)
 	{
 		//FIXME:色決めは適当
@@ -16,6 +18,32 @@ public class ColorManager{
 		}
 		//デフォルト色
 		return Color.white;
+	}
+	
+	public static void MultiplyShadowColor(GameObject obj)
+	{
+		if(obj.GetComponent<SpriteRenderer>() != null)
+		{
+			Color shadowColor = obj.GetComponent<SpriteRenderer>().color;
+			shadowColor.r *= SHADOW_SCALE;
+			shadowColor.g *= SHADOW_SCALE;
+			shadowColor.b *= SHADOW_SCALE;
+			obj.GetComponent<SpriteRenderer>().color = shadowColor;
+			return;
+		}
+		if(obj.GetComponent<LineRenderer>())
+		{
+			return;
+		}
+		if(obj.GetComponent<Renderer>())
+		{
+			Color shadowColor = obj.GetComponent<Renderer>().material.color;
+			shadowColor.r *= SHADOW_SCALE;
+			shadowColor.g *= SHADOW_SCALE;
+			shadowColor.b *= SHADOW_SCALE;
+			obj.GetComponent<Renderer>().material.color = shadowColor;
+			return;
+		}
 	}
 }
 
