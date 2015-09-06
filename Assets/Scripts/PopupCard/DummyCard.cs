@@ -46,16 +46,16 @@ public class DummyCard : Singlton<DummyCard> {
 			   renderer.GetComponent<StageObjectParameter>().UseAsDecoration)
 			   _Decoration.Add(renderer.gameObject);
 		}
-		foreach(SpriteRenderer renderer in StageComponent.GetComponentsInChildren<SpriteRenderer>())
-		{
-			_Decoration.Add(renderer.gameObject);
-		}
 		foreach(Ladder ladder in StageComponent.GetComponentsInChildren<Ladder>())
 		{
 			_Ladder.Add(new CardRect(ladder.transform.position, 
 									 ladder.transform.localScale.x,
 									 ladder.transform.localScale.y,
 									 ladder.GetComponent<StageObjectParameter>().color));
+		}
+		foreach(SpriteRenderer renderer in StageComponent.GetComponentsInChildren<SpriteRenderer>())
+		{
+			_Decoration.Add(renderer.gameObject);
 		}
 		//  foreach(Transform ladder in Ladders.transform)
 		//  	_Ladder.Add(new CardRect(ladder.position, ladder.localScale.x,ladder.localScale.y, ladder.GetComponent<StageObjectParameter>().color));
