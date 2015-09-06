@@ -5,7 +5,8 @@ using System.Linq;
 
 public class StageCreater : Singlton<StageCreater> {
 	public static readonly float OFFSET = 0.02f;
-	private float _ZOffset = -50f;
+	private float _XOffset;
+	private float _ZOffset;
 	private GameObject _Root;
 	
 	[SerializeField]
@@ -22,6 +23,13 @@ public class StageCreater : Singlton<StageCreater> {
 	}
 	
 	void Start () {
+		CreateStage();
+	}
+	
+	public void CreateStage(float xOffset = 0f, float zOffset = -50f)
+	{
+		_XOffset = xOffset;
+		_ZOffset = zOffset;
 		_Root = new GameObject("StageRoot");
 		InstantiateCharacter();
 		InstantiateStage();
@@ -35,9 +43,9 @@ public class StageCreater : Singlton<StageCreater> {
 	{
 		//X方向に動くキャラクター
 		GameObject character = Instantiate(CharacterController.I.DummyCharacter,
-										   CharacterController.I.DummyCharacter.transform.position+new Vector3(-OFFSET,0f,_ZOffset),
+										   CharacterController.I.DummyCharacter.transform.position+new Vector3(_XOffset+-OFFSET,0f,_ZOffset),
 										   Quaternion.identity) as GameObject;
-		character.transform.parent = _Root.transform;
+		character.transform.SetParent(_Root.transform);
 		character.layer = 0;
 		foreach(Transform child in character.transform)
 			child.gameObject.layer = 0;
@@ -46,10 +54,10 @@ public class StageCreater : Singlton<StageCreater> {
 		CharacterController.I.CharacterX = character;
 		//Z方向に動くキャラクター
 		character = Instantiate(CharacterController.I.DummyCharacter,
-								CharacterController.I.DummyCharacter.transform.position+new Vector3(-OFFSET,0f,_ZOffset),
+								CharacterController.I.DummyCharacter.transform.position+new Vector3(_XOffset+-OFFSET,0f,_ZOffset),
 								Quaternion.identity) as GameObject;
 		character.transform.Rotate(0f,90f,0f);
-		character.transform.parent = _Root.transform;
+		character.transform.SetParent(_Root.transform);
 		//TODO:色を決める
 		character.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(1f,1f,1f));
 		character.transform.GetChild(0).GetComponent<Renderer>().material.SetFloat("_ForwardThreshold",0f);
@@ -80,14 +88,15 @@ public class StageCreater : Singlton<StageCreater> {
 			foreach(float x in DummyCard.I.GetSortXCoordList((prevY+y)/2))
 			{
 				GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
+				paper.transform.SetParent(_Root.transform);
 				if(setX)
 				{
-					paper.transform.position = new Vector3((x-prevX)/2+xOffset,(y-prevY)/2+yOffset,zOffset);
+					paper.transform.position = new Vector3((x-prevX)/2+xOffset+_XOffset,(y-prevY)/2+yOffset,zOffset);
 					xOffset += x-prevX;
 				}
 				else
 				{
-					paper.transform.position = new Vector3(xOffset,(y-prevY)/2+yOffset,-(x-prevX)/2+zOffset);
+					paper.transform.position = new Vector3(xOffset+_XOffset,(y-prevY)/2+yOffset,-(x-prevX)/2+zOffset);
 					paper.transform.forward = Vector3.right;
 					zOffset -= x-prevX;
 				}
@@ -96,7 +105,8 @@ public class StageCreater : Singlton<StageCreater> {
 				prevX = x;
 			}
 			GameObject lastPaper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
-			lastPaper.transform.position = new Vector3(xOffset,(y-prevY)/2+yOffset,-(StageWidth/2-prevX)/2+zOffset);
+			lastPaper.transform.SetParent(_Root.transform);
+			lastPaper.transform.position = new Vector3(xOffset+_XOffset,(y-prevY)/2+yOffset,-(StageWidth/2-prevX)/2+zOffset);
 			lastPaper.transform.forward = Vector3.right;
 			lastPaper.transform.localScale = new Vector3(StageWidth/2 - prevX, y - prevY, 1f);
 			yOffset += y - prevY;
@@ -128,7 +138,7 @@ public class StageCreater : Singlton<StageCreater> {
 					
 		Vector3 decoPos = deco.transform.position;
 		Vector3 decoScale = deco.transform.localScale;
-		Vector3 decoSetPos = new Vector3(-StageWidth/2-0.01f,decoPos.y,_ZOffset-0.01f);
+		Vector3 decoSetPos = new Vector3(-StageWidth/2-0.01f+_XOffset,decoPos.y,_ZOffset-0.01f);
 		bool facingX = true;
 		float prevX = -StageWidth/2;
 		
@@ -149,6 +159,7 @@ public class StageCreater : Singlton<StageCreater> {
 		else
 			decoSetPos.z -= decoPos.x-prevX;
 		GameObject newDeco = Instantiate(deco, decoSetPos, deco.transform.rotation) as GameObject;
+		newDeco.transform.SetParent(_Root.transform);
 		if(!facingX)
 			newDeco.transform.eulerAngles += new Vector3(0f,90f,0f);
 	}
