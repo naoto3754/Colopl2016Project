@@ -5,7 +5,8 @@ using System.Linq;
 
 public class StageCreater : Singlton<StageCreater> {
 	public static readonly float OFFSET = 0.02f;
-	private float _ZOffset = -50f;
+	private float _XOffset;
+	private float _ZOffset;
 	private GameObject _Root;
 	
 	[SerializeField]
@@ -22,35 +23,45 @@ public class StageCreater : Singlton<StageCreater> {
 	}
 	
 	void Start () {
-		_Root = new GameObject("StageRoot");
-		InstantiateCharacter();
-		//  InstantiateStage();
+		CreateStage();
 	}
 	
+	public void CreateStage(float xOffset = 0f, float zOffset = -50f)
+	{
+		_XOffset = xOffset;
+		_ZOffset = zOffset;
+		_Root = new GameObject("StageRoot");
+		InstantiateCharacter();
+		InstantiateStage();
+		InstantiateDecoration();
+	}
+	
+	/// <summary>
+	/// キャラクターを生成する
+	/// </summary>
 	private void InstantiateCharacter()
 	{
-		//キャラクターを生成
 		//X方向に動くキャラクター
 		GameObject character = Instantiate(CharacterController.I.DummyCharacter,
-										   CharacterController.I.DummyCharacter.transform.position+new Vector3(-OFFSET,0f,_ZOffset),
+										   CharacterController.I.DummyCharacter.transform.position+new Vector3(_XOffset+-OFFSET,0f,_ZOffset),
 										   Quaternion.identity) as GameObject;
-		character.transform.parent = _Root.transform;
+		character.transform.SetParent(_Root.transform);
 		character.layer = 0;
 		foreach(Transform child in character.transform)
 			child.gameObject.layer = 0;
 		//TODO:色を決める
-		character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(1f,0.5f,0.5f));
+		character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(0.8f,0.4f,0.4f));
 		CharacterController.I.CharacterX = character;
 		//Z方向に動くキャラクター
 		character = Instantiate(CharacterController.I.DummyCharacter,
-								CharacterController.I.DummyCharacter.transform.position+new Vector3(-OFFSET,0f,_ZOffset),
+								CharacterController.I.DummyCharacter.transform.position+new Vector3(_XOffset+-OFFSET,0f,_ZOffset),
 								Quaternion.identity) as GameObject;
 		character.transform.Rotate(0f,90f,0f);
-		character.transform.parent = _Root.transform;
+		character.transform.SetParent(_Root.transform);
 		//TODO:色を決める
-		character.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(0.8f,0.8f,0.8f));
+		character.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(1f,1f,1f));
 		character.transform.GetChild(0).GetComponent<Renderer>().material.SetFloat("_ForwardThreshold",0f);
-		character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(0.8f,0.4f,0.4f));
+		character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor",new Color(1f,0.5f,0.5f));
 		character.transform.GetChild(1).GetComponent<Renderer>().material.SetFloat("_ForwardThreshold",0f);
 		character.layer = 0;
 		foreach(Transform child in character.transform)
@@ -58,6 +69,9 @@ public class StageCreater : Singlton<StageCreater> {
 		CharacterController.I.CharacterZ = character;
 	}
 	
+	/// <summary>
+	/// ステージのカード部分をを生成する
+	/// </summary>
 	private void InstantiateStage()
 	{
 		//ステージオブジェクト生成
@@ -74,16 +88,15 @@ public class StageCreater : Singlton<StageCreater> {
 			foreach(float x in DummyCard.I.GetSortXCoordList((prevY+y)/2))
 			{
 				GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
+				paper.transform.SetParent(_Root.transform);
 				if(setX)
 				{
-					//  Debug.Log("X : x="+x+", prevX="+prevX);
-					paper.transform.position = new Vector3((x-prevX)/2+xOffset,(y-prevY)/2+yOffset,zOffset);
+					paper.transform.position = new Vector3((x-prevX)/2+xOffset+_XOffset,(y-prevY)/2+yOffset,zOffset);
 					xOffset += x-prevX;
 				}
 				else
 				{
-					//  Debug.Log("Z : x"+x+"prevX"+prevX);
-					paper.transform.position = new Vector3(xOffset,(y-prevY)/2+yOffset,-(x-prevX)/2+zOffset);
+					paper.transform.position = new Vector3(xOffset+_XOffset,(y-prevY)/2+yOffset,-(x-prevX)/2+zOffset);
 					paper.transform.forward = Vector3.right;
 					zOffset -= x-prevX;
 				}
@@ -91,13 +104,63 @@ public class StageCreater : Singlton<StageCreater> {
 				setX = !setX;
 				prevX = x;
 			}
-			//  Debug.Log("last");
 			GameObject lastPaper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
-			lastPaper.transform.position = new Vector3(xOffset,(y-prevY)/2+yOffset,-(StageWidth/2-prevX)/2+zOffset);
+			lastPaper.transform.SetParent(_Root.transform);
+			lastPaper.transform.position = new Vector3(xOffset+_XOffset,(y-prevY)/2+yOffset,-(StageWidth/2-prevX)/2+zOffset);
 			lastPaper.transform.forward = Vector3.right;
 			lastPaper.transform.localScale = new Vector3(StageWidth/2 - prevX, y - prevY, 1f);
 			yOffset += y - prevY;
 			prevY = y;
 		}
+	}
+	
+	/// <summary>
+	/// 見た目に必要なオブジェクトを生成する
+	/// </summary>
+	private void InstantiateDecoration()
+	{
+		foreach(GameObject decos in DummyCard.I.Decoration)
+		{
+			SetDecoration(decos);
+			foreach(Transform child in decos.transform)
+			{	
+				SetDecoration(child.gameObject);
+			}
+		}
+	}
+	
+	private void SetDecoration(GameObject deco)
+	{
+		if(deco.GetComponent<Renderer>()       == null &&
+			deco.GetComponent<SpriteRenderer>() == null &&
+			deco.GetComponent<LineRenderer>()   == null)
+				return;
+					
+		Vector3 decoPos = deco.transform.position;
+		Vector3 decoScale = deco.transform.localScale;
+		Vector3 decoSetPos = new Vector3(-StageWidth/2-0.01f+_XOffset,decoPos.y,_ZOffset-0.01f);
+		bool facingX = true;
+		float prevX = -StageWidth/2;
+		
+		foreach(float x in DummyCard.I.GetSortXCoordList(decoPos.y))
+		{
+			if(decoPos.x - decoScale.x/2 < x)
+				break;
+				
+			if(facingX)
+				decoSetPos.x += x-prevX;
+			else
+				decoSetPos.z -= x-prevX;
+			facingX = !facingX;
+			prevX = x;
+		}
+		if(facingX)
+			decoSetPos.x += decoPos.x-prevX;
+		else
+			decoSetPos.z -= decoPos.x-prevX;
+		GameObject newDeco = Instantiate(deco, decoSetPos, deco.transform.rotation) as GameObject;
+		newDeco.transform.SetParent(_Root.transform);
+		if(!facingX)
+			newDeco.transform.eulerAngles += new Vector3(0f,90f,0f);
 	}
 }

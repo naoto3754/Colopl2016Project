@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class SasakiDebug : MonoBehaviour {
+public class DecorationObjectParameter : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {

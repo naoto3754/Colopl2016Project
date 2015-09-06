@@ -14,6 +14,7 @@ public class ColorManager{
 		case ColorData.ORANGE:
 			return new Color(1f,1f,0f);
 		}
+		//デフォルト色
 		return Color.white;
 	}
 }

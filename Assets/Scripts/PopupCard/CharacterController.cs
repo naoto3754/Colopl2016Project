@@ -30,9 +30,10 @@ public class CharacterController : Singlton<CharacterController> {
 	
 	private bool _MoveX = true;
 	private bool _OverFoldLine = false;
-	private int _EnterDirection;
+	//  private int _EnterDirection;
 	
 	void Update () {
+		
 		float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal");
 		float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical");
 		float deltaDrop = Time.deltaTime * _DropSpeed;
@@ -63,9 +64,10 @@ public class CharacterController : Singlton<CharacterController> {
 	
 	private void UpdateCharacterXZPosition(Vector2 moveDir)
 	{
+		_DummyCharacter.transform.Translate(moveDir.x, moveDir.y, 0f);
 		_CharacterX.transform.position += new Vector3(moveDir.x, moveDir.y, 0f);
 		_CharacterZ.transform.position += new Vector3(0f, moveDir.y, -moveDir.x);
-		_DummyCharacter.transform.Translate(moveDir.x, moveDir.y, 0f);
+		_MoveX = CalcCurrentMoveDirction();
 		
 		if(Mathf.Abs(moveDir.x) > 0f)
 		{	
@@ -79,7 +81,7 @@ public class CharacterController : Singlton<CharacterController> {
 					{
 						Vector3 zCharaPos;
 						zCharaPos.x = _CharacterX.transform.position.x + foldlineDist;
-						zCharaPos.y = _CharacterZ.transform.position.y;
+						zCharaPos.y = _DummyCharacter.transform.position.y;
 						zCharaPos.z = _CharacterX.transform.position.z + foldlineDist;
 						_CharacterZ.transform.position = zCharaPos;
 					}
@@ -87,20 +89,20 @@ public class CharacterController : Singlton<CharacterController> {
 					{
 						Vector3 xCharaPos;
 						xCharaPos.x = _CharacterZ.transform.position.x - foldlineDist;
-						xCharaPos.y = _CharacterX.transform.position.y;
+						xCharaPos.y = _DummyCharacter.transform.position.y;
 						xCharaPos.z = _CharacterZ.transform.position.z - foldlineDist;
 						_CharacterX.transform.position = xCharaPos;
 					}
-					_EnterDirection = (int)Mathf.Sign(moveDir.x);
+					//  _EnterDirection = (int)Mathf.Sign(moveDir.x);
 					_OverFoldLine = true;
 				}
 			}
 			else if(_OverFoldLine == true)
 			{
-				if(_EnterDirection == (int)Mathf.Sign(moveDir.x))
-				{
-					_MoveX = !_MoveX;
-				}
+				//  if(_EnterDirection == (int)Mathf.Sign(moveDir.x))
+				//  {
+				//  	_MoveX = !_MoveX;
+				//  }
 				_OverFoldLine = false;
 			}
 		}
@@ -201,8 +203,8 @@ public class CharacterController : Singlton<CharacterController> {
 	
 	private void SetCharacterTransparent(float xForward, float xBack, float zForward, float zBack)
 	{
-		_CharacterX.transform.GetChild(0).position = _CharacterX.transform.GetChild(1).position + new Vector3(-0.001f,0f,-0.001f);
-		_CharacterZ.transform.GetChild(0).position = _CharacterZ.transform.GetChild(1).position + new Vector3(-0.001f,0f,-0.001f);
+		_CharacterX.transform.GetChild(0).position = _CharacterX.transform.GetChild(1).position + new Vector3(-0.001f,0f,0f);
+		_CharacterZ.transform.GetChild(0).position = _CharacterZ.transform.GetChild(1).position + new Vector3(0f,0f,-0.001f);
 		foreach(Material material in _CharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material))
 		{
 			material.SetFloat("_ForwardThreshold", xForward);
@@ -213,5 +215,18 @@ public class CharacterController : Singlton<CharacterController> {
 			material.SetFloat("_ForwardThreshold", zForward);
 			material.SetFloat("_BackThreshold", zBack);
 		}
+	}
+	
+	private bool CalcCurrentMoveDirction()
+	{
+		bool moveX = true;
+		Vector3 charaPos = _DummyCharacter.transform.position;
+		foreach(float x in DummyCard.I.GetSortXCoordList(charaPos.y))
+		{
+			if(charaPos.x < x)
+				break;
+			moveX = !moveX;
+		}
+		return moveX;
 	}
 }

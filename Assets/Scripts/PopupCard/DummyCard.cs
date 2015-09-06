@@ -14,13 +14,19 @@ public class DummyCard : Singlton<DummyCard> {
 	private GameObject Slopes;
 	[SerializeField]
 	private GameObject Walls;
+	[SerializeField]
+	private GameObject Decorations;
 	
 	private List<Line> _FoldLine;
 	private List<Line> _GroundLine;
 	private List<CardRect> _Ladder;
 	private List<Line> _Slope;
 	private List<Line> _Wall;
-	
+	private List<GameObject> _Decoration;
+	public List<GameObject> Decoration
+	{
+		get { return _Decoration; }
+	}
 	
 	public override void OnInitialize()
 	{
@@ -29,6 +35,7 @@ public class DummyCard : Singlton<DummyCard> {
 		_Ladder = new List<CardRect>();
 		_Slope = new List<Line>();
 		_Wall = new List<Line>();
+		_Decoration = new List<GameObject>();
 		
 		foreach(Transform line in FoldLines.transform)
 			_FoldLine.Add(new Line(line.position, line.position+line.localScale));
@@ -40,6 +47,8 @@ public class DummyCard : Singlton<DummyCard> {
 			_Slope.Add(new Line(slope.position, slope.position+slope.localScale, slope.GetComponent<StageObjectParameter>().color));
 		foreach(Transform wall in Walls.transform)
 			_Wall.Add(new Line(wall.position, wall.position+wall.localScale, wall.GetComponent<StageObjectParameter>().color));
+		foreach(Transform deco in Decorations.transform)
+			_Decoration.Add(deco.gameObject);
 	}
 	/// <summary>
 	/// 移動量を計算
@@ -146,8 +155,11 @@ public class DummyCard : Singlton<DummyCard> {
 		List<float> retList = new List<float>();
 		foreach(Line line in _FoldLine)
 		{
-			if((line.points[0].y - y)*(line.points[1].y - y) < 0f)
+			if( ( (line.points[0].y - y) <= 0f && 0f < (line.points[1].y - y) ) ||
+				( (line.points[0].y - y) >= 0f && 0f > (line.points[1].y - y) ) )
+			{
 				retList.Add(line.points[0].x);
+			}
 		}
 		
 		return retList.OrderBy(x => x);
