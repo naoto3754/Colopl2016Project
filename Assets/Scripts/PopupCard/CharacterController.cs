@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections; 
+using System.Collections.Generic;
 using System.Linq;
 
 public class CharacterController : Singlton<CharacterController> {
@@ -41,8 +42,21 @@ public class CharacterController : Singlton<CharacterController> {
 		{
 			deltaVer = -deltaDrop;
 		}
-			
-		Vector2 moveDir = DummyCard.I.CalcAmountOfMovement(_DummyCharacter.transform.position, new Vector2(deltaHol, deltaVer));
+
+		List<Vector2> charaPosList = new List<Vector2>(4);
+		charaPosList.Add (_DummyCharacter.transform.position + new Vector3(_DummyCharacter.transform.localScale.x/2,0f,0f));
+		charaPosList.Add (_DummyCharacter.transform.position);
+		charaPosList.Add (_DummyCharacter.transform.position + new Vector3(-_DummyCharacter.transform.localScale.x/2,0f,0f)); 
+		charaPosList.Add (_DummyCharacter.transform.position + new Vector3(_DummyCharacter.transform.localScale.x/2,_DummyCharacter.transform.localScale.y * (682/423),0f)); 
+		charaPosList.Add (_DummyCharacter.transform.position + new Vector3(-_DummyCharacter.transform.localScale.x/2,_DummyCharacter.transform.localScale.y * (682/423),0f)); 
+
+//		Vector2[] charaPosArray = new Vector2[4];
+//		charaPosArray [0] = _DummyCharacter.transform.position + new Vector3 (_DummyCharacter.transform.localScale.x / 2, 0f, 0f);
+//		charaPosArray [1] = _DummyCharacter.transform.position + new Vector3 (_DummyCharacter.transform.localScale.x / 2, 0f, 0f);
+//		charaPosArray [2] = _DummyCharacter.transform.position + new Vector3 (_DummyCharacter.transform.localScale.x / 2, 0f, 0f);
+//		charaPosArray [3] = _DummyCharacter.transform.position + new Vector3 (_DummyCharacter.transform.localScale.x / 2, 0f, 0f); s
+
+		Vector2 moveDir = DummyCard.I.CalcAmountOfMovement(charaPosList, new Vector2(deltaHol, deltaVer));
 			
 		UpdateCharacterXZPosition(moveDir);
 		UpdateCharacterState(moveDir);

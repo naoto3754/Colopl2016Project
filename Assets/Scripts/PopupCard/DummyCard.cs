@@ -42,7 +42,7 @@ public class DummyCard : Singlton<DummyCard> {
 		foreach(Transform line in GroundLines.transform)
 			_GroundLine.Add(new Line(line.position, line.position+line.localScale, line.GetComponent<StageObjectParameter>().color));
 		foreach(Transform ladder in Ladders.transform)
-			_Ladder.Add(new CardRect(ladder.position,ladder.localScale.x,ladder.localScale.y, ladder.GetComponent<StageObjectParameter>().color));
+			_Ladder.Add(new CardRect(ladder.position, ladder.localScale.x,ladder.localScale.y, ladder.GetComponent<StageObjectParameter>().color));
 		foreach(Transform slope in Slopes.transform)
 			_Slope.Add(new Line(slope.position, slope.position+slope.localScale, slope.GetComponent<StageObjectParameter>().color));
 		foreach(Transform wall in Walls.transform)
@@ -53,41 +53,50 @@ public class DummyCard : Singlton<DummyCard> {
 	/// <summary>
 	/// 移動量を計算
 	/// </summary>
-	public Vector2 CalcAmountOfMovement(Vector2 charaPos, Vector2 delta)
+	public Vector2 CalcAmountOfMovement(List<Vector2> charaPosList, Vector2 delta)
 	{
 		Vector2 retVec = Vector3.zero;
 		retVec.x = delta.x;
 		retVec.y = delta.y;
 		foreach(Line groundline in _GroundLine)
 		{
-			if(groundline.ThroughLine(charaPos, charaPos+delta))
+			foreach(Vector2 charaPos in charaPosList)
 			{
-				float ret = groundline.points[0].y - charaPos.y;
-				delta.y = ret - Mathf.Sign(ret)*0.01f;	
-				retVec.y = delta.y;
-				break;
+				if(groundline.ThroughLine(charaPos, charaPos+delta))
+				{
+					float ret = groundline.points[0].y - charaPos.y;
+					delta.y = ret - Mathf.Sign(ret)*0.01f;	
+					retVec.y = delta.y;
+					break;
+				}
 			}
 		}
 		foreach(Line slope in _Slope)
 		{
-			if(slope.ThroughLine(charaPos, charaPos+delta))
+			foreach(Vector2 charaPos in charaPosList)
 			{
-				float ret = slope.LarpYCoord(charaPos.x+delta.x) - charaPos.y;
-				delta.y = ret + 0.01f;
-				retVec.y = delta.y;
-				break;
+				if(slope.ThroughLine(charaPos, charaPos+delta))
+				{
+					float ret = slope.LarpYCoord(charaPos.x+delta.x) - charaPos.y;
+					delta.y = ret + 0.01f;	
+					retVec.y = delta.y;
+					break;
+				}
 			}
 		}
 		if(Mathf.Abs(delta.x) > 0f)
 		{
 			foreach(Line wall in _Wall)
 			{
-				if(wall.ThroughLine(charaPos, charaPos+delta))
+				foreach(Vector2 charaPos in charaPosList)
 				{
-					float ret = wall.points[0].x - charaPos.x;
-					delta.x = ret - Mathf.Sign(ret)*0.01f;
-					retVec.x = delta.x;
-					break;
+					if(wall.ThroughLine(charaPos, charaPos + delta))
+					{
+						float ret = wall.points[0].x - charaPos.x;
+						delta.x = ret - Mathf.Sign(ret)*0.01f;
+						retVec.x = delta.x;
+						break;
+					}
 				}
 			}
 		}
