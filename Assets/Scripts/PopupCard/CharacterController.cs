@@ -47,14 +47,8 @@ public class CharacterController : Singlton<CharacterController> {
 		charaPosList.Add (_DummyCharacter.transform.position + new Vector3(_DummyCharacter.transform.localScale.x/2,0f,0f));
 		charaPosList.Add (_DummyCharacter.transform.position);
 		charaPosList.Add (_DummyCharacter.transform.position + new Vector3(-_DummyCharacter.transform.localScale.x/2,0f,0f)); 
-		charaPosList.Add (_DummyCharacter.transform.position + new Vector3(_DummyCharacter.transform.localScale.x/2,_DummyCharacter.transform.localScale.y * (682/423),0f)); 
-		charaPosList.Add (_DummyCharacter.transform.position + new Vector3(-_DummyCharacter.transform.localScale.x/2,_DummyCharacter.transform.localScale.y * (682/423),0f)); 
-
-//		Vector2[] charaPosArray = new Vector2[4];
-//		charaPosArray [0] = _DummyCharacter.transform.position + new Vector3 (_DummyCharacter.transform.localScale.x / 2, 0f, 0f);
-//		charaPosArray [1] = _DummyCharacter.transform.position + new Vector3 (_DummyCharacter.transform.localScale.x / 2, 0f, 0f);
-//		charaPosArray [2] = _DummyCharacter.transform.position + new Vector3 (_DummyCharacter.transform.localScale.x / 2, 0f, 0f);
-//		charaPosArray [3] = _DummyCharacter.transform.position + new Vector3 (_DummyCharacter.transform.localScale.x / 2, 0f, 0f); s
+		charaPosList.Add (_DummyCharacter.transform.position + new Vector3(_DummyCharacter.transform.localScale.x/2,_DummyCharacter.transform.localScale.y * (682f/423f),0f)); 
+		charaPosList.Add (_DummyCharacter.transform.position + new Vector3(-_DummyCharacter.transform.localScale.x/2,_DummyCharacter.transform.localScale.y * (682f/423f),0f)); 
 
 		Vector2 moveDir = DummyCard.I.CalcAmountOfMovement(charaPosList, new Vector2(deltaHol, deltaVer));
 			

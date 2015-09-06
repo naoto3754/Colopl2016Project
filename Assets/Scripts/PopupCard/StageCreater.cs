@@ -139,6 +139,7 @@ public class StageCreater : Singlton<StageCreater>
            deco.GetComponent<LineRenderer>() == null)
             return;
 
+        //装飾オブジェククトの表示
         Vector3 decoPos = deco.transform.position;
         Vector3 decoScale = deco.transform.localScale;
         Vector3 decoSetPos = new Vector3(-StageWidth / 2 - 0.01f + _XOffset, decoPos.y, _ZOffset - 0.01f);
@@ -191,6 +192,8 @@ public class StageCreater : Singlton<StageCreater>
                 newDecoPos.z = newDeco.transform.position.z - decoScale.x/2 + foldlineDist;
                 GameObject newDeco2 = Instantiate(deco, newDecoPos, deco.transform.rotation) as GameObject;
                 newDeco2.transform.eulerAngles += new Vector3(0f, 90f, 0f);
+                newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist/delta);
+                newDeco2.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist/delta);
             }
             else
             {
@@ -200,7 +203,11 @@ public class StageCreater : Singlton<StageCreater>
                 newDecoPos.z = newDeco.transform.position.z + decoScale.x/2 - foldlineDist;
                 GameObject newDeco2 = Instantiate(deco, newDecoPos, deco.transform.rotation) as GameObject;
                 ColorManager.MultiplyShadowColor(newDeco2);
+                
+                newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist/delta);
+                newDeco2.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist/delta);
             }
+            
         }
     }
 }
