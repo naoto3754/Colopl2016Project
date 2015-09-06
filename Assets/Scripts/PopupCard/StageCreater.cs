@@ -132,7 +132,7 @@ public class StageCreater : Singlton<StageCreater> {
 		bool facingX = true;
 		float prevX = -StageWidth/2;
 		
-		foreach(float x in DummyCard.I.GetSortXCoordList(deco.transform.position.y))
+		foreach(float x in DummyCard.I.GetSortXCoordList(decoPos.y))
 		{
 			if(decoPos.x - decoScale.x/2 < x)
 				break;
