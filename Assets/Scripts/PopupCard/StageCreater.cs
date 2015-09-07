@@ -6,6 +6,7 @@ using System.Linq;
 public class StageCreater : Singlton<StageCreater>
 {
     public static readonly float OFFSET = 0.01f;
+    private readonly float ANIMATION_INITIAL_WEIGHT = 0.02f;
     private float _XOffset;
     private float _ZOffset;
     private GameObject _Root;
@@ -238,17 +239,25 @@ public class StageCreater : Singlton<StageCreater>
     private IEnumerator OpenObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool openleft ,float time)
     {
         int frameNum = 60;
+        float weight = ANIMATION_INITIAL_WEIGHT;
         if(time == 0f)
+        {
             frameNum = 1;
+            weight = 1f;
+        } 
         for(int i = 0; i < frameNum; i++)
         {
             Quaternion currentRotation = obj.rotation;
             if(openleft)
-                obj.RotateAround(anchor, Vector3.up,  90f/frameNum);
+                obj.RotateAround(anchor, Vector3.up,  90f/frameNum*weight);
             else
-                obj.RotateAround(anchor, Vector3.up, -90f/frameNum);
+                obj.RotateAround(anchor, Vector3.up, -90f/frameNum*weight);
             if(openleft && !dirX || !openleft && dirX)
                 obj.rotation = currentRotation;
+            if(i < frameNum/2)
+                weight += (1f-ANIMATION_INITIAL_WEIGHT)/frameNum*4;
+            else
+                weight -= (1f-ANIMATION_INITIAL_WEIGHT)/frameNum*4;
             yield return new WaitForSeconds(time/frameNum);
         }
         IsPlayingAnimation = false;
@@ -277,17 +286,25 @@ public class StageCreater : Singlton<StageCreater>
     private IEnumerator CloseObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool closeleft ,float time)
     {
         int frameNum = 60;
-        if(time == 0f) 
+        float weight = ANIMATION_INITIAL_WEIGHT;
+        if(time == 0f)
+        {
             frameNum = 1;
+            weight = 1f;
+        }
         for(int i = 0; i < frameNum; i++)
         {
             Quaternion currentRotation = obj.rotation;
             if(closeleft)
-                obj.RotateAround(anchor, Vector3.up,  90f/frameNum);
+                obj.RotateAround(anchor, Vector3.up,  90f/frameNum*weight);
             else
-                obj.RotateAround(anchor, Vector3.up, -90f/frameNum);
+                obj.RotateAround(anchor, Vector3.up, -90f/frameNum*weight);
             if(closeleft && dirX || !closeleft && !dirX)
                 obj.rotation = currentRotation;
+            if(i < frameNum/2)
+                weight += (1f-ANIMATION_INITIAL_WEIGHT)/frameNum*4;
+            else
+                weight -= (1f-ANIMATION_INITIAL_WEIGHT)/frameNum*4;
             yield return new WaitForSeconds(time/frameNum);
         }
     }
