@@ -139,14 +139,21 @@ public class StageCreater : Singlton<StageCreater>
            deco.GetComponent<LineRenderer>() == null)
             return;
 
+        //  foreach(LineRenderer renderer in deco.GetComponentsInChildren<LineRenderer>())
+        //      renderer.enabled = false;
         //装飾オブジェククトの表示
         Vector3 decoPos = deco.transform.position;
         Vector3 decoScale = deco.transform.localScale;
         Vector3 decoSetPos = new Vector3(-StageWidth / 2 - 0.01f + _XOffset, decoPos.y, _ZOffset - 0.01f);
+        
+        float anchorHeightScale = 0f;
+        if(deco.GetComponent<DecorationObjectParameter>() != null)
+            anchorHeightScale = deco.GetComponent<DecorationObjectParameter>().leftHeightWithMaxWidth;
+
         bool facingX = true;
         float prevX = -StageWidth / 2;
 
-        foreach (float x in DummyCard.I.GetSortXCoordList(decoPos.y))
+        foreach (float x in DummyCard.I.GetSortXCoordList(decoPos.y + decoScale.y / 2 * anchorHeightScale))
         {
             if (decoPos.x - decoScale.x / 2 < x)
                 break;
@@ -175,10 +182,6 @@ public class StageCreater : Singlton<StageCreater>
 
         //折り目にまたがっている場合は2枚で表示
         float delta = decoScale.x;
-        float anchorHeightScale = 0f;
-        if(deco.GetComponent<DecorationObjectParameter>() != null)
-            anchorHeightScale = deco.GetComponent<DecorationObjectParameter>().leftHeightWithMaxWidth;
-        
         Vector2 decoAnchorPos = new Vector2(decoPos.x - delta / 2,
                                             decoPos.y + decoScale.y / 2 * anchorHeightScale);
         float foldlineDist = DummyCard.I.CalcFoldLineDistance(decoAnchorPos, delta);
@@ -204,8 +207,8 @@ public class StageCreater : Singlton<StageCreater>
                 GameObject newDeco2 = Instantiate(deco, newDecoPos, deco.transform.rotation) as GameObject;
                 ColorManager.MultiplyShadowColor(newDeco2);
                 
-                newDeco.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist/delta);
-                newDeco2.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist/delta);
+                newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist/delta);
+                newDeco2.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist/delta);
             }
             
         }

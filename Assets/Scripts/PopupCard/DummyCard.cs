@@ -115,14 +115,14 @@ public class DummyCard : Singlton<DummyCard> {
 	/// <summary>
 	/// 与えられた距離内にある折り目までの距離を返す
 	/// </summary>
-	public float CalcFoldLineDistance(Vector2 charaPos, float delta)
+	public float CalcFoldLineDistance(Vector2 pos, float delta)
 	{
 		float ret = delta+Mathf.Sign(delta)*1f;
 		foreach(Line foldline in _FoldLine)
 		{
-			if(foldline.ThroughLine(charaPos, charaPos+delta*Vector2.right))
+			if(foldline.ThroughLine(pos, pos+delta*Vector2.right))
 			{
-				ret = foldline.points[0].x -charaPos.x;
+				ret = foldline.points[0].x - pos.x;
 				break;
 			}
 		}
