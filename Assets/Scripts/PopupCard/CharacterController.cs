@@ -45,11 +45,11 @@ public class CharacterController : Singlton<CharacterController>
         }
         //キャラクターの当たり判定を5点で行う
         List<Vector2> charaPosList = new List<Vector2>(4);
-        charaPosList.Add(_DummyCharacter.transform.position + new Vector3(_DummyCharacter.transform.localScale.x / 2, 0f, 0f));
+        charaPosList.Add(_DummyCharacter.transform.position + new Vector3(_DummyCharacter.transform.lossyScale.x / 2, 0f, 0f));
         charaPosList.Add(_DummyCharacter.transform.position);
-        charaPosList.Add(_DummyCharacter.transform.position + new Vector3(-_DummyCharacter.transform.localScale.x / 2, 0f, 0f));
-        charaPosList.Add(_DummyCharacter.transform.position + new Vector3(_DummyCharacter.transform.localScale.x / 2, _DummyCharacter.transform.localScale.y * (682f / 423f), 0f));
-        charaPosList.Add(_DummyCharacter.transform.position + new Vector3(-_DummyCharacter.transform.localScale.x / 2, _DummyCharacter.transform.localScale.y * (682f / 423f), 0f));
+        charaPosList.Add(_DummyCharacter.transform.position + new Vector3(-_DummyCharacter.transform.lossyScale.x / 2, 0f, 0f));
+        charaPosList.Add(_DummyCharacter.transform.position + new Vector3(_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * (682f / 423f), 0f));
+        charaPosList.Add(_DummyCharacter.transform.position + new Vector3(-_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * (682f / 423f), 0f));
 
         Vector2 moveDir = DummyCard.I.CalcAmountOfMovement(charaPosList, new Vector2(deltaHol, deltaVer));
 
@@ -68,7 +68,7 @@ public class CharacterController : Singlton<CharacterController>
 
         if (Mathf.Abs(moveDir.x) > 0f)
         {
-            float delta = Mathf.Sign(moveDir.x) * _DummyCharacter.transform.localScale.x / 2;
+            float delta = Mathf.Sign(moveDir.x) * _DummyCharacter.transform.lossyScale.x / 2;
             float foldlineDist = DummyCard.I.CalcFoldLineDistance(_DummyCharacter.transform.position, delta);
             if (Mathf.Abs(foldlineDist) < Mathf.Abs(delta))
             {
@@ -136,10 +136,13 @@ public class CharacterController : Singlton<CharacterController>
         UpdateSubTransparent(moveDir);
     }
 
+    /// <summary>
+    /// キャラクターの部分透過を設定
+    /// </summary>
     private void UpdateSubTransparent(Vector2 moveDir)
     {
         int r = 0;
-        float delta = _DummyCharacter.transform.localScale.x;
+        float delta = _DummyCharacter.transform.lossyScale.x;
         float foldlineDist = DummyCard.I.CalcFoldLineDistance(_DummyCharacter.transform.position - delta / 2 * Vector3.right, delta);
         foreach (float x in DummyCard.I.GetSortXCoordList(_DummyCharacter.transform.position.y))
         {

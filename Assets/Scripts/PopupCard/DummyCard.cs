@@ -31,11 +31,11 @@ public class DummyCard : Singlton<DummyCard>
         _Decoration = new List<GameObject>();
 
         foreach (Transform line in FoldLines.transform)
-            _FoldLine.Add(new Line(line.position, line.position + line.localScale));
+            _FoldLine.Add(new Line(line.position, line.position + line.lossyScale));
         foreach (LineRenderer renderer in StageComponent.GetComponentsInChildren<LineRenderer>())
         {
             Vector3 linePos = renderer.transform.position;
-            Vector3 lineScale = renderer.transform.localScale;
+            Vector3 lineScale = renderer.transform.lossyScale;
             if (lineScale.y == 0f)
                 _GroundLine.Add(new Line(linePos, linePos + lineScale, renderer.GetComponent<StageObjectParameter>().color));
             else if (lineScale.x == 0f)
@@ -50,16 +50,14 @@ public class DummyCard : Singlton<DummyCard>
         foreach (Ladder ladder in StageComponent.GetComponentsInChildren<Ladder>())
         {
             _Ladder.Add(new CardRect(ladder.transform.position,
-                                     ladder.transform.localScale.x,
-                                     ladder.transform.localScale.y,
+                                     ladder.transform.lossyScale.x,
+                                     ladder.transform.lossyScale.y,
                                      ladder.GetComponent<StageObjectParameter>().color));
         }
         foreach (SpriteRenderer renderer in StageComponent.GetComponentsInChildren<SpriteRenderer>())
         {
             _Decoration.Add(renderer.gameObject);
         }
-        //  foreach(Transform ladder in Ladders.transform)
-        //  	_Ladder.Add(new CardRect(ladder.position, ladder.localScale.x,ladder.localScale.y, ladder.GetComponent<StageObjectParameter>().color));
     }
     /// <summary>
     /// 移動量を計算

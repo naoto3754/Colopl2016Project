@@ -5,7 +5,7 @@ using System.Linq;
 
 public class StageCreater : Singlton<StageCreater>
 {
-    public static readonly float OFFSET = 0.02f;
+    public static readonly float OFFSET = 0.01f;
     private float _XOffset;
     private float _ZOffset;
     private GameObject _Root;
@@ -16,11 +16,11 @@ public class StageCreater : Singlton<StageCreater>
     private Transform _StageSize;
     private float StageWidth
     {
-        get { return _StageSize.localScale.x; }
+        get { return _StageSize.lossyScale.x; }
     }
     private float StageHeight
     {
-        get { return _StageSize.localScale.y; }
+        get { return _StageSize.lossyScale.y; }
     }
 
     void Start()
@@ -45,7 +45,7 @@ public class StageCreater : Singlton<StageCreater>
     {
         //X方向に動くキャラクター
         GameObject character = Instantiate(CharacterController.I.DummyCharacter,
-                                           CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset + -OFFSET, 0f, _ZOffset),
+                                           CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET*2, 0f, _ZOffset - OFFSET*2),
                                            Quaternion.identity) as GameObject;
         character.transform.SetParent(_Root.transform);
         character.layer = 0;
@@ -56,7 +56,7 @@ public class StageCreater : Singlton<StageCreater>
         CharacterController.I.CharacterX = character;
         //Z方向に動くキャラクター
         character = Instantiate(CharacterController.I.DummyCharacter,
-                                CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset + -OFFSET, 0f, _ZOffset),
+                                CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET*2, 0f, _ZOffset - OFFSET*2),
                                 Quaternion.identity) as GameObject;
         character.transform.Rotate(0f, 90f, 0f);
         character.transform.SetParent(_Root.transform);
@@ -77,7 +77,6 @@ public class StageCreater : Singlton<StageCreater>
     private void InstantiateStage()
     {
         //ステージオブジェクト生成
-
         IEnumerable<float> yCoordList = DummyCard.I.GetSortYCoordList();
         float prevY = yCoordList.First();
         float yOffset = 0f;
@@ -143,7 +142,7 @@ public class StageCreater : Singlton<StageCreater>
 
         //装飾オブジェククトの表示
         Vector3 decoPos = deco.transform.position;
-        Vector3 decoScale = deco.transform.localScale;
+        Vector3 decoScale = deco.transform.lossyScale;
         Vector3 decoSetPos = new Vector3(-StageWidth / 2 - 0.01f + _XOffset, decoPos.y, _ZOffset - 0.01f);
 
         float anchorHeightScale = 0f;
@@ -210,7 +209,6 @@ public class StageCreater : Singlton<StageCreater>
                 newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist / delta);
                 newDeco2.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist / delta);
             }
-
         }
     }
 }
