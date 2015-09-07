@@ -22,10 +22,17 @@ public class StageCreater : Singlton<StageCreater>
     {
         get { return _StageSize.lossyScale.y; }
     }
+    public bool IsPlayingAnimation
+    {
+        get;
+        set;
+    }
 
     void Start()
     {
         CreateStage();
+        CloseStage(0f,false);
+        OpenStage(1f);
     }
 
     public void CreateStage(float xOffset = 0f, float zOffset = -50f)
@@ -193,6 +200,7 @@ public class StageCreater : Singlton<StageCreater>
                 newDecoPos.y = newDeco.transform.position.y;
                 newDecoPos.z = newDeco.transform.position.z - decoScale.x / 2 + foldlineDist;
                 GameObject newDeco2 = Instantiate(deco, newDecoPos, deco.transform.rotation) as GameObject;
+                newDeco2.transform.SetParent(_Root.transform);
                 newDeco2.transform.eulerAngles += new Vector3(0f, 90f, 0f);
                 newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist / delta);
                 newDeco2.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist / delta);
@@ -204,11 +212,84 @@ public class StageCreater : Singlton<StageCreater>
                 newDecoPos.y = newDeco.transform.position.y;
                 newDecoPos.z = newDeco.transform.position.z + decoScale.x / 2 - foldlineDist;
                 GameObject newDeco2 = Instantiate(deco, newDecoPos, deco.transform.rotation) as GameObject;
+                newDeco2.transform.SetParent(_Root.transform);
                 ColorManager.MultiplyShadowColor(newDeco2);
 
                 newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist / delta);
                 newDeco2.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist / delta);
             }
         }
+    }
+    
+    public void OpenStage(float time)
+    {
+        IsPlayingAnimation = true;
+        bool openleft = !TmpParameter.CloseDirctionLeft;
+        foreach(Transform stageObj in _Root.transform)
+        {
+            TmpParameter tmpParam = stageObj.GetComponent<TmpParameter>();
+            Vector3 anchorPos = tmpParam.AnimationAnchor;
+            bool dirX = tmpParam.DirectionX;
+            StartCoroutine(OpenObjectAnimation(stageObj, anchorPos, dirX, openleft, time));
+            
+        }
+    }
+    
+    private IEnumerator OpenObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool openleft ,float time)
+    {
+        int frameNum = 60;
+        if(time == 0f)
+            frameNum = 1;
+        for(int i = 0; i < frameNum; i++)
+        {
+            Quaternion currentRotation = obj.rotation;
+            if(openleft)
+                obj.RotateAround(anchor, Vector3.up,  90f/frameNum);
+            else
+                obj.RotateAround(anchor, Vector3.up, -90f/frameNum);
+            if(openleft && !dirX || !openleft && dirX)
+                obj.rotation = currentRotation;
+            yield return new WaitForSeconds(time/frameNum);
+        }
+        IsPlayingAnimation = false;
+        Destroy(obj.GetComponent<TmpParameter>());
+    }
+    
+    public void CloseStage(float time, bool closeleft)
+    {
+        IsPlayingAnimation = true;
+        TmpParameter.CloseDirctionLeft = closeleft;
+        foreach(Transform stageObj in _Root.transform)
+        {
+            Vector3 anchorPos;
+            if(closeleft)
+                anchorPos = new Vector3(stageObj.position.x, 0f, _ZOffset);
+            else
+                anchorPos = new Vector3(_XOffset, 0f, stageObj.position.z);
+            bool dirX = stageObj.eulerAngles == Vector3.zero;
+            TmpParameter tmpParam = stageObj.gameObject.AddComponent<TmpParameter>();
+            tmpParam.AnimationAnchor = anchorPos;
+            tmpParam.DirectionX = dirX;
+            StartCoroutine(CloseObjectAnimation(stageObj, anchorPos, dirX, closeleft, time));
+        }
+    }
+    
+    private IEnumerator CloseObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool closeleft ,float time)
+    {
+        int frameNum = 60;
+        if(time == 0f) 
+            frameNum = 1;
+        for(int i = 0; i < frameNum; i++)
+        {
+            Quaternion currentRotation = obj.rotation;
+            if(closeleft)
+                obj.RotateAround(anchor, Vector3.up,  90f/frameNum);
+            else
+                obj.RotateAround(anchor, Vector3.up, -90f/frameNum);
+            if(closeleft && dirX || !closeleft && !dirX)
+                obj.rotation = currentRotation;
+            yield return new WaitForSeconds(time/frameNum);
+        }
+        IsPlayingAnimation = false;
     }
 }

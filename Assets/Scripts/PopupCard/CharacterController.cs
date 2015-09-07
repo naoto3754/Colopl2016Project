@@ -34,27 +34,31 @@ public class CharacterController : Singlton<CharacterController>
 
     void Update()
     {
-        //入力を取得
-        float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal");
-        float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical");
-        float deltaDrop = Time.deltaTime * _DropSpeed;
-
-        if (!DummyCard.I.CanUseLadder(_DummyCharacter.transform.position))
+        //アニメーション中はキャラクターを動かさない
+        if(StageCreater.I.IsPlayingAnimation == false)
         {
-            deltaVer = -deltaDrop;
+            //入力を取得
+            float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal");
+            float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical");
+            float deltaDrop = Time.deltaTime * _DropSpeed;
+    
+            if (!DummyCard.I.CanUseLadder(_DummyCharacter.transform.position))
+            {
+                deltaVer = -deltaDrop;
+            }
+            //キャラクターの当たり判定を5点で行う
+            List<Vector2> charaPosList = new List<Vector2>(4);
+            charaPosList.Add(_DummyCharacter.transform.position + new Vector3(_DummyCharacter.transform.lossyScale.x / 2, 0f, 0f));
+            charaPosList.Add(_DummyCharacter.transform.position);
+            charaPosList.Add(_DummyCharacter.transform.position + new Vector3(-_DummyCharacter.transform.lossyScale.x / 2, 0f, 0f));
+            charaPosList.Add(_DummyCharacter.transform.position + new Vector3(_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * (682f / 423f), 0f));
+            charaPosList.Add(_DummyCharacter.transform.position + new Vector3(-_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * (682f / 423f), 0f));
+    
+            Vector2 moveDir = DummyCard.I.CalcAmountOfMovement(charaPosList, new Vector2(deltaHol, deltaVer));
+    
+            UpdateCharacterXZPosition(moveDir);
+            UpdateCharacterState(moveDir);
         }
-        //キャラクターの当たり判定を5点で行う
-        List<Vector2> charaPosList = new List<Vector2>(4);
-        charaPosList.Add(_DummyCharacter.transform.position + new Vector3(_DummyCharacter.transform.lossyScale.x / 2, 0f, 0f));
-        charaPosList.Add(_DummyCharacter.transform.position);
-        charaPosList.Add(_DummyCharacter.transform.position + new Vector3(-_DummyCharacter.transform.lossyScale.x / 2, 0f, 0f));
-        charaPosList.Add(_DummyCharacter.transform.position + new Vector3(_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * (682f / 423f), 0f));
-        charaPosList.Add(_DummyCharacter.transform.position + new Vector3(-_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * (682f / 423f), 0f));
-
-        Vector2 moveDir = DummyCard.I.CalcAmountOfMovement(charaPosList, new Vector2(deltaHol, deltaVer));
-
-        UpdateCharacterXZPosition(moveDir);
-        UpdateCharacterState(moveDir);
     }
     /// <summary>
     /// 移動量を計算し、キャラの位置を更新
