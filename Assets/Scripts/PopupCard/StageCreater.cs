@@ -290,6 +290,5 @@ public class StageCreater : Singlton<StageCreater>
                 obj.rotation = currentRotation;
             yield return new WaitForSeconds(time/frameNum);
         }
-        IsPlayingAnimation = false;
     }
 }
