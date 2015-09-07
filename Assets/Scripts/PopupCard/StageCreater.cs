@@ -77,9 +77,11 @@ public class StageCreater : Singlton<StageCreater>
     private void InstantiateStage()
     {
         //ステージオブジェクト生成
+
         IEnumerable<float> yCoordList = DummyCard.I.GetSortYCoordList();
         float prevY = yCoordList.First();
         float yOffset = 0f;
+                
         foreach (float y in yCoordList)
         {
             if (y == yCoordList.First())
@@ -139,15 +141,13 @@ public class StageCreater : Singlton<StageCreater>
            deco.GetComponent<LineRenderer>() == null)
             return;
 
-        //  foreach(LineRenderer renderer in deco.GetComponentsInChildren<LineRenderer>())
-        //      renderer.enabled = false;
         //装飾オブジェククトの表示
         Vector3 decoPos = deco.transform.position;
         Vector3 decoScale = deco.transform.localScale;
         Vector3 decoSetPos = new Vector3(-StageWidth / 2 - 0.01f + _XOffset, decoPos.y, _ZOffset - 0.01f);
-        
+
         float anchorHeightScale = 0f;
-        if(deco.GetComponent<DecorationObjectParameter>() != null)
+        if (deco.GetComponent<DecorationObjectParameter>() != null)
             anchorHeightScale = deco.GetComponent<DecorationObjectParameter>().leftHeightWithMaxWidth;
 
         bool facingX = true;
@@ -190,27 +190,27 @@ public class StageCreater : Singlton<StageCreater>
             if (facingX)
             {
                 Vector3 newDecoPos;
-                newDecoPos.x = newDeco.transform.position.x - decoScale.x/2 + foldlineDist;
+                newDecoPos.x = newDeco.transform.position.x - decoScale.x / 2 + foldlineDist;
                 newDecoPos.y = newDeco.transform.position.y;
-                newDecoPos.z = newDeco.transform.position.z - decoScale.x/2 + foldlineDist;
+                newDecoPos.z = newDeco.transform.position.z - decoScale.x / 2 + foldlineDist;
                 GameObject newDeco2 = Instantiate(deco, newDecoPos, deco.transform.rotation) as GameObject;
                 newDeco2.transform.eulerAngles += new Vector3(0f, 90f, 0f);
-                newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist/delta);
-                newDeco2.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist/delta);
+                newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist / delta);
+                newDeco2.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist / delta);
             }
             else
             {
                 Vector3 newDecoPos;
-                newDecoPos.x = newDeco.transform.position.x + decoScale.x/2 - foldlineDist;
+                newDecoPos.x = newDeco.transform.position.x + decoScale.x / 2 - foldlineDist;
                 newDecoPos.y = newDeco.transform.position.y;
-                newDecoPos.z = newDeco.transform.position.z + decoScale.x/2 - foldlineDist;
+                newDecoPos.z = newDeco.transform.position.z + decoScale.x / 2 - foldlineDist;
                 GameObject newDeco2 = Instantiate(deco, newDecoPos, deco.transform.rotation) as GameObject;
                 ColorManager.MultiplyShadowColor(newDeco2);
-                
-                newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist/delta);
-                newDeco2.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist/delta);
+
+                newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist / delta);
+                newDeco2.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist / delta);
             }
-            
+
         }
     }
 }
