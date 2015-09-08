@@ -111,7 +111,7 @@ public class StageCreater : Singlton<StageCreater>
                     paper.transform.forward = Vector3.right;
                     zOffset -= x - prevX;
                 }
-                paper.transform.localScale = new Vector3(x - prevX, y - prevY, 1f);
+                paper.transform.localScale = new Vector3(x - prevX, y - prevY, _Paper.transform.localScale.z);
                 setX = !setX;
                 prevX = x;
             }
@@ -119,7 +119,7 @@ public class StageCreater : Singlton<StageCreater>
             lastPaper.transform.SetParent(_Root.transform);
             lastPaper.transform.position = new Vector3(xOffset + _XOffset, (y - prevY) / 2 + yOffset, -(StageWidth / 2 - prevX) / 2 + zOffset);
             lastPaper.transform.forward = Vector3.right;
-            lastPaper.transform.localScale = new Vector3(StageWidth / 2 - prevX, y - prevY, 1f);
+            lastPaper.transform.localScale = new Vector3(StageWidth / 2 - prevX, y - prevY, _Paper.transform.localScale.z);
             yOffset += y - prevY;
             prevY = y;
         }
