@@ -42,7 +42,7 @@ public class StageCreater : Singlton<StageCreater>
         _ZOffset = zOffset;
         _Root = new GameObject("StageRoot");
         InstantiateCharacter();
-        InstantiateStage();
+        InstantiatePaper();
         InstantiateDecoration();
     }
 
@@ -82,13 +82,13 @@ public class StageCreater : Singlton<StageCreater>
     /// <summary>
     /// ステージのカード部分をを生成する
     /// </summary>
-    private void InstantiateStage()
+    private void InstantiatePaper()
     {
-        //ステージオブジェクト生成
+        //ステージの紙オブジェクト生成
         IEnumerable<float> yCoordList = DummyCard.I.GetSortYCoordList();
         float prevY = yCoordList.First();
         float yOffset = 0f;
-                
+        float thickness = _Paper.transform.localScale.z;
         foreach (float y in yCoordList)
         {
             if (y == yCoordList.First())
@@ -102,12 +102,12 @@ public class StageCreater : Singlton<StageCreater>
                 paper.transform.SetParent(_Root.transform);
                 if (setX)
                 {
-                    paper.transform.position = new Vector3((x - prevX) / 2 + xOffset + _XOffset, (y - prevY) / 2 + yOffset, zOffset);
+                    paper.transform.position = new Vector3((x - prevX) / 2 + xOffset + _XOffset, (y - prevY) / 2 + yOffset, zOffset+thickness/2);
                     xOffset += x - prevX;
                 }
                 else
                 {
-                    paper.transform.position = new Vector3(xOffset + _XOffset, (y - prevY) / 2 + yOffset, -(x - prevX) / 2 + zOffset);
+                    paper.transform.position = new Vector3(xOffset + _XOffset + thickness/2, (y - prevY) / 2 + yOffset, -(x - prevX) / 2 + zOffset);
                     paper.transform.forward = Vector3.right;
                     zOffset -= x - prevX;
                 }
@@ -117,9 +117,9 @@ public class StageCreater : Singlton<StageCreater>
             }
             GameObject lastPaper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
             lastPaper.transform.SetParent(_Root.transform);
-            lastPaper.transform.position = new Vector3(xOffset + _XOffset, (y - prevY) / 2 + yOffset, -(StageWidth / 2 - prevX) / 2 + zOffset);
+            lastPaper.transform.position = new Vector3(xOffset + _XOffset + thickness/2, (y - prevY) / 2 + yOffset, -(StageWidth / 2 - prevX) / 2 + zOffset);
             lastPaper.transform.forward = Vector3.right;
-            lastPaper.transform.localScale = new Vector3(StageWidth / 2 - prevX, y - prevY, _Paper.transform.localScale.z);
+            lastPaper.transform.localScale = new Vector3(StageWidth / 2 - prevX, y - prevY, thickness);
             yOffset += y - prevY;
             prevY = y;
         }
@@ -151,7 +151,7 @@ public class StageCreater : Singlton<StageCreater>
         //装飾オブジェククトの表示
         Vector3 decoPos = deco.transform.position;
         Vector3 decoScale = deco.transform.lossyScale;
-        Vector3 decoSetPos = new Vector3(-StageWidth / 2 - 0.01f + _XOffset, decoPos.y, _ZOffset - 0.01f);
+        Vector3 decoSetPos = new Vector3(-StageWidth / 2 - OFFSET*2 + _XOffset, decoPos.y, _ZOffset - OFFSET*2);
 
         float anchorHeightScale = 0f;
         if (deco.GetComponent<DecorationObjectParameter>() != null)
