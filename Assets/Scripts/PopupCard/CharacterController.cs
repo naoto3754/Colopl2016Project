@@ -29,6 +29,12 @@ public class CharacterController : Singlton<CharacterController>
     [SerializeField]
     public ColorData color;
 
+    private bool _IsTopOfWall = false;
+    public bool IsTopOfWall
+    {
+        get { return _IsTopOfWall; }
+        set { _IsTopOfWall = value; }
+    }
     private bool _MoveX = true;
     private bool _OverFoldLine = false;
 
@@ -54,7 +60,7 @@ public class CharacterController : Singlton<CharacterController>
             charaPosList.Add(CharaParam.TopRight);
             charaPosList.Add(CharaParam.TopLeft);
     
-            Vector2 moveDir = DummyCard.I.CalcAmountOfMovement(charaPosList, new Vector2(deltaHol, deltaVer));
+            Vector2 moveDir = DummyCard.I.CalcAmountOfMovement(new Vector2(deltaHol, deltaVer));
     
             UpdateCharacterXZPosition(moveDir);
             UpdateCharacterState(moveDir);
@@ -68,7 +74,11 @@ public class CharacterController : Singlton<CharacterController>
         _DummyCharacter.transform.Translate(moveDir.x, moveDir.y, 0f);
         _CharacterX.transform.position += new Vector3(moveDir.x, moveDir.y, 0f);
         _CharacterZ.transform.position += new Vector3(0f, moveDir.y, -moveDir.x);
-        _MoveX = CalcCurrentMoveDirction();
+        
+        if(_IsTopOfWall)
+            _IsTopOfWall = DummyCard.I.OnTopOfWall();
+        
+        _MoveX = CalcCurrentMoveDirection();
 
         if (Mathf.Abs(moveDir.x) > 0f)
         {
@@ -94,16 +104,12 @@ public class CharacterController : Singlton<CharacterController>
                         xCharaPos.z = _CharacterZ.transform.position.z - foldlineDist;
                         _CharacterX.transform.position = xCharaPos;
                     }
-                    //  _EnterDirection = (int)Mathf.Sign(moveDir.x);
+
                     _OverFoldLine = true;
                 }
             }
             else if (_OverFoldLine == true)
             {
-                //  if(_EnterDirection == (int)Mathf.Sign(moveDir.x))
-                //  {
-                //  	_MoveX = !_MoveX;
-                //  }
                 _OverFoldLine = false;
             }
         }
@@ -223,8 +229,10 @@ public class CharacterController : Singlton<CharacterController>
             material.SetFloat("_BackThreshold", zBack);
         }
     }
-
-    private bool CalcCurrentMoveDirction()
+    /// <summary>
+    /// 現在の移動方向を計算する
+    /// </summary>
+    private bool CalcCurrentMoveDirection()
     {
         bool moveX = true;
         Vector3 charaPos = _DummyCharacter.transform.position;
@@ -237,6 +245,7 @@ public class CharacterController : Singlton<CharacterController>
         return moveX;
     }
     
+    //キャラクターの位置パラメータ
     public class CharaParam
     {
         public static Vector3 Bottom
@@ -299,42 +308,5 @@ public class CharacterController : Singlton<CharacterController>
                                        CharacterController.I.DummyCharacter.transform.lossyScale.y*(682f/423f),
                                        0f); }
         }
-        
-        //  private static Line _BottomLine = new Line(Vector2.zero, Vector2.zero);
-        //  public static Line BottomLine{
-        //      get 
-        //      { 
-        //          _BottomLine.points[0] = BottomLeft;
-        //          _BottomLine.points[1] = BottomRight;
-        //          return _BottomLine;
-        //      }
-        //  }
-        //  private static Line _TopLine = new Line(Vector2.zero, Vector2.zero);
-        //  public static Line TopLine{
-        //      get 
-        //      { 
-        //          _TopLine.points[0] = TopLeft;
-        //          _TopLine.points[1] = TopRight;
-        //          return _TopLine;
-        //      }
-        //  }
-        //  private static Line _LeftLine = new Line(Vector2.zero, Vector2.zero);
-        //  public static Line LeftLine{
-        //      get 
-        //      { 
-        //          _LeftLine.points[0] = BottomLeft;
-        //          _LeftLine.points[1] = TopLeft;
-        //          return _LeftLine;
-        //      }
-        //  }
-        //  private static Line _RightLine = new Line(Vector2.zero, Vector2.zero);
-        //  public static Line RightLine{
-        //      get 
-        //      { 
-        //          _RightLine.points[0] = BottomRight;
-        //          _RightLine.points[1] = TopRight;
-        //          return _RightLine;
-        //      }
-        //  }
     }
 }

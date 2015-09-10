@@ -31,21 +31,26 @@ public class DummyCard : Singlton<DummyCard>
         _Decoration = new List<GameObject>();
 
         foreach (Transform line in FoldLines.transform)
-            _FoldLine.Add(new Line(line.position, line.position + line.lossyScale));
+            _FoldLine.Add(new Line(line.position, line.position + line.lossyScale, null));
         foreach (LineRenderer renderer in StageComponent.GetComponentsInChildren<LineRenderer>())
         {
             Vector3 linePos = renderer.transform.position;
             Vector3 lineScale = renderer.transform.lossyScale;
+            
+            StageObjectParameter param = null;
+            if (renderer.GetComponent<StageObjectParameter>() != null)
+            {
+                param = renderer.GetComponent<StageObjectParameter>();
+                if(renderer.GetComponent<StageObjectParameter>().UseAsDecoration)
+                    _Decoration.Add(renderer.gameObject);
+            }
+            
             if (lineScale.y == 0f)
-                _GroundLine.Add(new Line(linePos, linePos + lineScale, renderer.GetComponent<StageObjectParameter>().color));
+                _GroundLine.Add(new Line(linePos, linePos + lineScale, param));
             else if (lineScale.x == 0f)
-                _Wall.Add(new Line(linePos, linePos + lineScale, renderer.GetComponent<StageObjectParameter>().color));
+                _Wall.Add(new Line(linePos, linePos + lineScale, param));
             else
-                _Slope.Add(new Line(linePos, linePos + lineScale, renderer.GetComponent<StageObjectParameter>().color));
-
-            if (renderer.GetComponent<StageObjectParameter>() != null &&
-               renderer.GetComponent<StageObjectParameter>().UseAsDecoration)
-                _Decoration.Add(renderer.gameObject);
+                _Slope.Add(new Line(linePos, linePos + lineScale, param));
         }
         foreach (Ladder ladder in StageComponent.GetComponentsInChildren<Ladder>())
         {
@@ -62,60 +67,136 @@ public class DummyCard : Singlton<DummyCard>
     /// <summary>
     /// 移動量を計算
     /// </summary>
-    public Vector2 CalcAmountOfMovement(List<Vector2> charaPosList, Vector2 delta)
+    public Vector2 CalcAmountOfMovement(Vector2 delta)
     {
         Vector2 retVec = Vector3.zero;
-        retVec.x = delta.x;
-        retVec.y = delta.y;
-        foreach (Line groundline in _GroundLine)
-        {
-            foreach (Vector2 charaPos in charaPosList)
-            {
-                if (groundline.ThroughLine(charaPos, charaPos + delta))
-                {
-                    float ret = groundline.points[0].y - charaPos.y;
-                    delta.y = ret - Mathf.Sign(ret) * 0.01f;
-                    retVec.y = delta.y;
-                    break;
-                }
-            }
-        }
-        foreach (Line slope in _Slope)
-        {
-            foreach (Vector2 charaPos in charaPosList)
-            {
-                if (slope.ThroughLine(charaPos, charaPos + delta))
-                {
-                    float ret = slope.LarpYCoord(charaPos.x + delta.x) - charaPos.y;
-                    delta.y = ret + 0.01f;
-                    retVec.y = delta.y;
-                    break;
-                }
-            }
-        }
-        if (Mathf.Abs(delta.x) > 0f)
-        {
-            foreach (Line wall in _Wall)
-            {
-                foreach (Vector2 charaPos in charaPosList)
-                {
-                    if (wall.ThroughLine(charaPos, charaPos + delta))
-                    {
-                        float ret = wall.points[0].x - charaPos.x;
-                        delta.x = ret - Mathf.Sign(ret) * 0.01f;
-                        retVec.x = delta.x;
-                        break;
-                    }
-                }
-            }
-        }
+        retVec = delta;
+        //地面との交差判定
+        retVec = CalcGroundIntersection(retVec);
+        //坂道との交差判定
+        retVec = CalcSlopeIntersection(retVec);
+        //壁との交差判定
+        retVec = CalcWallIntersection(retVec);
+        //再度、地面との交差判定
+        retVec = CalcGroundIntersection(retVec);
+        
         return retVec;
     }
+    /// <summary>
+    /// 地面との交点から移動量を計算する
+    /// </summary>
+    private Vector2 CalcGroundIntersection(Vector2 delta)
+    {
+        foreach (Line groundline in _GroundLine)
+        {
+            Vector2 charaPos;
+            //下に移動してる時
+            if(delta.y < 0f)
+            {
+                if(groundline.param.DontThroughDown == false)
+                    continue;
+                //左下
+                charaPos = CharacterController.CharaParam.BottomLeft;
+                if (groundline.ThroughLine(charaPos, charaPos + delta))
+                    return CalcDistanceToGround(delta, charaPos.y, groundline.points[0].y);
+                //右下
+                charaPos = CharacterController.CharaParam.BottomRight;
+                if (groundline.ThroughLine(charaPos, charaPos + delta))
+                    return CalcDistanceToGround(delta, charaPos.y, groundline.points[0].y);
+            }
+            //上に移動してる時
+            else if(delta.y > 0f)
+            {
+                //飛び出た部分の上に乗った判定
+                if(groundline.param.TopOfWall)
+                {
+                    charaPos = CharacterController.CharaParam.Bottom;
+                    if (groundline.ThroughLine(charaPos, charaPos + delta))
+                        CharacterController.I.IsTopOfWall = true;
+                }
+                
+                if(groundline.param.DontThroughUp == false)
+                    continue;
+                //左上
+                charaPos = CharacterController.CharaParam.TopLeft;
+                if (groundline.ThroughLine(charaPos, charaPos + delta))
+                    return CalcDistanceToGround(delta, charaPos.y, groundline.points[0].y);
+                //右上
+                charaPos = CharacterController.CharaParam.TopRight;
+                if (groundline.ThroughLine(charaPos, charaPos + delta))
+                    return CalcDistanceToGround(delta, charaPos.y, groundline.points[0].y);
+            }
+        }
+        return delta;
+    }
+    private Vector2 CalcDistanceToGround(Vector2 delta, float charaY, float groundY)
+    {
+        float distance = groundY - charaY;
+        delta.y = distance - Mathf.Sign(distance) * 0.01f;
+        return delta;
+    }
+    /// <summary>
+    /// 壁との交点から移動量を計算する
+    /// </summary>
+    private Vector2 CalcWallIntersection(Vector2 delta)
+    {
+        foreach (Line wall in _Wall)
+        {
+            Vector2 charaPos;
+            //下
+            charaPos = CharacterController.CharaParam.Bottom;
+            if (wall.ThroughLine(charaPos, charaPos + delta))
+                return CalcDistanceToWall(delta, charaPos.x, wall.points[0].x);
+            //左
+            charaPos = CharacterController.CharaParam.Left;
+            if (wall.ThroughLine(charaPos, charaPos + delta))
+                return CalcDistanceToWall(delta, charaPos.x, wall.points[0].x);
+            //右
+            charaPos = CharacterController.CharaParam.Right;
+            if (wall.ThroughLine(charaPos, charaPos + delta))
+                return CalcDistanceToWall(delta, charaPos.x, wall.points[0].x);
+            //左上
+            charaPos = CharacterController.CharaParam.TopLeft;
+            if (wall.ThroughLine(charaPos, charaPos + delta))
+                return CalcDistanceToWall(delta, charaPos.x, wall.points[0].x);
+            //右上
+            charaPos = CharacterController.CharaParam.TopRight;
+            if (wall.ThroughLine(charaPos, charaPos + delta))
+                return CalcDistanceToWall(delta, charaPos.x, wall.points[0].x);
+        }
+        return delta;
+    }
+    private Vector2 CalcDistanceToWall(Vector2 delta, float charaX, float wallX)
+    {
+        float distance = wallX - charaX;
+        delta.x = distance - Mathf.Sign(distance) * 0.01f;
+        return delta;
+    }
+    /// <summary>
+    /// 坂道との交点から移動量を計算する
+    /// </summary>
+    private Vector2 CalcSlopeIntersection(Vector2 delta)
+    {
+        foreach (Line slope in _Slope)
+        {
+            Vector2 charaPos = CharacterController.CharaParam.Bottom;
+            if (slope.ThroughLine(charaPos, charaPos + delta))
+            {
+                float ret = slope.LarpYCoord(charaPos.x + delta.x) - charaPos.y;
+                delta.y = ret + 0.01f;
+                break;
+            }
+        }
+        return delta;
+    }
+    
     /// <summary>
     /// 与えられた距離内にある折り目までの距離を返す
     /// </summary>
     public float CalcFoldLineDistance(Vector2 pos, float delta)
     {
+        if(CharacterController.I.IsTopOfWall)
+            pos -= 0.02f * Vector2.up;
         float ret = delta + Mathf.Sign(delta) * 1f;
         foreach (Line foldline in _FoldLine)
         {
@@ -139,7 +220,25 @@ public class DummyCard : Singlton<DummyCard>
         }
         return false;
     }
-
+    /// <summary>
+    /// 自分の真下に飛び出ている部分の上面があるかどうか
+    /// </summary>
+    public bool OnTopOfWall()
+    {
+        foreach (Line groundline in _GroundLine)
+        {
+            if(groundline.param.TopOfWall)
+            {
+                Vector2 charaPos = CharacterController.CharaParam.BottomLeft;
+                if (groundline.ThroughLine(charaPos, charaPos - 0.2f*Vector2.up))
+                    return true;
+                charaPos = CharacterController.CharaParam.BottomRight;
+                if (groundline.ThroughLine(charaPos, charaPos - 0.2f*Vector2.up))
+                    return true;
+            }
+        }
+        return false;
+    }
     /// <summary>
     /// 折り目のy座標をソートした配列を取得
     /// </summary>
@@ -161,6 +260,8 @@ public class DummyCard : Singlton<DummyCard>
     /// </summary>
     public IEnumerable<float> GetSortXCoordList(float y)
     {
+        if(CharacterController.I.IsTopOfWall)
+            y -= 0.02f;
         List<float> retList = new List<float>();
         foreach (Line line in _FoldLine)
         {
@@ -173,32 +274,32 @@ public class DummyCard : Singlton<DummyCard>
 
         return retList.OrderBy(x => x);
     }
-
 }
 
 /*            *
-  * Line Class *
-  *            */
+ * Line Class *
+ *            */
 public class Line
 {
     public Vector2[] points = new Vector2[2];
+    public StageObjectParameter param;
 
-    ColorData color;
-
-    public Line(Vector2 start, Vector2 end, ColorData c = ColorData.NONE)
+    public Line(Vector2 start, Vector2 end, StageObjectParameter p)
     {
         points[0] = start;
         points[1] = end;
-        color = c;
+        param = p;
+        if(param == null)
+            this.param = new StageObjectParameter();
     }
     /// <summary>
     /// 線の交差を判定
     /// </summary>
     public bool ThroughLine(Vector2 startpos, Vector2 endpos)
     {
-        if (CharacterController.I.color == color || color == ColorData.NONE)
-            return Cross(points[1] - points[0], startpos - points[0]) * Cross(points[1] - points[0], endpos - points[0]) < 0 &&
-                   Cross(endpos - startpos, points[0] - startpos) * Cross(endpos - startpos, points[1] - startpos) < 0;
+        if (CharacterController.I.color == param.color || param.color == ColorData.NONE)
+            return Cross(points[1] - points[0], startpos - points[0]) * Cross(points[1] - points[0], endpos - points[0]) <= 0 &&
+                   Cross(endpos - startpos, points[0] - startpos) * Cross(endpos - startpos, points[1] - startpos) <= 0;
         else
             return false;
     }
