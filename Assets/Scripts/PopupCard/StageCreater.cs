@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,7 +97,8 @@ public class StageCreater : Singlton<StageCreater>
             bool setX = true;
             float prevX = -StageWidth / 2;
             float xOffset = -StageWidth / 2, zOffset = _ZOffset;
-            foreach (float x in DummyCard.I.GetSortXCoordList((prevY + y) / 2))
+            IEnumerable<float> xCoordList = DummyCard.I.GetSortXCoordList((prevY + y) / 2);
+            foreach (float x in xCoordList)
             {
                 GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
                 paper.transform.SetParent(_Root.transform);
@@ -109,13 +111,18 @@ public class StageCreater : Singlton<StageCreater>
                 {
                     paper.transform.position = new Vector3(xOffset + _XOffset + thickness/2, (y - prevY) / 2 + yOffset, -(x - prevX) / 2 + zOffset);
                     paper.transform.forward = Vector3.right;
+                    paper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
                     zOffset -= x - prevX;
                 }
                 paper.transform.localScale = new Vector3(x - prevX, y - prevY, _Paper.transform.localScale.z);
+                if(x == xCoordList.First())
+                    paper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
+                    
                 setX = !setX;
                 prevX = x;
             }
             GameObject lastPaper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
+            lastPaper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
             lastPaper.transform.SetParent(_Root.transform);
             lastPaper.transform.position = new Vector3(xOffset + _XOffset + thickness/2, (y - prevY) / 2 + yOffset, -(StageWidth / 2 - prevX) / 2 + zOffset);
             lastPaper.transform.forward = Vector3.right;
