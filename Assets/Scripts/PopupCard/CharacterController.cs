@@ -48,11 +48,11 @@ public class CharacterController : Singlton<CharacterController>
             }
             //キャラクターの当たり判定を5点で行う
             List<Vector2> charaPosList = new List<Vector2>(4);
-            charaPosList.Add(_DummyCharacter.transform.position + new Vector3(_DummyCharacter.transform.lossyScale.x / 2, 0f, 0f));
-            charaPosList.Add(_DummyCharacter.transform.position);
-            charaPosList.Add(_DummyCharacter.transform.position + new Vector3(-_DummyCharacter.transform.lossyScale.x / 2, 0f, 0f));
-            charaPosList.Add(_DummyCharacter.transform.position + new Vector3(_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * (682f / 423f), 0f));
-            charaPosList.Add(_DummyCharacter.transform.position + new Vector3(-_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * (682f / 423f), 0f));
+            charaPosList.Add(CharaParam.BottomRight);
+            charaPosList.Add(CharaParam.Bottom);
+            charaPosList.Add(CharaParam.BottomLeft);
+            charaPosList.Add(CharaParam.TopRight);
+            charaPosList.Add(CharaParam.TopLeft);
     
             Vector2 moveDir = DummyCard.I.CalcAmountOfMovement(charaPosList, new Vector2(deltaHol, deltaVer));
     
@@ -235,5 +235,106 @@ public class CharacterController : Singlton<CharacterController>
             moveX = !moveX;
         }
         return moveX;
+    }
+    
+    public class CharaParam
+    {
+        public static Vector3 Bottom
+        {
+            get { return CharacterController.I.DummyCharacter.transform.position; }
+        }
+        public static Vector3 BottomLeft
+        {
+            get { return CharacterController.I.DummyCharacter.transform.position
+                         + new Vector3(-CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
+                                       0f,
+                                       0f); }
+        }
+        public static Vector3 BottomRight
+        {
+            get { return CharacterController.I.DummyCharacter.transform.position
+                         + new Vector3( CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
+                                        0f,
+                                        0f); }
+        }
+        public static Vector3 Center
+        {
+            get { return CharacterController.I.DummyCharacter.transform.position
+                         + new Vector3(0f,
+                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*(682f/423f)/2,
+                                       0f); }
+        }
+        public static Vector3 Left
+        {
+            get { return CharacterController.I.DummyCharacter.transform.position
+                         + new Vector3(-CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
+                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*(682f/423f)/2,
+                                       0f); }
+        }
+        public static Vector3 Right
+        {
+            get { return CharacterController.I.DummyCharacter.transform.position
+                         + new Vector3( CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
+                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*(682f/423f)/2,
+                                       0f); }
+        }
+        public static Vector3 Top
+        {
+            get { return CharacterController.I.DummyCharacter.transform.position
+                         + new Vector3(0f,
+                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*(682f/423f),
+                                       0f); }
+        }
+        public static Vector3 TopLeft
+        {
+            get { return CharacterController.I.DummyCharacter.transform.position
+                         + new Vector3(-CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
+                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*(682f/423f),
+                                       0f); }
+        }
+        public static Vector3 TopRight
+        {
+            get { return CharacterController.I.DummyCharacter.transform.position
+                         + new Vector3( CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
+                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*(682f/423f),
+                                       0f); }
+        }
+        
+        //  private static Line _BottomLine = new Line(Vector2.zero, Vector2.zero);
+        //  public static Line BottomLine{
+        //      get 
+        //      { 
+        //          _BottomLine.points[0] = BottomLeft;
+        //          _BottomLine.points[1] = BottomRight;
+        //          return _BottomLine;
+        //      }
+        //  }
+        //  private static Line _TopLine = new Line(Vector2.zero, Vector2.zero);
+        //  public static Line TopLine{
+        //      get 
+        //      { 
+        //          _TopLine.points[0] = TopLeft;
+        //          _TopLine.points[1] = TopRight;
+        //          return _TopLine;
+        //      }
+        //  }
+        //  private static Line _LeftLine = new Line(Vector2.zero, Vector2.zero);
+        //  public static Line LeftLine{
+        //      get 
+        //      { 
+        //          _LeftLine.points[0] = BottomLeft;
+        //          _LeftLine.points[1] = TopLeft;
+        //          return _LeftLine;
+        //      }
+        //  }
+        //  private static Line _RightLine = new Line(Vector2.zero, Vector2.zero);
+        //  public static Line RightLine{
+        //      get 
+        //      { 
+        //          _RightLine.points[0] = BottomRight;
+        //          _RightLine.points[1] = TopRight;
+        //          return _RightLine;
+        //      }
+        //  }
     }
 }

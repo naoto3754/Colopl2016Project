@@ -9,8 +9,9 @@ public class StageCreater : Singlton<StageCreater>
     private readonly float ANIMATION_INITIAL_WEIGHT = 0.02f;
     private float _XOffset;
     private float _ZOffset;
+    
+    [SerializeField]
     private GameObject _Root;
-
     [SerializeField]
     private GameObject _Paper;
     [SerializeField]
@@ -40,7 +41,6 @@ public class StageCreater : Singlton<StageCreater>
     {
         _XOffset = xOffset;
         _ZOffset = zOffset;
-        _Root = new GameObject("StageRoot");
         InstantiateCharacter();
         InstantiatePaper();
         InstantiateDecoration();
