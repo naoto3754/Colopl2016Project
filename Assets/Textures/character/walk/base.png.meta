@@ -1,0 +1,231 @@
+fileFormatVersion: 2
+guid: 3a5342da6f6e649cdaaf3bd600d6ec98
+timeCreated: 1441896454
+licenseType: Free
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: base_0
+    21300002: base_1
+    21300004: base_2
+    21300006: base_3
+    21300008: base_4
+    21300010: base_5
+    21300012: base_6
+    21300014: base_7
+    21300016: base_8
+    21300018: base_9
+    21300020: base_10
+    21300022: base_11
+    21300024: base_12
+    21300026: base_13
+    21300028: base_14
+    21300030: base_15
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 1
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: .25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 8
+  cubemapConvolutionExponent: 1.5
+  seamlessCubemap: 0
+  textureFormat: -1
+  maxTextureSize: 2048
+  textureSettings:
+    filterMode: -1
+    aniso: 16
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  rGBM: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: .5, y: .5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 125
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: base_0
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 246
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: base_1
+      rect:
+        serializedVersion: 2
+        x: 170
+        y: 246
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: base_2
+      rect:
+        serializedVersion: 2
+        x: 325
+        y: 246
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: base_3
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 246
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: base_4
+      rect:
+        serializedVersion: 2
+        x: 635
+        y: 246
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: base_5
+      rect:
+        serializedVersion: 2
+        x: 790
+        y: 246
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: base_6
+      rect:
+        serializedVersion: 2
+        x: 945
+        y: 246
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: base_7
+      rect:
+        serializedVersion: 2
+        x: 1100
+        y: 246
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: base_8
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 15
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: base_9
+      rect:
+        serializedVersion: 2
+        x: 170
+        y: 15
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: base_10
+      rect:
+        serializedVersion: 2
+        x: 325
+        y: 15
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: base_11
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 15
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: base_12
+      rect:
+        serializedVersion: 2
+        x: 635
+        y: 15
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: base_13
+      rect:
+        serializedVersion: 2
+        x: 790
+        y: 15
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: base_14
+      rect:
+        serializedVersion: 2
+        x: 945
+        y: 15
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: base_15
+      rect:
+        serializedVersion: 2
+        x: 1100
+        y: 15
+        width: 125
+        height: 201
+      alignment: 7
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
