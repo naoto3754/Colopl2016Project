@@ -63,6 +63,12 @@ public class CharacterController : Singlton<CharacterController>
             Vector2 moveDir = DummyCard.I.CalcAmountOfMovement(new Vector2(deltaHol, deltaVer));
     
             UpdateCharacterXZPosition(moveDir);
+            if(Input.GetKeyDown(KeyCode.DownArrow) && _IsTopOfWall)
+            {
+                _DummyCharacter.transform.position -= 0.02f*Vector3.up;
+                _CharacterX.transform.position -= 0.02f*Vector3.up;
+                _CharacterZ.transform.position -= 0.02f*Vector3.up;
+            }
             UpdateCharacterState(moveDir);
         }
     }
@@ -71,7 +77,7 @@ public class CharacterController : Singlton<CharacterController>
     /// </summary>
     private void UpdateCharacterXZPosition(Vector2 moveDir)
     {
-        _DummyCharacter.transform.Translate(moveDir.x, moveDir.y, 0f);
+        _DummyCharacter.transform.position += new Vector3(moveDir.x, moveDir.y, 0f);
         _CharacterX.transform.position += new Vector3(moveDir.x, moveDir.y, 0f);
         _CharacterZ.transform.position += new Vector3(0f, moveDir.y, -moveDir.x);
         

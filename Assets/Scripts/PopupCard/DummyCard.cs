@@ -230,10 +230,10 @@ public class DummyCard : Singlton<DummyCard>
             if(groundline.param.TopOfWall)
             {
                 Vector2 charaPos = CharacterController.CharaParam.BottomLeft;
-                if (groundline.ThroughLine(charaPos, charaPos - 0.2f*Vector2.up))
+                if (groundline.ThroughLine(charaPos, charaPos - 0.4f*Vector2.up))
                     return true;
                 charaPos = CharacterController.CharaParam.BottomRight;
-                if (groundline.ThroughLine(charaPos, charaPos - 0.2f*Vector2.up))
+                if (groundline.ThroughLine(charaPos, charaPos - 0.4f*Vector2.up))
                     return true;
             }
         }
