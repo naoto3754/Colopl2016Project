@@ -289,15 +289,16 @@ public class Line
         points[0] = start;
         points[1] = end;
         param = p;
-        if(param == null)
-            this.param = new StageObjectParameter();
+        //  if(param == null)
+        //      this.param = new StageObjectParameter();
     }
     /// <summary>
     /// 線の交差を判定
     /// </summary>
     public bool ThroughLine(Vector2 startpos, Vector2 endpos)
     {
-        if (CharacterController.I.color == param.color || param.color == ColorData.NONE)
+        
+        if (param == null || CharacterController.I.color == param.color || param.color == ColorData.NONE)
             return Cross(points[1] - points[0], startpos - points[0]) * Cross(points[1] - points[0], endpos - points[0]) <= 0 &&
                    Cross(endpos - startpos, points[0] - startpos) * Cross(endpos - startpos, points[1] - startpos) <= 0;
         else
