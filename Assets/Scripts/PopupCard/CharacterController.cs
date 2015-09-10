@@ -254,6 +254,7 @@ public class CharacterController : Singlton<CharacterController>
     //キャラクターの位置パラメータ
     public class CharaParam
     {
+        private static readonly float ASPECT_RATE = 682f/423f;
         public static Vector3 Bottom
         {
             get { return CharacterController.I.DummyCharacter.transform.position; }
@@ -276,42 +277,42 @@ public class CharacterController : Singlton<CharacterController>
         {
             get { return CharacterController.I.DummyCharacter.transform.position
                          + new Vector3(0f,
-                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*(682f/423f)/2,
+                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*ASPECT_RATE/2,
                                        0f); }
         }
         public static Vector3 Left
         {
             get { return CharacterController.I.DummyCharacter.transform.position
                          + new Vector3(-CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
-                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*(682f/423f)/2,
+                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*ASPECT_RATE/2,
                                        0f); }
         }
         public static Vector3 Right
         {
             get { return CharacterController.I.DummyCharacter.transform.position
                          + new Vector3( CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
-                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*(682f/423f)/2,
+                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*ASPECT_RATE/2,
                                        0f); }
         }
         public static Vector3 Top
         {
             get { return CharacterController.I.DummyCharacter.transform.position
                          + new Vector3(0f,
-                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*(682f/423f),
+                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*ASPECT_RATE,
                                        0f); }
         }
         public static Vector3 TopLeft
         {
             get { return CharacterController.I.DummyCharacter.transform.position
                          + new Vector3(-CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
-                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*(682f/423f),
+                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*ASPECT_RATE,
                                        0f); }
         }
         public static Vector3 TopRight
         {
             get { return CharacterController.I.DummyCharacter.transform.position
                          + new Vector3( CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
-                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*(682f/423f),
+                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*ASPECT_RATE,
                                        0f); }
         }
     }
