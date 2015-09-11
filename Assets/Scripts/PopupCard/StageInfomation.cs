@@ -6,7 +6,9 @@ using System.Linq;
 public class StageInfomation : MonoBehaviour
 {
     [SerializeField]
-    private int _StageId; 
+    private int _StageId;
+    [SerializeField]
+    private GameObject _Character; 
     [SerializeField]
     private GameObject FoldLines;
     [SerializeField]
@@ -78,6 +80,7 @@ public class StageInfomation : MonoBehaviour
             _Decoration.Add(renderer.gameObject);
         }
         //ステージマネージャーに自分を渡す
+        CharacterController.I.DummyCharacter = _Character;
         StageManager.I.CurrentInfo = this;
     }
     /// <summary>

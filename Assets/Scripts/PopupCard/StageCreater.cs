@@ -45,6 +45,8 @@ public class StageCreater : Singlton<StageCreater>
         InstantiateCharacter();
         InstantiatePaper();
         InstantiateDecoration();
+        //HACK:キャラの向きや透過処理をさせたい
+        CharacterController.I.UpdateCharacterState(Vector2.right);
     }
 
     /// <summary>

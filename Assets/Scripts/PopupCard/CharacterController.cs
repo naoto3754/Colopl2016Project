@@ -15,11 +15,11 @@ public class CharacterController : Singlton<CharacterController>
     {
         set { _CharacterZ = value; }
     }
-    [SerializeField]
     private GameObject _DummyCharacter;
     public GameObject DummyCharacter
     {
         get { return _DummyCharacter; }
+        set { _DummyCharacter = value; }
     }
 
     [SerializeField]
@@ -124,7 +124,7 @@ public class CharacterController : Singlton<CharacterController>
     /// <summary>
     /// 移動方向からキャラクターの向きやアニメーションを決定する
     /// </summary>
-    private void UpdateCharacterState(Vector2 moveDir)
+    public void UpdateCharacterState(Vector2 moveDir)
     {
         //アニメーション
         if (Mathf.Abs(moveDir.x) > 0.01f)
