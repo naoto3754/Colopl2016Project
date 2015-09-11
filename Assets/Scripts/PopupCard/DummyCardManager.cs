@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class DummyCard : Singlton<DummyCard>
+public class DummyCardManager : Singlton<DummyCardManager>
 {
     [SerializeField]
     private GameObject FoldLines;
