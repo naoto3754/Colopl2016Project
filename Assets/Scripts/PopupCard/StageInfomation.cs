@@ -65,7 +65,11 @@ public class StageInfomation : MonoBehaviour
 
     void Awake()
     {
-        //初期化処理
+        Initialize();   
+    }
+    
+    public void Initialize()
+    {
         _FoldLine = new List<Line>();
         _GroundLine = new List<Line>();
         _Ladder = new List<CardRect>();

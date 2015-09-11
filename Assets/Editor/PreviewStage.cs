@@ -13,10 +13,11 @@ public class PreviewStage : EditorWindow
 			if(stage.GetComponent<StageInfomation>() != null)
 			{
 				StageManager.I.CurrentInfo = stage.GetComponent<StageInfomation>();
+				StageManager.I.CurrentInfo.Initialize();
 				break;
 			}	
 		}
-		StageCreater.I.CreateStage(40f,0f,true);
+		StageCreater.I.CreateStage(0f,-50f,true);
     }
 	
 }

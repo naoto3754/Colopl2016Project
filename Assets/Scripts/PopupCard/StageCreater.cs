@@ -43,12 +43,15 @@ public class StageCreater : Singlton<StageCreater>
         _XOffset = xOffset;
         _ZOffset = zOffset;
         if(preview == false)
+        {
             InstantiateCharacter();
-        InstantiatePaper();
-        InstantiateDecoration();
-        //HACK:キャラの向きや透過処理をさせたい
-        if(preview == false)
+            InstantiatePaper();
+            InstantiateDecoration();
+            //HACK:キャラの向きや透過処理をさせたい
             CharacterController.I.UpdateCharacterState(Vector2.right);
+        }
+        else
+            InstantiatePaper();
     }
 
     /// <summary>
@@ -66,7 +69,7 @@ public class StageCreater : Singlton<StageCreater>
             child.gameObject.layer = 0;
         //TODO:色を決める
         character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor", ColorManager.GetColorWithColorData(StageManager.I.CurrentInfo.InitialCharacterColor));
-        ColorManager.MultiplyShadowColor(character);
+        ColorManager.MultiplyShadowColor(character.transform.GetChild(1).gameObject);
         CharacterController.I.CharacterX = character;
         //Z方向に動くキャラクター
         character = Instantiate(CharacterController.I.DummyCharacter,
