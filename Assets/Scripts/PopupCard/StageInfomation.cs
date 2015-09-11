@@ -5,6 +5,7 @@ using System.Linq;
 
 public class StageInfomation : MonoBehaviour
 {
+    //Inspector上で決定する項目
     [SerializeField]
     private int _StageId;
     [SerializeField]
@@ -15,17 +16,22 @@ public class StageInfomation : MonoBehaviour
     private GameObject StageComponent;
     [SerializeField]
     private ColorData _InitialCharacterColor;
+    [SerializeField]
+    private Color _BackgroundColor;
+    //Property
+    public int StageID
+    {
+        get { return _StageId; }
+    }
     public ColorData InitialCharacterColor
     {
         get { return _InitialCharacterColor; }
     }
-    [SerializeField]
-    private Color _BackgroundColor;
     public Color BackgroundColor
     {
         get { return _BackgroundColor; }
     }
-
+    //ステージオブジェクトリスト
     private List<Line> _FoldLine;
     public List<Line> FoldLine
     {
@@ -59,6 +65,7 @@ public class StageInfomation : MonoBehaviour
 
     void Awake()
     {
+        //初期化処理
         _FoldLine = new List<Line>();
         _GroundLine = new List<Line>();
         _Ladder = new List<CardRect>();

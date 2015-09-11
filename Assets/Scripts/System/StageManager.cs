@@ -5,6 +5,9 @@ using System.Linq;
 
 public class StageManager : Singlton<StageManager>
 {
+    private readonly string STAGE_DIR = "Stage"; 
+    
+    private GameObject[] _Stages;
     private StageInfomation _CurrentInfo;
     public StageInfomation CurrentInfo
     {
@@ -12,7 +15,22 @@ public class StageManager : Singlton<StageManager>
         set { _CurrentInfo = value; }
     }
     
-        /// <summary>
+    public override void OnInitialize()
+    {
+        GameObject[] stages = Resources.LoadAll<GameObject>(STAGE_DIR);
+        _Stages = new GameObject[stages.Length];
+        foreach(GameObject stage in stages)
+        {
+            StageInfomation info = stage.GetComponent<StageInfomation>();
+            if(info.StageID < 0 || info.StageID >= stages.Length)
+                Debug.LogError("Invalid Stage ID");
+            if(_Stages[info.StageID] != null)
+                Debug.LogError("Duplicate Stage ID");
+            _Stages[info.StageID] = stage; 
+        }   
+    }
+    
+    /// <summary>
     /// 移動量を計算
     /// </summary>
     public Vector2 CalcAmountOfMovement(Vector2 delta)

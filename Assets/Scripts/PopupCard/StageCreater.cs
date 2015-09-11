@@ -32,21 +32,23 @@ public class StageCreater : Singlton<StageCreater>
 
     void Start()
     {
-        _Root = new GameObject("StageRoot");
         CreateStage();
         CloseStage(0f,false);
         OpenStage(1f);
     }
 
-    public void CreateStage(float xOffset = 0f, float zOffset = -50f)
+    public void CreateStage(float xOffset = 0f, float zOffset = -50f, bool preview = false)
     {
+        _Root = new GameObject("StageRoot");
         _XOffset = xOffset;
         _ZOffset = zOffset;
-        InstantiateCharacter();
+        if(preview == false)
+            InstantiateCharacter();
         InstantiatePaper();
         InstantiateDecoration();
         //HACK:キャラの向きや透過処理をさせたい
-        CharacterController.I.UpdateCharacterState(Vector2.right);
+        if(preview == false)
+            CharacterController.I.UpdateCharacterState(Vector2.right);
     }
 
     /// <summary>
