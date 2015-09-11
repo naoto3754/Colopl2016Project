@@ -5,8 +5,8 @@ using System.Linq;
 
 public class StageManager : Singlton<StageManager>
 {
-    private readonly string STAGE_DIR = "Stage"; 
-    
+    private readonly string STAGE_DIR = "Stage";
+
     private GameObject[] _Stages;
     private StageInfomation _CurrentInfo;
     public StageInfomation CurrentInfo
@@ -14,22 +14,22 @@ public class StageManager : Singlton<StageManager>
         get { return _CurrentInfo; }
         set { _CurrentInfo = value; }
     }
-    
+
     public override void OnInitialize()
     {
         GameObject[] stages = Resources.LoadAll<GameObject>(STAGE_DIR);
         _Stages = new GameObject[stages.Length];
-        foreach(GameObject stage in stages)
+        foreach (GameObject stage in stages)
         {
             StageInfomation info = stage.GetComponent<StageInfomation>();
-            if(info.StageID < 0 || info.StageID >= stages.Length)
+            if (info.StageID < 0 || info.StageID >= stages.Length)
                 Debug.LogError("Invalid Stage ID");
-            if(_Stages[info.StageID] != null)
+            if (_Stages[info.StageID] != null)
                 Debug.LogError("Duplicate Stage ID");
-            _Stages[info.StageID] = stage; 
-        }   
+            _Stages[info.StageID] = stage;
+        }
     }
-    
+
     /// <summary>
     /// 移動量を計算
     /// </summary>
@@ -39,13 +39,13 @@ public class StageManager : Singlton<StageManager>
         retVec = delta;
         //地面との交差判定
         retVec = CalcGroundIntersection(retVec);
-        //坂道との交差判定
-        retVec = CalcSlopeIntersection(retVec);
         //壁との交差判定
         retVec = CalcWallIntersection(retVec);
+        //坂道との交差判定
+        retVec = CalcSlopeIntersection(retVec);
         //再度、地面との交差判定
         retVec = CalcGroundIntersection(retVec);
-        
+
         return retVec;
     }
     /// <summary>
@@ -57,10 +57,14 @@ public class StageManager : Singlton<StageManager>
         {
             Vector2 charaPos;
             //下に移動してる時
-            if(delta.y < 0f)
+            if (delta.y < 0f)
             {
-                if(groundline.param.DontThroughDown == false)
+                if (groundline.param.DontThroughDown == false)
                     continue;
+                //下
+                charaPos = CharacterController.CharaParam.Bottom;
+                if (groundline.ThroughLine(charaPos, charaPos + delta))
+                    return CalcDistanceToGround(delta, charaPos.y, groundline.points[0].y);
                 //左下
                 charaPos = CharacterController.CharaParam.BottomLeft;
                 if (groundline.ThroughLine(charaPos, charaPos + delta))
@@ -71,18 +75,22 @@ public class StageManager : Singlton<StageManager>
                     return CalcDistanceToGround(delta, charaPos.y, groundline.points[0].y);
             }
             //上に移動してる時
-            else if(delta.y > 0f)
+            else if (delta.y > 0f)
             {
                 //飛び出た部分の上に乗った判定
-                if(groundline.param.TopOfWall)
+                if (groundline.param.TopOfWall)
                 {
                     charaPos = CharacterController.CharaParam.Bottom;
                     if (groundline.ThroughLine(charaPos, charaPos + delta))
                         CharacterController.I.IsTopOfWall = true;
                 }
-                
-                if(groundline.param.DontThroughUp == false)
+
+                if (groundline.param.DontThroughUp == false)
                     continue;
+                //上
+                charaPos = CharacterController.CharaParam.Top;
+                if (groundline.ThroughLine(charaPos, charaPos + delta))
+                    return CalcDistanceToGround(delta, charaPos.y, groundline.points[0].y);
                 //左上
                 charaPos = CharacterController.CharaParam.TopLeft;
                 if (groundline.ThroughLine(charaPos, charaPos + delta))
@@ -106,13 +114,35 @@ public class StageManager : Singlton<StageManager>
     /// </summary>
     private Vector2 CalcWallIntersection(Vector2 delta)
     {
+        foreach (Line groundLine in _CurrentInfo.GroundLine)
+        {
+            Vector2 charaLeftPos = CharacterController.CharaParam.BottomLeft;
+            Vector2 charaRightPos = CharacterController.CharaParam.BottomRight;
+            Vector3 delta3D = delta;
+            bool IntersectTopLeft = groundLine.ThroughLine(CharacterController.CharaParam.Left + delta3D,
+                                                           CharacterController.CharaParam.TopLeft + delta3D);
+            bool IntersectTopRight = groundLine.ThroughLine(CharacterController.CharaParam.Right + delta3D,
+                                                            CharacterController.CharaParam.TopRight + delta3D);
+            bool IntersectBottom = groundLine.ThroughLine(CharacterController.CharaParam.Center + delta3D,
+                                                          CharacterController.CharaParam.Bottom + delta3D);            
+            if (IntersectTopLeft && IntersectTopRight == false)
+            {
+                return new Vector2(Mathf.Max(groundLine.points[0].x, groundLine.points[1].x) - charaLeftPos.x + 0.01f,
+                                   delta.y);
+            }
+            if (IntersectTopRight && IntersectTopLeft == false)
+            {
+                return new Vector2(Mathf.Min(groundLine.points[0].x, groundLine.points[1].x) - charaRightPos.x - 0.01f,
+                                   delta.y);
+            }
+            if (IntersectBottom && Mathf.Abs(delta.y) < 0.001f)
+            {
+                return new Vector2(delta.x, groundLine.points[0].y - charaLeftPos.y + 0.01f);
+            }
+        }
         foreach (Line wall in _CurrentInfo.Wall)
         {
             Vector2 charaPos;
-            //下
-            charaPos = CharacterController.CharaParam.Bottom;
-            if (wall.ThroughLine(charaPos, charaPos + delta))
-                return new Vector2(delta.x, Mathf.Max(wall.points[0].y, wall.points[1].y)-charaPos.y+0.01f);
             //左
             charaPos = CharacterController.CharaParam.Left;
             if (wall.ThroughLine(charaPos, charaPos + delta))
@@ -129,6 +159,10 @@ public class StageManager : Singlton<StageManager>
             charaPos = CharacterController.CharaParam.TopRight;
             if (wall.ThroughLine(charaPos, charaPos + delta))
                 return CalcDistanceToWall(delta, charaPos.x, wall.points[0].x);
+            //下
+            charaPos = CharacterController.CharaParam.Bottom;
+            if (wall.ThroughLine(charaPos, charaPos + delta) && Mathf.Abs(delta.y) < 0.001f)
+                return new Vector2(delta.x, Mathf.Max(wall.points[0].y, wall.points[1].y) - charaPos.y + 0.01f);
         }
         return delta;
     }
@@ -152,19 +186,19 @@ public class StageManager : Singlton<StageManager>
                 float ret = slope.LarpYCoord(charaPos.x + delta.x) - charaPos.y;
                 delta.y = ret + 0.01f;
                 Vector2 ground = CalcGroundIntersection(delta);
-                delta *= ground.y / delta.y; 
+                delta *= ground.y / delta.y;
                 break;
             }
         }
         return delta;
     }
-    
+
     /// <summary>
     /// 与えられた距離内にある折り目までの距離を返す
     /// </summary>
     public float CalcFoldLineDistance(Vector2 pos, float delta)
     {
-        if(CharacterController.I.IsTopOfWall)
+        if (CharacterController.I.IsTopOfWall)
             pos -= 0.02f * Vector2.up;
         float ret = delta + Mathf.Sign(delta) * 1f;
         foreach (Line foldline in _CurrentInfo.FoldLine)
@@ -196,13 +230,13 @@ public class StageManager : Singlton<StageManager>
     {
         foreach (Line groundline in _CurrentInfo.GroundLine)
         {
-            if(groundline.param.TopOfWall)
+            if (groundline.param.TopOfWall)
             {
                 Vector2 charaPos = CharacterController.CharaParam.BottomLeft;
-                if (groundline.ThroughLine(charaPos, charaPos - 0.4f*Vector2.up))
+                if (groundline.ThroughLine(charaPos, charaPos - 0.4f * Vector2.up))
                     return true;
                 charaPos = CharacterController.CharaParam.BottomRight;
-                if (groundline.ThroughLine(charaPos, charaPos - 0.4f*Vector2.up))
+                if (groundline.ThroughLine(charaPos, charaPos - 0.4f * Vector2.up))
                     return true;
             }
         }
@@ -229,7 +263,7 @@ public class StageManager : Singlton<StageManager>
     /// </summary>
     public IEnumerable<float> GetSortXCoordList(float y)
     {
-        if(CharacterController.I.IsTopOfWall)
+        if (CharacterController.I.IsTopOfWall)
             y -= 0.02f;
         List<float> retList = new List<float>();
         foreach (Line line in _CurrentInfo.FoldLine)
@@ -266,7 +300,7 @@ public class Line
     /// </summary>
     public bool ThroughLine(Vector2 startpos, Vector2 endpos)
     {
-        
+
         if (param == null || CharacterController.I.color == param.color || param.color == ColorData.NONE)
             return Cross(points[1] - points[0], startpos - points[0]) * Cross(points[1] - points[0], endpos - points[0]) <= 0 &&
                    Cross(endpos - startpos, points[0] - startpos) * Cross(endpos - startpos, points[1] - startpos) <= 0;

@@ -10,19 +10,17 @@ public class StageCreater : Singlton<StageCreater>
     private readonly float ANIMATION_INITIAL_WEIGHT = 0.02f;
     private float _XOffset;
     private float _ZOffset;
-    
+
     private GameObject _Root;
     [SerializeField]
     private GameObject _Paper;
-    [SerializeField]
-    private Transform _StageSize;
     private float StageWidth
     {
-        get { return _StageSize.lossyScale.x; }
+        get { return StageManager.I.CurrentInfo.StageWidth; }
     }
     private float StageHeight
     {
-        get { return _StageSize.lossyScale.y; }
+        get { return StageManager.I.CurrentInfo.StageHeight; }
     }
     public bool IsPlayingAnimation
     {
@@ -33,7 +31,7 @@ public class StageCreater : Singlton<StageCreater>
     void Start()
     {
         CreateStage();
-        CloseStage(0f,false);
+        CloseStage(0f, false);
         OpenStage(1f);
     }
 
@@ -42,7 +40,7 @@ public class StageCreater : Singlton<StageCreater>
         _Root = new GameObject("StageRoot");
         _XOffset = xOffset;
         _ZOffset = zOffset;
-        if(preview == false)
+        if (preview == false)
         {
             InstantiateCharacter();
             InstantiatePaper();
@@ -61,7 +59,7 @@ public class StageCreater : Singlton<StageCreater>
     {
         //X方向に動くキャラクター
         GameObject character = Instantiate(CharacterController.I.DummyCharacter,
-                                           CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET*2, 0f, _ZOffset - OFFSET*2),
+                                           CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET * 2, 0f, _ZOffset - OFFSET * 2),
                                            Quaternion.identity) as GameObject;
         character.transform.SetParent(_Root.transform);
         character.layer = 0;
@@ -73,7 +71,7 @@ public class StageCreater : Singlton<StageCreater>
         CharacterController.I.CharacterX = character;
         //Z方向に動くキャラクター
         character = Instantiate(CharacterController.I.DummyCharacter,
-                                CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET*2, 0f, _ZOffset - OFFSET*2),
+                                CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET * 2, 0f, _ZOffset - OFFSET * 2),
                                 Quaternion.identity) as GameObject;
         character.transform.Rotate(0f, 90f, 0f);
         character.transform.SetParent(_Root.transform);
@@ -96,15 +94,15 @@ public class StageCreater : Singlton<StageCreater>
         background.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
         background.GetComponent<Renderer>().material.color = StageManager.I.CurrentInfo.BackgroundColor;
         background.transform.SetParent(_Root.transform);
-        background.transform.position = new Vector3(-StageWidth/4+0.1f+_XOffset, StageHeight/2, 0.1f+_ZOffset);
-        background.transform.localScale = new Vector3(StageWidth/2, StageHeight, thickness);
+        background.transform.position = new Vector3(-StageWidth / 4 + 0.1f + _XOffset, StageHeight / 2, 0.1f + _ZOffset);
+        background.transform.localScale = new Vector3(StageWidth / 2, StageHeight, thickness);
         //z方向
         background = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
         background.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
         background.GetComponent<Renderer>().material.color = StageManager.I.CurrentInfo.BackgroundColor;
         background.transform.SetParent(_Root.transform);
-        background.transform.position = new Vector3(0.1f+_XOffset, StageHeight/2, -StageWidth/4+0.1f+_ZOffset);
-        background.transform.localScale = new Vector3(StageWidth/2, StageHeight, thickness);
+        background.transform.position = new Vector3(0.1f + _XOffset, StageHeight / 2, -StageWidth / 4 + 0.1f + _ZOffset);
+        background.transform.localScale = new Vector3(StageWidth / 2, StageHeight, thickness);
         background.transform.forward = Vector3.right;
         //ステージの紙オブジェクト生成
         IEnumerable<float> yCoordList = StageManager.I.GetSortYCoordList();
@@ -124,27 +122,27 @@ public class StageCreater : Singlton<StageCreater>
                 paper.transform.SetParent(_Root.transform);
                 if (setX)
                 {
-                    paper.transform.position = new Vector3((x - prevX) / 2 + xOffset + _XOffset, (y - prevY) / 2 + yOffset, zOffset+thickness/2);
+                    paper.transform.position = new Vector3((x - prevX) / 2 + xOffset + _XOffset, (y - prevY) / 2 + yOffset, zOffset + thickness / 2);
                     xOffset += x - prevX;
                 }
                 else
                 {
-                    paper.transform.position = new Vector3(xOffset + _XOffset + thickness/2, (y - prevY) / 2 + yOffset, -(x - prevX) / 2 + zOffset);
+                    paper.transform.position = new Vector3(xOffset + _XOffset + thickness / 2, (y - prevY) / 2 + yOffset, -(x - prevX) / 2 + zOffset);
                     paper.transform.forward = Vector3.right;
                     paper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
                     zOffset -= x - prevX;
                 }
                 paper.transform.localScale = new Vector3(x - prevX, y - prevY, _Paper.transform.localScale.z);
-                if(x == xCoordList.First())
+                if (x == xCoordList.First())
                     paper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-                    
+
                 setX = !setX;
                 prevX = x;
             }
             GameObject lastPaper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
             lastPaper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
             lastPaper.transform.SetParent(_Root.transform);
-            lastPaper.transform.position = new Vector3(xOffset + _XOffset + thickness/2, (y - prevY) / 2 + yOffset, -(StageWidth / 2 - prevX) / 2 + zOffset);
+            lastPaper.transform.position = new Vector3(xOffset + _XOffset + thickness / 2, (y - prevY) / 2 + yOffset, -(StageWidth / 2 - prevX) / 2 + zOffset);
             lastPaper.transform.forward = Vector3.right;
             lastPaper.transform.localScale = new Vector3(StageWidth / 2 - prevX, y - prevY, thickness);
             yOffset += y - prevY;
@@ -178,7 +176,7 @@ public class StageCreater : Singlton<StageCreater>
         //装飾オブジェククトの表示
         Vector3 decoPos = deco.transform.position;
         Vector3 decoScale = deco.transform.lossyScale;
-        Vector3 decoSetPos = new Vector3(-StageWidth / 2 - OFFSET*2 + _XOffset, decoPos.y, _ZOffset - OFFSET*2);
+        Vector3 decoSetPos = new Vector3(-StageWidth / 2 - OFFSET * 2 + _XOffset, decoPos.y, _ZOffset - OFFSET * 2);
 
         float anchorHeightScale = 0f;
         if (deco.GetComponent<DecorationObjectParameter>() != null)
@@ -248,57 +246,57 @@ public class StageCreater : Singlton<StageCreater>
             }
         }
     }
-    
+
     public void OpenStage(float time)
     {
         IsPlayingAnimation = true;
         bool openleft = !TmpParameter.CloseDirctionLeft;
-        foreach(Transform stageObj in _Root.transform)
+        foreach (Transform stageObj in _Root.transform)
         {
             TmpParameter tmpParam = stageObj.GetComponent<TmpParameter>();
             Vector3 anchorPos = tmpParam.AnimationAnchor;
             bool dirX = tmpParam.DirectionX;
             StartCoroutine(OpenObjectAnimation(stageObj, anchorPos, dirX, openleft, time));
-            
+
         }
     }
-    
-    private IEnumerator OpenObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool openleft ,float time)
+
+    private IEnumerator OpenObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool openleft, float time)
     {
         int frameNum = 60;
         float weight = ANIMATION_INITIAL_WEIGHT;
-        if(time == 0f)
+        if (time == 0f)
         {
             frameNum = 1;
             weight = 1f;
-        } 
-        for(int i = 0; i < frameNum; i++)
+        }
+        for (int i = 0; i < frameNum; i++)
         {
             Quaternion currentRotation = obj.rotation;
-            if(openleft)
-                obj.RotateAround(anchor, Vector3.up,  90f/frameNum*weight);
+            if (openleft)
+                obj.RotateAround(anchor, Vector3.up, 90f / frameNum * weight);
             else
-                obj.RotateAround(anchor, Vector3.up, -90f/frameNum*weight);
-            if(openleft && !dirX || !openleft && dirX)
+                obj.RotateAround(anchor, Vector3.up, -90f / frameNum * weight);
+            if (openleft && !dirX || !openleft && dirX)
                 obj.rotation = currentRotation;
-            if(i < frameNum/2)
-                weight += (1f-ANIMATION_INITIAL_WEIGHT)/frameNum*4;
+            if (i < frameNum / 2)
+                weight += (1f - ANIMATION_INITIAL_WEIGHT) / frameNum * 4;
             else
-                weight -= (1f-ANIMATION_INITIAL_WEIGHT)/frameNum*4;
-            yield return new WaitForSeconds(time/frameNum);
+                weight -= (1f - ANIMATION_INITIAL_WEIGHT) / frameNum * 4;
+            yield return new WaitForSeconds(time / frameNum);
         }
         IsPlayingAnimation = false;
         Destroy(obj.GetComponent<TmpParameter>());
     }
-    
+
     public void CloseStage(float time, bool closeleft)
     {
         IsPlayingAnimation = true;
         TmpParameter.CloseDirctionLeft = closeleft;
-        foreach(Transform stageObj in _Root.transform)
+        foreach (Transform stageObj in _Root.transform)
         {
             Vector3 anchorPos;
-            if(closeleft)
+            if (closeleft)
                 anchorPos = new Vector3(stageObj.position.x, 0f, _ZOffset);
             else
                 anchorPos = new Vector3(_XOffset, 0f, stageObj.position.z);
@@ -309,30 +307,30 @@ public class StageCreater : Singlton<StageCreater>
             StartCoroutine(CloseObjectAnimation(stageObj, anchorPos, dirX, closeleft, time));
         }
     }
-    
-    private IEnumerator CloseObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool closeleft ,float time)
+
+    private IEnumerator CloseObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool closeleft, float time)
     {
         int frameNum = 60;
         float weight = ANIMATION_INITIAL_WEIGHT;
-        if(time == 0f)
+        if (time == 0f)
         {
             frameNum = 1;
             weight = 1f;
         }
-        for(int i = 0; i < frameNum; i++)
+        for (int i = 0; i < frameNum; i++)
         {
             Quaternion currentRotation = obj.rotation;
-            if(closeleft)
-                obj.RotateAround(anchor, Vector3.up,  90f/frameNum*weight);
+            if (closeleft)
+                obj.RotateAround(anchor, Vector3.up, 90f / frameNum * weight);
             else
-                obj.RotateAround(anchor, Vector3.up, -90f/frameNum*weight);
-            if(closeleft && dirX || !closeleft && !dirX)
+                obj.RotateAround(anchor, Vector3.up, -90f / frameNum * weight);
+            if (closeleft && dirX || !closeleft && !dirX)
                 obj.rotation = currentRotation;
-            if(i < frameNum/2)
-                weight += (1f-ANIMATION_INITIAL_WEIGHT)/frameNum*4;
+            if (i < frameNum / 2)
+                weight += (1f - ANIMATION_INITIAL_WEIGHT) / frameNum * 4;
             else
-                weight -= (1f-ANIMATION_INITIAL_WEIGHT)/frameNum*4;
-            yield return new WaitForSeconds(time/frameNum);
+                weight -= (1f - ANIMATION_INITIAL_WEIGHT) / frameNum * 4;
+            yield return new WaitForSeconds(time / frameNum);
         }
     }
 }

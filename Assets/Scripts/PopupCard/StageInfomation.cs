@@ -9,7 +9,9 @@ public class StageInfomation : MonoBehaviour
     [SerializeField]
     private int _StageId;
     [SerializeField]
-    private GameObject _Character; 
+    private GameObject _Character;
+    [SerializeField]
+    private Transform _StageSize;
     [SerializeField]
     private GameObject FoldLines;
     [SerializeField]
@@ -22,6 +24,14 @@ public class StageInfomation : MonoBehaviour
     public int StageID
     {
         get { return _StageId; }
+    }
+    public float StageWidth
+    {
+        get { return _StageSize.lossyScale.x; }
+    }
+    public float StageHeight
+    {
+        get { return _StageSize.lossyScale.y; }
     }
     public ColorData InitialCharacterColor
     {

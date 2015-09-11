@@ -41,33 +41,26 @@ public class CharacterController : Singlton<CharacterController>
     void Update()
     {
         //アニメーション中はキャラクターを動かさない
-        if(StageCreater.I.IsPlayingAnimation == false)
+        if (StageCreater.I.IsPlayingAnimation == false)
         {
             //入力を取得
             float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal");
             float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical");
             float deltaDrop = Time.deltaTime * _DropSpeed;
-    
+
             if (!StageManager.I.CanUseLadder(_DummyCharacter.transform.position))
             {
                 deltaVer = -deltaDrop;
             }
-            //キャラクターの当たり判定を5点で行う
-            List<Vector2> charaPosList = new List<Vector2>(4);
-            charaPosList.Add(CharaParam.BottomRight);
-            charaPosList.Add(CharaParam.Bottom);
-            charaPosList.Add(CharaParam.BottomLeft);
-            charaPosList.Add(CharaParam.TopRight);
-            charaPosList.Add(CharaParam.TopLeft);
-    
+
             Vector2 moveDir = StageManager.I.CalcAmountOfMovement(new Vector2(deltaHol, deltaVer));
-    
+
             UpdateCharacterXZPosition(moveDir);
-            if(Input.GetKeyDown(KeyCode.DownArrow) && _IsTopOfWall)
+            if (Input.GetKeyDown(KeyCode.DownArrow) && _IsTopOfWall)
             {
-                _DummyCharacter.transform.position -= 0.02f*Vector3.up;
-                _CharacterX.transform.position -= 0.02f*Vector3.up;
-                _CharacterZ.transform.position -= 0.02f*Vector3.up;
+                _DummyCharacter.transform.position -= 0.02f * Vector3.up;
+                _CharacterX.transform.position -= 0.02f * Vector3.up;
+                _CharacterZ.transform.position -= 0.02f * Vector3.up;
             }
             UpdateCharacterState(moveDir);
         }
@@ -80,10 +73,10 @@ public class CharacterController : Singlton<CharacterController>
         _DummyCharacter.transform.position += new Vector3(moveDir.x, moveDir.y, 0f);
         _CharacterX.transform.position += new Vector3(moveDir.x, moveDir.y, 0f);
         _CharacterZ.transform.position += new Vector3(0f, moveDir.y, -moveDir.x);
-        
-        if(_IsTopOfWall)
+
+        if (_IsTopOfWall)
             _IsTopOfWall = StageManager.I.OnTopOfWall();
-        
+
         _MoveX = CalcCurrentMoveDirection();
 
         if (Mathf.Abs(moveDir.x) > 0f)
@@ -250,70 +243,94 @@ public class CharacterController : Singlton<CharacterController>
         }
         return moveX;
     }
-    
+
     //キャラクターの位置パラメータ
     public class CharaParam
     {
-        private static readonly float ASPECT_RATE = 682f/423f;
+        private static readonly float ASPECT_RATE = 682f / 423f;
         public static Vector3 Bottom
         {
             get { return CharacterController.I.DummyCharacter.transform.position; }
         }
         public static Vector3 BottomLeft
         {
-            get { return CharacterController.I.DummyCharacter.transform.position
-                         + new Vector3(-CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
-                                       0f,
-                                       0f); }
+            get
+            {
+                return CharacterController.I.DummyCharacter.transform.position
+                       + new Vector3(-CharacterController.I.DummyCharacter.transform.lossyScale.x / 2,
+                                     0f,
+                                     0f);
+            }
         }
         public static Vector3 BottomRight
         {
-            get { return CharacterController.I.DummyCharacter.transform.position
-                         + new Vector3( CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
-                                        0f,
-                                        0f); }
+            get
+            {
+                return CharacterController.I.DummyCharacter.transform.position
+                       + new Vector3(CharacterController.I.DummyCharacter.transform.lossyScale.x / 2,
+                                      0f,
+                                      0f);
+            }
         }
         public static Vector3 Center
         {
-            get { return CharacterController.I.DummyCharacter.transform.position
-                         + new Vector3(0f,
-                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*ASPECT_RATE/2,
-                                       0f); }
+            get
+            {
+                return CharacterController.I.DummyCharacter.transform.position
+                       + new Vector3(0f,
+                                     CharacterController.I.DummyCharacter.transform.lossyScale.y * ASPECT_RATE / 2,
+                                     0f);
+            }
         }
         public static Vector3 Left
         {
-            get { return CharacterController.I.DummyCharacter.transform.position
-                         + new Vector3(-CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
-                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*ASPECT_RATE/2,
-                                       0f); }
+            get
+            {
+                return CharacterController.I.DummyCharacter.transform.position
+                       + new Vector3(-CharacterController.I.DummyCharacter.transform.lossyScale.x / 2,
+                                     CharacterController.I.DummyCharacter.transform.lossyScale.y * ASPECT_RATE / 2,
+                                     0f);
+            }
         }
         public static Vector3 Right
         {
-            get { return CharacterController.I.DummyCharacter.transform.position
-                         + new Vector3( CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
-                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*ASPECT_RATE/2,
-                                       0f); }
+            get
+            {
+                return CharacterController.I.DummyCharacter.transform.position
+                       + new Vector3(CharacterController.I.DummyCharacter.transform.lossyScale.x / 2,
+                                     CharacterController.I.DummyCharacter.transform.lossyScale.y * ASPECT_RATE / 2,
+                                     0f);
+            }
         }
         public static Vector3 Top
         {
-            get { return CharacterController.I.DummyCharacter.transform.position
-                         + new Vector3(0f,
-                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*ASPECT_RATE,
-                                       0f); }
+            get
+            {
+                return CharacterController.I.DummyCharacter.transform.position
+                       + new Vector3(0f,
+                                     CharacterController.I.DummyCharacter.transform.lossyScale.y * ASPECT_RATE,
+                                     0f);
+            }
         }
         public static Vector3 TopLeft
         {
-            get { return CharacterController.I.DummyCharacter.transform.position
-                         + new Vector3(-CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
-                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*ASPECT_RATE,
-                                       0f); }
+            get
+            {
+                return CharacterController.I.DummyCharacter.transform.position
+                       + new Vector3(-CharacterController.I.DummyCharacter.transform.lossyScale.x / 2,
+                                     CharacterController.I.DummyCharacter.transform.lossyScale.y * ASPECT_RATE,
+                                     0f);
+            }
         }
         public static Vector3 TopRight
         {
-            get { return CharacterController.I.DummyCharacter.transform.position
-                         + new Vector3( CharacterController.I.DummyCharacter.transform.lossyScale.x/2,
-                                       CharacterController.I.DummyCharacter.transform.lossyScale.y*ASPECT_RATE,
-                                       0f); }
+            get
+            {
+                return CharacterController.I.DummyCharacter.transform.position
+                       + new Vector3(CharacterController.I.DummyCharacter.transform.lossyScale.x / 2,
+                                     CharacterController.I.DummyCharacter.transform.lossyScale.y * ASPECT_RATE,
+                                     0f);
+            }
         }
     }
 }
