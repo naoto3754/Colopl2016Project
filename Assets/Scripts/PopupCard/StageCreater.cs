@@ -102,7 +102,7 @@ public class StageCreater : Singlton<StageCreater>
         background.transform.localScale = new Vector3(StageWidth/2, StageHeight, thickness);
         background.transform.forward = Vector3.right;
         //ステージの紙オブジェクト生成
-        IEnumerable<float> yCoordList = StageManager.I.CurrentInfo.GetSortYCoordList();
+        IEnumerable<float> yCoordList = StageManager.I.GetSortYCoordList();
         float prevY = yCoordList.First();
         float yOffset = 0f;
         foreach (float y in yCoordList)
@@ -112,7 +112,7 @@ public class StageCreater : Singlton<StageCreater>
             bool setX = true;
             float prevX = -StageWidth / 2;
             float xOffset = -StageWidth / 2, zOffset = _ZOffset;
-            IEnumerable<float> xCoordList = StageManager.I.CurrentInfo.GetSortXCoordList((prevY + y) / 2);
+            IEnumerable<float> xCoordList = StageManager.I.GetSortXCoordList((prevY + y) / 2);
             foreach (float x in xCoordList)
             {
                 GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
@@ -182,7 +182,7 @@ public class StageCreater : Singlton<StageCreater>
         bool facingX = true;
         float prevX = -StageWidth / 2;
 
-        foreach (float x in StageManager.I.CurrentInfo.GetSortXCoordList(decoPos.y + decoScale.y / 2 * anchorHeightScale))
+        foreach (float x in StageManager.I.GetSortXCoordList(decoPos.y + decoScale.y / 2 * anchorHeightScale))
         {
             if (decoPos.x - decoScale.x / 2 < x)
                 break;
@@ -213,7 +213,7 @@ public class StageCreater : Singlton<StageCreater>
         float delta = decoScale.x;
         Vector2 decoAnchorPos = new Vector2(decoPos.x - delta / 2,
                                             decoPos.y + decoScale.y / 2 * anchorHeightScale);
-        float foldlineDist = StageManager.I.CurrentInfo.CalcFoldLineDistance(decoAnchorPos, delta);
+        float foldlineDist = StageManager.I.CalcFoldLineDistance(decoAnchorPos, delta);
         if (Mathf.Abs(foldlineDist) < Mathf.Abs(delta))
         {
             if (facingX)
