@@ -46,6 +46,19 @@ public class CharacterController : Singlton<CharacterController>
             //入力を取得
             float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal");
             float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical");
+            Vector2 touchPos = InputManager.I.GetTapPos();            
+            if(InputManager.I.GetAnyTap())
+            {
+                if(touchPos.x < 0.3f)
+                    deltaHol = Time.deltaTime * _Speed * -1f;
+                else if(touchPos.x > 0.7f)
+                    deltaHol = Time.deltaTime * _Speed * 1f;
+                if(touchPos.y < 0.3f)
+                    deltaVer = Time.deltaTime * _Speed * -1f;
+                else if(touchPos.y > 0.7f)
+                    deltaVer = Time.deltaTime * _Speed * 1f;
+                    
+            } 
             float deltaDrop = Time.deltaTime * _DropSpeed;
 
             if (!StageManager.I.CanUseLadder(_DummyCharacter.transform.position))
@@ -56,7 +69,8 @@ public class CharacterController : Singlton<CharacterController>
             Vector2 moveDir = StageManager.I.CalcAmountOfMovement(new Vector2(deltaHol, deltaVer));
 
             UpdateCharacterXZPosition(moveDir);
-            if (Input.GetKeyDown(KeyCode.DownArrow) && _IsTopOfWall)
+            if (Input.GetKeyDown(KeyCode.DownArrow) && _IsTopOfWall ||
+                touchPos.y > 0.1f && touchPos.y < 0.3f && _IsTopOfWall)
             {
                 _DummyCharacter.transform.position -= 0.02f * Vector3.up;
                 _CharacterX.transform.position -= 0.02f * Vector3.up;

@@ -67,7 +67,7 @@ public class InputManager : Singlton<InputManager>
 				Debug.Log("[InputManager.GetTap] Invalid Touch Index : "+index);
 			return false;
 		}
-		return Input.GetTouch(index).phase == TouchPhase.Moved;
+		return Input.GetTouch(index).phase == TouchPhase.Moved || Input.GetTouch(index).phase == TouchPhase.Stationary;
 #else
 		return Input.GetMouseButton(index);
 #endif
@@ -88,6 +88,24 @@ public class InputManager : Singlton<InputManager>
 		return Input.GetTouch(index).phase == TouchPhase.Ended;
 #else
 		return Input.GetMouseButtonUp(index);
+#endif
+	}
+	// <summary>
+	/// 対応するインデックスにおけるタップ場所を取得
+	/// </summary>
+	public Vector2 GetTapPos(int index = 0)
+	{
+#if UNITY_EDITOR
+		return new Vector2(Input.mousePosition.x/Screen.width, Input.mousePosition.y/Screen.height);
+#elif UNITY_IOS || UNITY_ANDROID
+		if(Input.touchCount <= index){
+			if(index != 0)
+				Debug.Log("[InputManager.GetTapPos] Invalid Touch Index : "+index);
+			return Vector2.zero;
+		}
+		return new Vector2(Input.GetTouch(index).position.x/Screen.width, Input.GetTouch(index).position.y/Screen.height);;
+#else
+		return new Vector2(Input.mousePosition.x/Screen.width, Input.mousePosition.y/Screen.height);
 #endif
 	}
 	/// <summary>
@@ -124,7 +142,7 @@ public class InputManager : Singlton<InputManager>
 		return false;
 #elif UNITY_IOS || UNITY_ANDROID
 		foreach(Touch touch in Input.touches)
-			if(touch.phase == TouchPhase.Moved)
+			if(touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
 				return true;
 		return false;
 #else
@@ -244,30 +262,4 @@ public class InputManager : Singlton<InputManager>
 				
 		return Vector2.zero;
 	}
-	/// <summary>
-	/// 対応するインデックスにおけるタップと平面との交点を返す
-	/// </summary>
-	public Vector3 GetTappedPointAcrossPlane(Plane plane, int index = 0)
-	{
-		Ray ray;
-#if UNITY_EDITOR
-		ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-#elif UNITY_IOS || UNITY_ANDROID
-		if(Input.touchCount <= index){
-			if(index != 0)
-				Debug.Log("[InputManager.GetTappedGameObject] Invalid Touch Index : "+index);
-			return Vector3.zero;
-		}
-		ray = Camera.main.ScreenPointToRay(Input.GetTouch(index).position);
-#else
-		ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-#endif
-		float rayDistance;
-		if(plane.Raycast(ray, out rayDistance)){
-			return ray.GetPoint(rayDistance);
-		}
-		
-		return Vector3.zero;
-	}
-
 }
