@@ -8,8 +8,4 @@ public class StageObjectParameter : MonoBehaviour {
 	public bool DontThroughUp = false;
 	public bool DontThroughDown = true;
 	
-	public StageObjectParameter()
-	{
-		
-	}
 }
