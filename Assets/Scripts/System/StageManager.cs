@@ -112,7 +112,7 @@ public class StageManager : Singlton<StageManager>
             //下
             charaPos = CharacterController.CharaParam.Bottom;
             if (wall.ThroughLine(charaPos, charaPos + delta))
-                return CalcDistanceToWall(delta, charaPos.x, wall.points[0].x);
+                return new Vector2(delta.x, Mathf.Max(wall.points[0].y, wall.points[1].y)-charaPos.y+0.01f);
             //左
             charaPos = CharacterController.CharaParam.Left;
             if (wall.ThroughLine(charaPos, charaPos + delta))
@@ -143,6 +143,7 @@ public class StageManager : Singlton<StageManager>
     /// </summary>
     private Vector2 CalcSlopeIntersection(Vector2 delta)
     {
+        Vector2 originalDelta = delta;
         foreach (Line slope in _CurrentInfo.Slope)
         {
             Vector2 charaPos = CharacterController.CharaParam.Bottom;
@@ -150,6 +151,8 @@ public class StageManager : Singlton<StageManager>
             {
                 float ret = slope.LarpYCoord(charaPos.x + delta.x) - charaPos.y;
                 delta.y = ret + 0.01f;
+                Vector2 ground = CalcGroundIntersection(delta);
+                delta *= ground.y / delta.y; 
                 break;
             }
         }
