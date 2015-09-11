@@ -86,7 +86,7 @@ public class StageCreater : Singlton<StageCreater>
     private void InstantiatePaper()
     {
         //ステージの紙オブジェクト生成
-        IEnumerable<float> yCoordList = DummyCardObjects.I.GetSortYCoordList();
+        IEnumerable<float> yCoordList = StageManager.I.CurrentObjects.GetSortYCoordList();
         float prevY = yCoordList.First();
         float yOffset = 0f;
         float thickness = _Paper.transform.localScale.z;
@@ -97,7 +97,7 @@ public class StageCreater : Singlton<StageCreater>
             bool setX = true;
             float prevX = -StageWidth / 2;
             float xOffset = -StageWidth / 2, zOffset = _ZOffset;
-            IEnumerable<float> xCoordList = DummyCardObjects.I.GetSortXCoordList((prevY + y) / 2);
+            IEnumerable<float> xCoordList = StageManager.I.CurrentObjects.GetSortXCoordList((prevY + y) / 2);
             foreach (float x in xCoordList)
             {
                 GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
@@ -137,7 +137,7 @@ public class StageCreater : Singlton<StageCreater>
     /// </summary>
     private void InstantiateDecoration()
     {
-        foreach (GameObject decos in DummyCardObjects.I.Decoration)
+        foreach (GameObject decos in StageManager.I.CurrentObjects.Decoration)
         {
             SetDecoration(decos);
             foreach (Transform child in decos.transform)
@@ -167,7 +167,7 @@ public class StageCreater : Singlton<StageCreater>
         bool facingX = true;
         float prevX = -StageWidth / 2;
 
-        foreach (float x in DummyCardObjects.I.GetSortXCoordList(decoPos.y + decoScale.y / 2 * anchorHeightScale))
+        foreach (float x in StageManager.I.CurrentObjects.GetSortXCoordList(decoPos.y + decoScale.y / 2 * anchorHeightScale))
         {
             if (decoPos.x - decoScale.x / 2 < x)
                 break;
@@ -198,7 +198,7 @@ public class StageCreater : Singlton<StageCreater>
         float delta = decoScale.x;
         Vector2 decoAnchorPos = new Vector2(decoPos.x - delta / 2,
                                             decoPos.y + decoScale.y / 2 * anchorHeightScale);
-        float foldlineDist = DummyCardObjects.I.CalcFoldLineDistance(decoAnchorPos, delta);
+        float foldlineDist = StageManager.I.CurrentObjects.CalcFoldLineDistance(decoAnchorPos, delta);
         if (Mathf.Abs(foldlineDist) < Mathf.Abs(delta))
         {
             if (facingX)

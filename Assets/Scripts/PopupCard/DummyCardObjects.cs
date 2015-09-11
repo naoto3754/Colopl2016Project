@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class DummyCardObjects : Singlton<DummyCardObjects>
+public class DummyCardObjects : MonoBehaviour
 {
     
     [SerializeField]
@@ -22,7 +22,7 @@ public class DummyCardObjects : Singlton<DummyCardObjects>
         get { return _Decoration; }
     }
 
-    public override void OnInitialize()
+    void Awake()
     {
         _FoldLine = new List<Line>();
         _GroundLine = new List<Line>();
@@ -64,6 +64,8 @@ public class DummyCardObjects : Singlton<DummyCardObjects>
         {
             _Decoration.Add(renderer.gameObject);
         }
+        //ステージマネージャーに自分を渡す
+        StageManager.I.CurrentObjects = this;
     }
     /// <summary>
     /// 移動量を計算
