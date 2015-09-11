@@ -11,7 +11,6 @@ public class StageCreater : Singlton<StageCreater>
     private float _XOffset;
     private float _ZOffset;
     
-    [SerializeField]
     private GameObject _Root;
     [SerializeField]
     private GameObject _Paper;
@@ -33,6 +32,7 @@ public class StageCreater : Singlton<StageCreater>
 
     void Start()
     {
+        _Root = new GameObject("StageRoot");
         CreateStage();
         CloseStage(0f,false);
         OpenStage(1f);
@@ -85,11 +85,27 @@ public class StageCreater : Singlton<StageCreater>
     /// </summary>
     private void InstantiatePaper()
     {
+        float thickness = _Paper.transform.localScale.z;
+        //背景の生成
+        //x方向
+        GameObject background = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
+        background.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
+        background.GetComponent<Renderer>().material.color = new Color(1f, 180f/255f, 200f/255f);
+        background.transform.SetParent(_Root.transform);
+        background.transform.position = new Vector3(-StageWidth/4+0.1f+_XOffset, StageHeight/2, 0.1f+_ZOffset);
+        background.transform.localScale = new Vector3(StageWidth/2, StageHeight, thickness);
+        //z方向
+        background = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
+        background.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
+        background.GetComponent<Renderer>().material.color = new Color(1f, 180f/255f, 200f/255f);
+        background.transform.SetParent(_Root.transform);
+        background.transform.position = new Vector3(0.1f+_XOffset, StageHeight/2, -StageWidth/4+0.1f+_ZOffset);
+        background.transform.localScale = new Vector3(StageWidth/2, StageHeight, thickness);
+        background.transform.forward = Vector3.right;
         //ステージの紙オブジェクト生成
         IEnumerable<float> yCoordList = StageManager.I.CurrentObjects.GetSortYCoordList();
         float prevY = yCoordList.First();
         float yOffset = 0f;
-        float thickness = _Paper.transform.localScale.z;
         foreach (float y in yCoordList)
         {
             if (y == yCoordList.First())
