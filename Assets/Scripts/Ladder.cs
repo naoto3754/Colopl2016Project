@@ -8,8 +8,7 @@ public class Ladder : MonoBehaviour
 
     void Awake()
     {
-        //はしごのサイズに合わせてスプライトを生成
-        Debug.Log("Create Ladder");
+        //はしごのサイズに合わせてスプライトを生成        
         Vector3 anchorPos = transform.position - new Vector3(0f, transform.localScale.y / 2, 0f);
         for (int tilingY = 0; tilingY < transform.localScale.y; tilingY++)
         {
