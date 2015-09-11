@@ -177,7 +177,6 @@ public class StageManager : Singlton<StageManager>
     /// </summary>
     private Vector2 CalcSlopeIntersection(Vector2 delta)
     {
-        Vector2 originalDelta = delta;
         foreach (Line slope in _CurrentInfo.Slope)
         {
             Vector2 charaPos = CharacterController.CharaParam.Bottom;
