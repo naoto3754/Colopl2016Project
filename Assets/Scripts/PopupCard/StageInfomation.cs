@@ -3,9 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class DummyCardObjects : MonoBehaviour
+public class StageInfomation : MonoBehaviour
 {
-    
+    [SerializeField]
+    private int _StageId; 
     [SerializeField]
     private GameObject FoldLines;
     [SerializeField]
