@@ -48,7 +48,7 @@ public class CharacterController : Singlton<CharacterController>
             float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical");
             float deltaDrop = Time.deltaTime * _DropSpeed;
     
-            if (!StageManager.I.CurrentObjects.CanUseLadder(_DummyCharacter.transform.position))
+            if (!StageManager.I.CurrentInfo.CanUseLadder(_DummyCharacter.transform.position))
             {
                 deltaVer = -deltaDrop;
             }
@@ -60,7 +60,7 @@ public class CharacterController : Singlton<CharacterController>
             charaPosList.Add(CharaParam.TopRight);
             charaPosList.Add(CharaParam.TopLeft);
     
-            Vector2 moveDir = StageManager.I.CurrentObjects.CalcAmountOfMovement(new Vector2(deltaHol, deltaVer));
+            Vector2 moveDir = StageManager.I.CurrentInfo.CalcAmountOfMovement(new Vector2(deltaHol, deltaVer));
     
             UpdateCharacterXZPosition(moveDir);
             if(Input.GetKeyDown(KeyCode.DownArrow) && _IsTopOfWall)
@@ -82,14 +82,14 @@ public class CharacterController : Singlton<CharacterController>
         _CharacterZ.transform.position += new Vector3(0f, moveDir.y, -moveDir.x);
         
         if(_IsTopOfWall)
-            _IsTopOfWall = StageManager.I.CurrentObjects.OnTopOfWall();
+            _IsTopOfWall = StageManager.I.CurrentInfo.OnTopOfWall();
         
         _MoveX = CalcCurrentMoveDirection();
 
         if (Mathf.Abs(moveDir.x) > 0f)
         {
             float delta = Mathf.Sign(moveDir.x) * _DummyCharacter.transform.lossyScale.x / 2;
-            float foldlineDist = StageManager.I.CurrentObjects.CalcFoldLineDistance(_DummyCharacter.transform.position, delta);
+            float foldlineDist = StageManager.I.CurrentInfo.CalcFoldLineDistance(_DummyCharacter.transform.position, delta);
             if (Mathf.Abs(foldlineDist) < Mathf.Abs(delta))
             {
                 if (_OverFoldLine == false)
@@ -159,8 +159,8 @@ public class CharacterController : Singlton<CharacterController>
     {
         int r = 0;
         float delta = _DummyCharacter.transform.lossyScale.x;
-        float foldlineDist = StageManager.I.CurrentObjects.CalcFoldLineDistance(_DummyCharacter.transform.position - delta / 2 * Vector3.right, delta);
-        foreach (float x in StageManager.I.CurrentObjects.GetSortXCoordList(_DummyCharacter.transform.position.y))
+        float foldlineDist = StageManager.I.CurrentInfo.CalcFoldLineDistance(_DummyCharacter.transform.position - delta / 2 * Vector3.right, delta);
+        foreach (float x in StageManager.I.CurrentInfo.GetSortXCoordList(_DummyCharacter.transform.position.y))
         {
             if (_DummyCharacter.transform.position.x - delta / 2 < x)
             {
@@ -242,7 +242,7 @@ public class CharacterController : Singlton<CharacterController>
     {
         bool moveX = true;
         Vector3 charaPos = _DummyCharacter.transform.position;
-        foreach (float x in StageManager.I.CurrentObjects.GetSortXCoordList(charaPos.y))
+        foreach (float x in StageManager.I.CurrentInfo.GetSortXCoordList(charaPos.y))
         {
             if (charaPos.x < x)
                 break;

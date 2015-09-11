@@ -11,6 +11,18 @@ public class StageInfomation : MonoBehaviour
     private GameObject FoldLines;
     [SerializeField]
     private GameObject StageComponent;
+    [SerializeField]
+    private ColorData _InitialCharacterColor;
+    public ColorData InitialCharacterColor
+    {
+        get { return _InitialCharacterColor; }
+    }
+    [SerializeField]
+    private Color _BackgroundColor;
+    public Color BackgroundColor
+    {
+        get { return _BackgroundColor; }
+    }
 
     private List<Line> _FoldLine;
     private List<Line> _GroundLine;
@@ -66,7 +78,7 @@ public class StageInfomation : MonoBehaviour
             _Decoration.Add(renderer.gameObject);
         }
         //ステージマネージャーに自分を渡す
-        StageManager.I.CurrentObjects = this;
+        StageManager.I.CurrentInfo = this;
     }
     /// <summary>
     /// 移動量を計算

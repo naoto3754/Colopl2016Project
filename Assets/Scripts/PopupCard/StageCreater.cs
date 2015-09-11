@@ -61,7 +61,8 @@ public class StageCreater : Singlton<StageCreater>
         foreach (Transform child in character.transform)
             child.gameObject.layer = 0;
         //TODO:色を決める
-        character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor", new Color(0.9f, 0.45f, 0.45f));
+        character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor", ColorManager.GetColorWithColorData(StageManager.I.CurrentInfo.InitialCharacterColor));
+        ColorManager.MultiplyShadowColor(character);
         CharacterController.I.CharacterX = character;
         //Z方向に動くキャラクター
         character = Instantiate(CharacterController.I.DummyCharacter,
@@ -69,11 +70,7 @@ public class StageCreater : Singlton<StageCreater>
                                 Quaternion.identity) as GameObject;
         character.transform.Rotate(0f, 90f, 0f);
         character.transform.SetParent(_Root.transform);
-        //TODO:色を決める
-        character.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_MainColor", new Color(1f, 1f, 1f));
-        character.transform.GetChild(0).GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", 0f);
-        character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor", new Color(1f, 0.5f, 0.5f));
-        character.transform.GetChild(1).GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", 0f);
+        character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor", ColorManager.GetColorWithColorData(StageManager.I.CurrentInfo.InitialCharacterColor));
         character.layer = 0;
         foreach (Transform child in character.transform)
             child.gameObject.layer = 0;
@@ -90,20 +87,20 @@ public class StageCreater : Singlton<StageCreater>
         //x方向
         GameObject background = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
         background.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-        background.GetComponent<Renderer>().material.color = new Color(1f, 180f/255f, 200f/255f);
+        background.GetComponent<Renderer>().material.color = StageManager.I.CurrentInfo.BackgroundColor;
         background.transform.SetParent(_Root.transform);
         background.transform.position = new Vector3(-StageWidth/4+0.1f+_XOffset, StageHeight/2, 0.1f+_ZOffset);
         background.transform.localScale = new Vector3(StageWidth/2, StageHeight, thickness);
         //z方向
         background = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
         background.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-        background.GetComponent<Renderer>().material.color = new Color(1f, 180f/255f, 200f/255f);
+        background.GetComponent<Renderer>().material.color = StageManager.I.CurrentInfo.BackgroundColor;
         background.transform.SetParent(_Root.transform);
         background.transform.position = new Vector3(0.1f+_XOffset, StageHeight/2, -StageWidth/4+0.1f+_ZOffset);
         background.transform.localScale = new Vector3(StageWidth/2, StageHeight, thickness);
         background.transform.forward = Vector3.right;
         //ステージの紙オブジェクト生成
-        IEnumerable<float> yCoordList = StageManager.I.CurrentObjects.GetSortYCoordList();
+        IEnumerable<float> yCoordList = StageManager.I.CurrentInfo.GetSortYCoordList();
         float prevY = yCoordList.First();
         float yOffset = 0f;
         foreach (float y in yCoordList)
@@ -113,7 +110,7 @@ public class StageCreater : Singlton<StageCreater>
             bool setX = true;
             float prevX = -StageWidth / 2;
             float xOffset = -StageWidth / 2, zOffset = _ZOffset;
-            IEnumerable<float> xCoordList = StageManager.I.CurrentObjects.GetSortXCoordList((prevY + y) / 2);
+            IEnumerable<float> xCoordList = StageManager.I.CurrentInfo.GetSortXCoordList((prevY + y) / 2);
             foreach (float x in xCoordList)
             {
                 GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
@@ -153,7 +150,7 @@ public class StageCreater : Singlton<StageCreater>
     /// </summary>
     private void InstantiateDecoration()
     {
-        foreach (GameObject decos in StageManager.I.CurrentObjects.Decoration)
+        foreach (GameObject decos in StageManager.I.CurrentInfo.Decoration)
         {
             SetDecoration(decos);
             foreach (Transform child in decos.transform)
@@ -183,7 +180,7 @@ public class StageCreater : Singlton<StageCreater>
         bool facingX = true;
         float prevX = -StageWidth / 2;
 
-        foreach (float x in StageManager.I.CurrentObjects.GetSortXCoordList(decoPos.y + decoScale.y / 2 * anchorHeightScale))
+        foreach (float x in StageManager.I.CurrentInfo.GetSortXCoordList(decoPos.y + decoScale.y / 2 * anchorHeightScale))
         {
             if (decoPos.x - decoScale.x / 2 < x)
                 break;
@@ -214,7 +211,7 @@ public class StageCreater : Singlton<StageCreater>
         float delta = decoScale.x;
         Vector2 decoAnchorPos = new Vector2(decoPos.x - delta / 2,
                                             decoPos.y + decoScale.y / 2 * anchorHeightScale);
-        float foldlineDist = StageManager.I.CurrentObjects.CalcFoldLineDistance(decoAnchorPos, delta);
+        float foldlineDist = StageManager.I.CurrentInfo.CalcFoldLineDistance(decoAnchorPos, delta);
         if (Mathf.Abs(foldlineDist) < Mathf.Abs(delta))
         {
             if (facingX)
