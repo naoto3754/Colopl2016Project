@@ -68,7 +68,7 @@ public class CharacterController : Singlton<CharacterController>
 
             Vector2 moveDir = StageManager.I.CalcAmountOfMovement(new Vector2(deltaHol, deltaVer));
 
-            UpdateCharacterXZPosition(moveDir);
+            UpdateDummyCharacterPosition(moveDir);
             if (Input.GetKeyDown(KeyCode.DownArrow) && _IsTopOfWall ||
                 touchPos.y > 0.1f && touchPos.y < 0.3f && _IsTopOfWall)
             {
@@ -82,92 +82,87 @@ public class CharacterController : Singlton<CharacterController>
     /// <summary>
     /// 移動量を計算し、キャラの位置を更新
     /// </summary>
-    private void UpdateCharacterXZPosition(Vector2 moveDir)
+    private void UpdateDummyCharacterPosition(Vector2 moveDir)
     {
         _DummyCharacter.transform.position += new Vector3(moveDir.x, moveDir.y, 0f);
-        _CharacterX.transform.position += new Vector3(moveDir.x, moveDir.y, 0f);
-        _CharacterZ.transform.position += new Vector3(0f, moveDir.y, -moveDir.x);
-
+        IEnumerable foldXList = StageManager.I.GetSortXCoordList(_DummyCharacter.transform.position.y);
+        //飛び出ている部分の上に乗っているか判定
         if (_IsTopOfWall)
             _IsTopOfWall = StageManager.I.OnTopOfWall();
-
-        _MoveX = CalcCurrentMoveDirection();
-
-        if (Mathf.Abs(moveDir.x) > 0f)
+        //現在の移動方向を計算
+        _MoveX = CalcCurrentMoveDirection(foldXList);
+        // ダミーキャラの位置を実際のキャラ反映させる
+        UpdateXZCharacterPosition(moveDir, foldXList);
+        //キャラクター部分透過
+        UpdateSubTransparent(moveDir, foldXList);
+    }
+    /// <summary>
+    /// ダミーキャラの位置を実際のキャラ反映させる
+    /// </summary>
+    private void UpdateXZCharacterPosition(Vector2 moveDir, IEnumerable foldXList)
+    {
+        int r = 0;
+        Vector3 charaPos = _DummyCharacter.transform.position;
+        float delta = _DummyCharacter.transform.lossyScale.x;
+        float foldlineDist = StageManager.I.CalcFoldLineDistance(_DummyCharacter.transform.position - delta / 2 * Vector3.right, delta);
+        float prevX = -StageCreater.I.StageWidth/2;
+        float xOffset = StageCreater.I.XOffset-StageCreater.I.StageWidth/2;
+        float zOffset = StageCreater.I.ZOffset;
+        float charaAnchor = _DummyCharacter.transform.position.x - delta / 2;   
+        foreach (float x in foldXList)
         {
-            float delta = Mathf.Sign(moveDir.x) * _DummyCharacter.transform.lossyScale.x / 2;
-            float foldlineDist = StageManager.I.CalcFoldLineDistance(_DummyCharacter.transform.position, delta);
-            if (Mathf.Abs(foldlineDist) < Mathf.Abs(delta))
+            if (prevX < charaAnchor && charaAnchor < x)
             {
-                if (_OverFoldLine == false)
+                if (r == 0) //x方向移動
                 {
-                    if (_MoveX)
+                    if (foldlineDist == delta + 1f)
                     {
-                        Vector3 zCharaPos;
-                        zCharaPos.x = _CharacterX.transform.position.x + foldlineDist;
-                        zCharaPos.y = _DummyCharacter.transform.position.y;
-                        zCharaPos.z = _CharacterX.transform.position.z + foldlineDist;
-                        _CharacterZ.transform.position = zCharaPos;
+                        _CharacterX.transform.position = new Vector3(xOffset+charaPos.x-prevX-0.01f, charaPos.y, zOffset-0.01f);
+                        return;
                     }
                     else
                     {
-                        Vector3 xCharaPos;
-                        xCharaPos.x = _CharacterZ.transform.position.x - foldlineDist;
-                        xCharaPos.y = _DummyCharacter.transform.position.y;
-                        xCharaPos.z = _CharacterZ.transform.position.z - foldlineDist;
-                        _CharacterX.transform.position = xCharaPos;
+                        _CharacterX.transform.position = new Vector3(xOffset+charaPos.x-prevX-0.01f, charaPos.y, zOffset-0.01f);
+                        _CharacterZ.transform.position = new Vector3(xOffset+x-prevX-0.01f, charaPos.y, zOffset-delta/2+foldlineDist-0.01f);
+                        return;
                     }
-
-                    _OverFoldLine = true;
+                }
+                else //z方向移動
+                {
+                    if (foldlineDist == delta + 1f)
+                    {
+                        _CharacterZ.transform.position = new Vector3(xOffset-0.01f, charaPos.y, zOffset-charaPos.x+prevX-0.01f);
+                        return;
+                    }
+                    else
+                    {
+                        _CharacterX.transform.position = new Vector3(xOffset+delta/2-foldlineDist-0.01f, charaPos.y, zOffset-x+prevX-0.01f);
+                        _CharacterZ.transform.position = new Vector3(xOffset-0.01f, charaPos.y, zOffset-charaPos.x+prevX-0.01f);
+                        return;
+                    }
                 }
             }
-            else if (_OverFoldLine == true)
+            else
             {
-                _OverFoldLine = false;
+                if(r == 0)
+                    xOffset += x - prevX;
+                else
+                    zOffset -= x - prevX;
             }
+            prevX = x;
+            r = (int)Mathf.Repeat(r + 1, 2);
         }
-    }
-
-    /// <summary>
-    /// 移動方向からキャラクターの向きやアニメーションを決定する
-    /// </summary>
-    public void UpdateCharacterState(Vector2 moveDir)
-    {
-        //アニメーション
-        if (Mathf.Abs(moveDir.x) > 0.01f)
-        {
-            _CharacterX.GetComponent<Animator>().Play("walk");
-            _CharacterZ.GetComponent<Animator>().Play("walk");
-        }
-        else
-        {
-            _CharacterX.GetComponent<Animator>().Play("idle");
-            _CharacterZ.GetComponent<Animator>().Play("idle");
-        }
-        //キャラクター向き
-        if (moveDir.x > 0f)
-        {
-            _CharacterX.transform.forward = Vector3.forward;
-            _CharacterZ.transform.forward = Vector3.right;
-        }
-        else if (moveDir.x < 0f)
-        {
-            _CharacterX.transform.forward = Vector3.back;
-            _CharacterZ.transform.forward = Vector3.left;
-        }
-        //キャラクター部分透過
-        UpdateSubTransparent(moveDir);
     }
 
     /// <summary>
     /// キャラクターの部分透過を設定
     /// </summary>
-    private void UpdateSubTransparent(Vector2 moveDir)
+    private void UpdateSubTransparent(Vector2 moveDir, IEnumerable foldXList)
     {
         int r = 0;
         float delta = _DummyCharacter.transform.lossyScale.x;
         float foldlineDist = StageManager.I.CalcFoldLineDistance(_DummyCharacter.transform.position - delta / 2 * Vector3.right, delta);
-        foreach (float x in StageManager.I.GetSortXCoordList(_DummyCharacter.transform.position.y))
+        foreach (float x in foldXList)
         {
             if (_DummyCharacter.transform.position.x - delta / 2 < x)
             {
@@ -226,7 +221,7 @@ public class CharacterController : Singlton<CharacterController>
             return;
         }
     }
-
+    //キャラクター透過用関数
     private void SetCharacterTransparent(float xForward, float xBack, float zForward, float zBack)
     {
         _CharacterX.transform.GetChild(0).position = _CharacterX.transform.GetChild(1).position + new Vector3(-0.001f, 0f, 0f);
@@ -243,13 +238,42 @@ public class CharacterController : Singlton<CharacterController>
         }
     }
     /// <summary>
+    /// 移動方向からキャラクターの向きやアニメーションを決定する
+    /// </summary>
+    public void UpdateCharacterState(Vector2 moveDir)
+    {
+        //アニメーション
+        if (Mathf.Abs(moveDir.x) > 0.01f)
+        {
+            _CharacterX.GetComponent<Animator>().Play("walk");
+            _CharacterZ.GetComponent<Animator>().Play("walk");
+        }
+        else
+        {
+            _CharacterX.GetComponent<Animator>().Play("idle");
+            _CharacterZ.GetComponent<Animator>().Play("idle");
+        }
+        //キャラクター向き
+        if (moveDir.x > 0f)
+        {
+            _CharacterX.transform.forward = Vector3.forward;
+            _CharacterZ.transform.forward = Vector3.right;
+        }
+        else if (moveDir.x < 0f)
+        {
+            _CharacterX.transform.forward = Vector3.back;
+            _CharacterZ.transform.forward = Vector3.left;
+        }
+    }
+    
+    /// <summary>
     /// 現在の移動方向を計算する
     /// </summary>
-    private bool CalcCurrentMoveDirection()
+    private bool CalcCurrentMoveDirection(IEnumerable foldXList)
     {
         bool moveX = true;
         Vector3 charaPos = _DummyCharacter.transform.position;
-        foreach (float x in StageManager.I.GetSortXCoordList(charaPos.y))
+        foreach (float x in foldXList)
         {
             if (charaPos.x < x)
                 break;

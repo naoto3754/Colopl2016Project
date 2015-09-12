@@ -9,16 +9,23 @@ public class StageCreater : Singlton<StageCreater>
     public static readonly float OFFSET = 0.01f;
     private readonly float ANIMATION_INITIAL_WEIGHT = 0.02f;
     private float _XOffset;
+    public float XOffset
+    {
+        get { return _XOffset; }
+    }
     private float _ZOffset;
-
+    public float ZOffset
+    {
+        get { return _ZOffset; }
+    }
     private GameObject _Root;
     [SerializeField]
     private GameObject _Paper;
-    private float StageWidth
+    public float StageWidth
     {
         get { return StageManager.I.CurrentInfo.StageWidth; }
     }
-    private float StageHeight
+    public float StageHeight
     {
         get { return StageManager.I.CurrentInfo.StageHeight; }
     }
@@ -139,12 +146,6 @@ public class StageCreater : Singlton<StageCreater>
                 setX = !setX;
                 prevX = x;
             }
-            GameObject lastPaper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
-            lastPaper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-            lastPaper.transform.SetParent(_Root.transform);
-            lastPaper.transform.position = new Vector3(xOffset + _XOffset + thickness / 2, (y - prevY) / 2 + yOffset, -(StageWidth / 2 - prevX) / 2 + zOffset);
-            lastPaper.transform.forward = Vector3.right;
-            lastPaper.transform.localScale = new Vector3(StageWidth / 2 - prevX, y - prevY, thickness);
             yOffset += y - prevY;
             prevY = y;
         }

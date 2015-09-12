@@ -276,6 +276,7 @@ public class StageManager : Singlton<StageManager>
         if (CharacterController.I.IsTopOfWall)
             y -= 0.02f;
         List<float> retList = new List<float>();
+        retList.Add(StageCreater.I.StageWidth/2);
         foreach (Line line in _CurrentInfo.FoldLine)
         {
             if (((line.points[0].y - y) <= 0f && 0f < (line.points[1].y - y)) ||
