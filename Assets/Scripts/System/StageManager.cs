@@ -15,6 +15,8 @@ public class StageManager : Singlton<StageManager>
         set { _CurrentInfo = value; }
     }
 
+    private bool _JumpUp;
+
     public override void OnInitialize()
     {
         GameObject[] stages = Resources.LoadAll<GameObject>(STAGE_DIR);
@@ -35,6 +37,7 @@ public class StageManager : Singlton<StageManager>
     /// </summary>
     public Vector2 CalcAmountOfMovement(Vector2 delta)
     {
+        _JumpUp = false;
         Vector2 retVec = Vector3.zero;
         retVec = delta;
         //地面との交差判定
@@ -78,11 +81,13 @@ public class StageManager : Singlton<StageManager>
             else if (delta.y > 0f)
             {
                 //飛び出た部分の上に乗った判定
-                if (groundline.param.TopOfWall)
+                if (groundline.param.TopOfWall && _JumpUp == false)
                 {
                     charaPos = CharacterController.CharaParam.Bottom;
                     if (groundline.ThroughLine(charaPos, charaPos + delta))
+                    {
                         CharacterController.I.IsTopOfWall = true;
+                    }
                 }
 
                 if (groundline.param.DontThroughUp == false)
@@ -137,6 +142,7 @@ public class StageManager : Singlton<StageManager>
             }
             if (IntersectBottom && Mathf.Abs(delta.y) < 0.001f)
             {
+                _JumpUp = true;   
                 return new Vector2(delta.x, groundLine.points[0].y - charaLeftPos.y + 0.01f);
             }
         }
@@ -162,7 +168,10 @@ public class StageManager : Singlton<StageManager>
             //下
             charaPos = CharacterController.CharaParam.Bottom;
             if (wall.ThroughLine(charaPos, charaPos + delta) && Mathf.Abs(delta.y) < 0.001f)
+            {
+                _JumpUp = true;
                 return new Vector2(delta.x, Mathf.Max(wall.points[0].y, wall.points[1].y) - charaPos.y + 0.01f);
+            }
         }
         return delta;
     }

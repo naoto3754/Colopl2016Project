@@ -87,8 +87,8 @@ public class StageInfomation : MonoBehaviour
         _Wall = new List<Line>();
         _Decoration = new List<GameObject>();
 
-        foreach (Transform line in FoldLines.transform)
-            _FoldLine.Add(new Line(line.position, line.position + line.lossyScale, null));
+        foreach (LineRenderer line in FoldLines.GetComponentsInChildren<LineRenderer>())
+            _FoldLine.Add(new Line(line.transform.position, line.transform.position + line.transform.lossyScale, null));
         foreach (LineRenderer renderer in StageComponent.GetComponentsInChildren<LineRenderer>())
         {
             Vector3 linePos = renderer.transform.position;
