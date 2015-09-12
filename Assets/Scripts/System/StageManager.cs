@@ -142,7 +142,7 @@ public class StageManager : Singlton<StageManager>
                 return new Vector2(Mathf.Min(groundLine.points[0].x, groundLine.points[1].x) - charaRightPos.x - 0.01f,
                                    delta.y);
             }
-            if ( (IntersectBottomLeft || IntersectBottomRight) && Mathf.Abs(delta.y) < 0.001f)
+            if ( (IntersectBottomLeft && !IntersectBottomRight || !IntersectBottomLeft&& IntersectBottomRight) && Mathf.Abs(delta.y) < 0.001f)
             {
                 _JumpUp = true;   
                 return new Vector2(delta.x, groundLine.points[0].y - charaLeftPos.y + 0.01f);
@@ -224,12 +224,16 @@ public class StageManager : Singlton<StageManager>
     /// <summary>
     /// はしごの矩形に含まれているか判定
     /// </summary>
-    public bool CanUseLadder(Vector3 charaPos)
+    public bool CanUseLadder(Vector3 charaPos, ref float deltaY)
     {
         foreach (CardRect rect in _CurrentInfo.Ladder)
         {
             if (rect.Contains(charaPos))
+            {
+                if(deltaY > 0f && charaPos.y+deltaY > rect.up)
+                    deltaY = rect.up - charaPos.y + 0.01f;
                 return true;
+            }
         }
         return false;
     }
@@ -243,10 +247,10 @@ public class StageManager : Singlton<StageManager>
             if (groundline.param.TopOfWall)
             {
                 Vector2 charaPos = CharacterController.CharaParam.BottomLeft;
-                if (groundline.ThroughLine(charaPos, charaPos - 0.4f * Vector2.up))
+                if (groundline.ThroughLine(charaPos + 0.01f * Vector2.up, charaPos - 0.4f * Vector2.up))
                     return true;
                 charaPos = CharacterController.CharaParam.BottomRight;
-                if (groundline.ThroughLine(charaPos, charaPos - 0.4f * Vector2.up))
+                if (groundline.ThroughLine(charaPos + 0.01f * Vector2.up, charaPos - 0.4f * Vector2.up))
                     return true;
             }
         }
@@ -274,7 +278,7 @@ public class StageManager : Singlton<StageManager>
     public IEnumerable<float> GetSortXCoordList(float y)
     {
         if (CharacterController.I.IsTopOfWall)
-            y -= 0.02f;
+            y -= 0.05f;
         List<float> retList = new List<float>();
         retList.Add(StageCreater.I.StageWidth/2);
         foreach (Line line in _CurrentInfo.FoldLine)
@@ -311,12 +315,13 @@ public class Line
     /// </summary>
     public bool ThroughLine(Vector2 startpos, Vector2 endpos)
     {
-
         if (param == null || CharacterController.I.color == param.color || param.color == ColorData.NONE)
-            return Cross(points[1] - points[0], startpos - points[0]) * Cross(points[1] - points[0], endpos - points[0]) <= 0 &&
-                   Cross(endpos - startpos, points[0] - startpos) * Cross(endpos - startpos, points[1] - startpos) <= 0;
-        else
-            return false;
+            if (param == null || param.EnableCase == StageObjectParameter.EnableFlag.ALWAYS ||
+                (param.EnableCase == StageObjectParameter.EnableFlag.IS_TOP && CharacterController.I.IsTopOfWall) ||
+                (param.EnableCase == StageObjectParameter.EnableFlag.ISNOT_TOP && !CharacterController.I.IsTopOfWall))
+                return Cross(points[1] - points[0], startpos - points[0]) * Cross(points[1] - points[0], endpos - points[0]) <= 0 &&
+                       Cross(endpos - startpos, points[0] - startpos) * Cross(endpos - startpos, points[1] - startpos) <= 0;
+        return false;
     }
     /// <summary>
     /// 外積を求める

@@ -35,8 +35,6 @@ public class CharacterController : Singlton<CharacterController>
         get { return _IsTopOfWall; }
         set { _IsTopOfWall = value; }
     }
-    private bool _MoveX = true;
-    private bool _OverFoldLine = false;
 
     void Update()
     {
@@ -61,7 +59,7 @@ public class CharacterController : Singlton<CharacterController>
             } 
             float deltaDrop = Time.deltaTime * _DropSpeed;
 
-            if (!StageManager.I.CanUseLadder(_DummyCharacter.transform.position))
+            if (!StageManager.I.CanUseLadder(_DummyCharacter.transform.position, ref deltaVer))
             {
                 deltaVer = -deltaDrop;
             }
@@ -72,9 +70,7 @@ public class CharacterController : Singlton<CharacterController>
             if (Input.GetKeyDown(KeyCode.DownArrow) && _IsTopOfWall ||
                 touchPos.y > 0.1f && touchPos.y < 0.3f && _IsTopOfWall)
             {
-                _DummyCharacter.transform.position -= 0.02f * Vector3.up;
-                _CharacterX.transform.position -= 0.02f * Vector3.up;
-                _CharacterZ.transform.position -= 0.02f * Vector3.up;
+                _DummyCharacter.transform.position -= 0.05f * Vector3.up;
             }
             UpdateCharacterState(moveDir);
         }
@@ -89,8 +85,6 @@ public class CharacterController : Singlton<CharacterController>
         //飛び出ている部分の上に乗っているか判定
         if (_IsTopOfWall)
             _IsTopOfWall = StageManager.I.OnTopOfWall();
-        //現在の移動方向を計算
-        _MoveX = CalcCurrentMoveDirection(foldXList);
         // ダミーキャラの位置を実際のキャラ反映させる
         UpdateXZCharacterPosition(moveDir, foldXList);
         //キャラクター部分透過
