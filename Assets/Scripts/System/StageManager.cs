@@ -128,8 +128,10 @@ public class StageManager : Singlton<StageManager>
                                                            CharacterController.CharaParam.TopLeft + delta3D);
             bool IntersectTopRight = groundLine.ThroughLine(CharacterController.CharaParam.Right + delta3D,
                                                             CharacterController.CharaParam.TopRight + delta3D);
-            bool IntersectBottom = groundLine.ThroughLine(CharacterController.CharaParam.Center + delta3D,
-                                                          CharacterController.CharaParam.Bottom + delta3D);            
+            bool IntersectBottomLeft = groundLine.ThroughLine(CharacterController.CharaParam.Left + delta3D,
+                                                          CharacterController.CharaParam.BottomLeft + delta3D);
+            bool IntersectBottomRight = groundLine.ThroughLine(CharacterController.CharaParam.Right + delta3D,
+                                                          CharacterController.CharaParam.BottomRight + delta3D);
             if (IntersectTopLeft && IntersectTopRight == false)
             {
                 return new Vector2(Mathf.Max(groundLine.points[0].x, groundLine.points[1].x) - charaLeftPos.x + 0.01f,
@@ -140,7 +142,7 @@ public class StageManager : Singlton<StageManager>
                 return new Vector2(Mathf.Min(groundLine.points[0].x, groundLine.points[1].x) - charaRightPos.x - 0.01f,
                                    delta.y);
             }
-            if (IntersectBottom && Mathf.Abs(delta.y) < 0.001f)
+            if ( (IntersectBottomLeft || IntersectBottomRight) && Mathf.Abs(delta.y) < 0.001f)
             {
                 _JumpUp = true;   
                 return new Vector2(delta.x, groundLine.points[0].y - charaLeftPos.y + 0.01f);
