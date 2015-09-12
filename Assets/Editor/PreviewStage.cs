@@ -17,7 +17,7 @@ public class PreviewStage : EditorWindow
 				break;
 			}	
 		}
-		StageCreater.I.CreateStage(0f,-50f,true);
+		StageCreater.I.CreateNewStage(0f,-50f,true);
     }
 	
 }

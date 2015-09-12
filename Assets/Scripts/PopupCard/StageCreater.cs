@@ -18,6 +18,7 @@ public class StageCreater : Singlton<StageCreater>
     {
         get { return _ZOffset; }
     }
+    private GameObject _PreviousRoot;
     private GameObject _Root;
     [SerializeField]
     private GameObject _Paper;
@@ -37,12 +38,10 @@ public class StageCreater : Singlton<StageCreater>
 
     void Start()
     {
-        CreateStage();
-        CloseStage(0f, false);
-        OpenStage(1f);
+        CreateNewStage();
     }
 
-    public void CreateStage(float xOffset = 0f, float zOffset = -50f, bool preview = false)
+    public void CreateNewStage(float xOffset = 0f, float zOffset = -50f, bool preview = false)
     {
         _Root = new GameObject("StageRoot");
         _XOffset = xOffset;
@@ -57,8 +56,27 @@ public class StageCreater : Singlton<StageCreater>
         }
         else
             InstantiatePaper();
+        
+        CloseStage(0f, false);
+        OpenStage(1f);
     }
 
+    public void CreateNextStage(float xOffset = 0f, float zOffset = -50f)
+    {
+        _PreviousRoot = _Root;
+        _Root = new GameObject("StageRoot");
+        _XOffset = xOffset;
+        _ZOffset = zOffset;
+        InstantiateCharacter();
+        InstantiatePaper();
+        InstantiateDecoration();
+        //HACK:キャラの向きや透過処理をさせたい
+        CharacterController.I.UpdateCharacterState(Vector2.right);
+            
+        CloseStage(0f, false);
+        OpenStage(1f);
+        CloseStage(1f, true, true);
+    }
     /// <summary>
     /// キャラクターを生成する
     /// </summary>
@@ -258,7 +276,6 @@ public class StageCreater : Singlton<StageCreater>
             Vector3 anchorPos = tmpParam.AnimationAnchor;
             bool dirX = tmpParam.DirectionX;
             StartCoroutine(OpenObjectAnimation(stageObj, anchorPos, dirX, openleft, time));
-
         }
     }
 
@@ -288,20 +305,27 @@ public class StageCreater : Singlton<StageCreater>
         }
         IsPlayingAnimation = false;
         Destroy(obj.GetComponent<TmpParameter>());
+        if(_PreviousRoot != null)
+            Destroy(_PreviousRoot);
     }
 
-    public void CloseStage(float time, bool closeleft)
+    public void CloseStage(float time, bool closeleft, bool previous = false)
     {
         IsPlayingAnimation = true;
         TmpParameter.CloseDirctionLeft = closeleft;
-        foreach (Transform stageObj in _Root.transform)
+        GameObject _AnimationRoot = previous ? _PreviousRoot : _Root;
+        foreach (Transform stageObj in _AnimationRoot.transform)
         {
             Vector3 anchorPos;
             if (closeleft)
+            {
                 anchorPos = new Vector3(stageObj.position.x, 0f, _ZOffset);
+            }
             else
+            {
                 anchorPos = new Vector3(_XOffset, 0f, stageObj.position.z);
-            bool dirX = stageObj.eulerAngles == Vector3.zero;
+            }
+            bool dirX = Mathf.Abs(stageObj.eulerAngles.y) < 45f;
             TmpParameter tmpParam = stageObj.gameObject.AddComponent<TmpParameter>();
             tmpParam.AnimationAnchor = anchorPos;
             tmpParam.DirectionX = dirX;
