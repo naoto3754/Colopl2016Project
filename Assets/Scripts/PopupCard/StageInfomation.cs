@@ -130,6 +130,8 @@ public class StageInfomation : MonoBehaviour
             _Decoration.Add(renderer.gameObject);
         }
         //ステージマネージャーに自分を渡す
+        if(StageManager.I.CurrentInfo != null)
+            Destroy(StageManager.I.CurrentInfo.gameObject);
         CharacterController.I.DummyCharacter = _Character;
         StageManager.I.CurrentInfo = this;
         StageCreater.I.CreateNewStage();
