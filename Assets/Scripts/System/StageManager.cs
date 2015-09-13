@@ -15,31 +15,19 @@ public class StageManager : Singlton<StageManager>
         set { _CurrentInfo = value; }
     }
 
-    private bool _JumpUp;
-
     public override void OnInitialize()
     {
-        GameObject[] stages = Resources.LoadAll<GameObject>(STAGE_DIR);
-        _Stages = new GameObject[stages.Length];
-        foreach (GameObject stage in stages)
-        {
-            StageInfomation info = stage.GetComponent<StageInfomation>();
-            if (info.StageID < 0 || info.StageID >= stages.Length)
-                Debug.LogError("Invalid Stage ID");
-            if (_Stages[info.StageID] != null)
-                Debug.LogError("Duplicate Stage ID");
-            _Stages[info.StageID] = stage;
-        }
+        _Stages = Resources.LoadAll<GameObject>(STAGE_DIR);
     }
 
+    private bool _JumpUp;
     /// <summary>
     /// 移動量を計算
     /// </summary>
     public Vector2 CalcAmountOfMovement(Vector2 delta)
     {
         _JumpUp = false;
-        Vector2 retVec = Vector3.zero;
-        retVec = delta;
+        Vector2 retVec = delta;
         //地面との交差判定
         retVec = CalcGroundIntersection(retVec);
         //壁との交差判定

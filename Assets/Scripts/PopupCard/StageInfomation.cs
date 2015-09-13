@@ -7,8 +7,6 @@ public class StageInfomation : MonoBehaviour
 {
     //Inspector上で決定する項目
     [SerializeField]
-    private int _StageId;
-    [SerializeField]
     private GameObject _Character;
     [SerializeField]
     private Transform _StageSize;
@@ -21,10 +19,6 @@ public class StageInfomation : MonoBehaviour
     [SerializeField]
     private Color _BackgroundColor;
     //Property
-    public int StageID
-    {
-        get { return _StageId; }
-    }
     public float StageWidth
     {
         get { return _StageSize.lossyScale.x; }
