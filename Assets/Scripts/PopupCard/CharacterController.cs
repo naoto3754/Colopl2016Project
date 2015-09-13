@@ -92,7 +92,7 @@ public class CharacterController : Singlton<CharacterController>
     private void UpdateDummyCharacterPosition(Vector2 moveDir)
     {
         _DummyCharacter.transform.position += new Vector3(moveDir.x, moveDir.y, 0f);
-        IEnumerable foldXList = StageManager.I.GetSortXCoordList(_DummyCharacter.transform.position.y);
+        IEnumerable foldXList = StageManager.I.GetFoldXCoordList(_DummyCharacter.transform.position.y);
         //飛び出ている部分の上に乗っているか判定
         if (IsTopOfWall)
             IsTopOfWall = StageManager.I.OnTopOfWall();

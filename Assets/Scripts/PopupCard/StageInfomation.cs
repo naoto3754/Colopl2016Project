@@ -13,6 +13,8 @@ public class StageInfomation : MonoBehaviour
     [SerializeField]
     private GameObject FoldLines;
     [SerializeField]
+    private GameObject Holes;
+    [SerializeField]
     private GameObject StageComponent;
     [SerializeField]
     private ColorData _InitialCharacterColor;
@@ -47,6 +49,11 @@ public class StageInfomation : MonoBehaviour
     {
         get { return _FoldLine; }
     }
+    private List<Line> _HoleLine;
+    public List<Line> HoleLine
+    {
+        get { return _HoleLine; }
+    }
     private List<Line> _GroundLine;
     public List<Line> GroundLine
     {
@@ -77,6 +84,7 @@ public class StageInfomation : MonoBehaviour
     public void InitList()
     {
         _FoldLine = new List<Line>();
+        _HoleLine = new List<Line>();
         _GroundLine = new List<Line>();
         _Slope = new List<Line>();
         _Wall = new List<Line>();
@@ -84,6 +92,11 @@ public class StageInfomation : MonoBehaviour
         //折れ線リスト作成
         foreach (LineRenderer line in FoldLines.GetComponentsInChildren<LineRenderer>())
             _FoldLine.Add(new Line(line.transform.position, line.transform.position + line.transform.lossyScale, null));
+        foreach (LineRenderer line in Holes.GetComponentsInChildren<LineRenderer>())
+        {
+            if (line.transform.lossyScale.x == 0f)
+                _HoleLine.Add(new Line(line.transform.position, line.transform.position + line.transform.lossyScale, null));
+        }
         //その他の線のリスト（地面　＿、坂　/、壁　｜）
         foreach (LineRenderer renderer in StageComponent.GetComponentsInChildren<LineRenderer>())
         {

@@ -6,6 +6,8 @@ using System.Linq;
 
 public class StageCreater : Singlton<StageCreater>
 {
+    [SerializeField]
+    private GameObject _Paper;
     public static readonly float OFFSET = 0.02f;
     private readonly float ANIMATION_TIME = 0.5f;
     private float _XOffset;
@@ -20,8 +22,6 @@ public class StageCreater : Singlton<StageCreater>
     }
     private GameObject _PreviousRoot;
     private GameObject _Root;
-    [SerializeField]
-    private GameObject _Paper;
     public float StageWidth
     {
         get { return StageManager.I.CurrentInfo.StageWidth; }
@@ -36,6 +36,9 @@ public class StageCreater : Singlton<StageCreater>
         set;
     }
 
+    /// <summary>
+    /// ステージを生成する。すでにステージがある場合、閉じてから破棄する
+    /// </summary>
     public void CreateNewStage(float xOffset = 50f, float zOffset = -50f)
     {
         bool existStage = _Root != null;
@@ -45,6 +48,7 @@ public class StageCreater : Singlton<StageCreater>
         _XOffset = xOffset;
         _ZOffset = zOffset;
         InstantiateCharacter();
+        InstantiateBackground();
         InstantiatePaper();
         InstantiateDecoration();
         //HACK:キャラの向きや透過処理をさせたい
@@ -68,7 +72,6 @@ public class StageCreater : Singlton<StageCreater>
         OpenStage(ANIMATION_TIME);
     }
     
-
     /// <summary>
     /// キャラクターを生成する
     /// </summary>
@@ -99,11 +102,10 @@ public class StageCreater : Singlton<StageCreater>
             child.gameObject.layer = 0;
         CharacterController.I.CharacterZ = character;
     }
-
     /// <summary>
-    /// ステージのカード部分をを生成する
+    /// 背景を生成する
     /// </summary>
-    private void InstantiatePaper()
+    private void InstantiateBackground()
     {
         float thickness = _Paper.transform.localScale.z;
         //背景の生成
@@ -122,6 +124,13 @@ public class StageCreater : Singlton<StageCreater>
         background.transform.position = new Vector3(thickness/2 + _XOffset, StageHeight/2, -StageWidth/4 + thickness/2 + _ZOffset);
         background.transform.localScale = new Vector3(StageWidth/2, StageHeight, thickness/2);
         background.transform.forward = Vector3.right;
+    }
+    /// <summary>
+    /// ステージのカード部分をを生成する
+    /// </summary>
+    private void InstantiatePaper()
+    {
+        float thickness = _Paper.transform.localScale.z;
         //ステージの紙オブジェクト生成
         IEnumerable<float> yCoordList = StageManager.I.GetSortYCoordList();
         float prevY = yCoordList.First();
@@ -131,37 +140,56 @@ public class StageCreater : Singlton<StageCreater>
             if (y == yCoordList.First())
                 continue;
             bool setX = true;
+            bool duringHole = false;
             float prevX = -StageWidth / 2;
             float xOffset = -StageWidth / 2, zOffset = _ZOffset;
-            IEnumerable<float> xCoordList = StageManager.I.GetSortXCoordList((prevY + y) / 2);
-            foreach (float x in xCoordList)
+            IEnumerable<XCoord> xCoordList = StageManager.I.GetXCoordList((prevY + y) / 2);
+            foreach (XCoord xCoord in xCoordList)
             {
-                GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
-                paper.transform.SetParent(_Root.transform);
-                if (setX)
-                {
-                    paper.transform.position = new Vector3((x - prevX) / 2 + xOffset + _XOffset, (y - prevY) / 2 + yOffset, zOffset + thickness / 2);
-                    xOffset += x - prevX;
+                //折れ線の場合
+                if(duringHole == false){
+                    GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
+                    paper.transform.SetParent(_Root.transform);
+                    if (setX)
+                    {
+                        paper.transform.position = new Vector3((xCoord.x - prevX) / 2 + xOffset + _XOffset, (y - prevY) / 2 + yOffset, zOffset + thickness / 2);
+                        xOffset += xCoord.x - prevX;
+                    }
+                    else
+                    {
+                        paper.transform.position = new Vector3(xOffset + _XOffset + thickness / 2, (y - prevY) / 2 + yOffset, -(xCoord.x - prevX) / 2 + zOffset);
+                        paper.transform.forward = Vector3.right;
+                        paper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
+                        zOffset -= xCoord.x - prevX;
+                    }
+                    paper.transform.localScale = new Vector3(xCoord.x - prevX, y - prevY, _Paper.transform.localScale.z);
+                    if (xCoord.x == xCoordList.First().x)
+                        paper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
+                    
+                    if(xCoord.fold)
+                        setX = !setX;
+                    else
+                        duringHole = true;
+                    prevX = xCoord.x;
                 }
-                else
+                //穴の場合
+                else 
                 {
-                    paper.transform.position = new Vector3(xOffset + _XOffset + thickness / 2, (y - prevY) / 2 + yOffset, -(x - prevX) / 2 + zOffset);
-                    paper.transform.forward = Vector3.right;
-                    paper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-                    zOffset -= x - prevX;
+                    if (setX)
+                        xOffset += xCoord.x - prevX;
+                    else
+                        zOffset -= xCoord.x - prevX;
+                    if(xCoord.fold)
+                        setX = !setX;
+                    else
+                        duringHole = false;
+                    prevX = xCoord.x;
                 }
-                paper.transform.localScale = new Vector3(x - prevX, y - prevY, _Paper.transform.localScale.z);
-                if (x == xCoordList.First())
-                    paper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-
-                setX = !setX;
-                prevX = x;
             }
             yOffset += y - prevY;
             prevY = y;
         }
     }
-
     /// <summary>
     /// 見た目に必要なオブジェクトを生成する
     /// </summary>
@@ -197,7 +225,7 @@ public class StageCreater : Singlton<StageCreater>
         bool facingX = true;
         float prevX = -StageWidth / 2;
 
-        foreach (float x in StageManager.I.GetSortXCoordList(decoPos.y + decoScale.y / 2 * anchorHeightScale))
+        foreach (float x in StageManager.I.GetFoldXCoordList(decoPos.y + decoScale.y / 2 * anchorHeightScale))
         {
             if (decoPos.x - decoScale.x / 2 < x)
                 break;
@@ -258,7 +286,9 @@ public class StageCreater : Singlton<StageCreater>
             }
         }
     }
-
+    /// <summary>
+    /// ステージを開く
+    /// </summary>
     public void OpenStage(float time)
     {
         IsPlayingAnimation = true;
@@ -295,7 +325,9 @@ public class StageCreater : Singlton<StageCreater>
         if(_PreviousRoot != null)
             Destroy(_PreviousRoot);
     }
-
+    /// <summary>
+    /// ステージを閉じる
+    /// </summary>
     public void CloseStage(float time, bool closeleft, bool previous = false)
     {
         IsPlayingAnimation = true;
@@ -337,5 +369,17 @@ public class StageCreater : Singlton<StageCreater>
             yield return new WaitForSeconds(time / frameNum);
         }
         
+    }
+}
+
+public struct XCoord
+{
+    public float x;
+    public bool fold;
+    
+    public XCoord(float x, bool fold)
+    {
+        this.x = x;
+        this.fold = fold;
     }
 }

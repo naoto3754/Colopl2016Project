@@ -282,13 +282,20 @@ public class StageManager : Singlton<StageManager>
             if (retList.Contains(line.points[1].y) == false)
                 retList.Add(line.points[1].y);
         }
+        foreach (Line line in _CurrentInfo.HoleLine)
+        {
+            if (retList.Contains(line.points[0].y) == false)
+                retList.Add(line.points[0].y);
+            if (retList.Contains(line.points[1].y) == false)
+                retList.Add(line.points[1].y);
+        }
 
         return retList.OrderBy(x => x);
     }
     /// <summary>
     /// 引数のy座標を含む折り目のx座標をソートした配列を取得
     /// </summary>
-    public IEnumerable<float> GetSortXCoordList(float y)
+    public IEnumerable<float> GetFoldXCoordList(float y)
     {
         if (CharacterController.I.IsTopOfWall)
             y -= 0.05f;
@@ -304,6 +311,34 @@ public class StageManager : Singlton<StageManager>
         }
 
         return retList.OrderBy(x => x);
+    }
+    /// <summary>
+    /// 引数のy座標を含む折り目とのx座標をソートした配列を取得
+    /// </summary>
+    public IEnumerable<XCoord> GetXCoordList(float y)
+    {
+        if (CharacterController.I.IsTopOfWall)
+            y -= 0.05f;
+        List<XCoord> retList = new List<XCoord>();
+        retList.Add(new XCoord(StageCreater.I.StageWidth/2, true));
+        foreach (Line line in _CurrentInfo.FoldLine)
+        {
+            if (((line.points[0].y - y) <= 0f && 0f < (line.points[1].y - y)) ||
+                ((line.points[0].y - y) >= 0f && 0f > (line.points[1].y - y)))
+            {
+                retList.Add(new XCoord(line.points[0].x, true));
+            }
+        }
+        foreach (Line line in _CurrentInfo.HoleLine)
+        {
+            if (((line.points[0].y - y) <= 0f && 0f < (line.points[1].y - y)) ||
+                ((line.points[0].y - y) >= 0f && 0f > (line.points[1].y - y)))
+            {
+                retList.Add(new XCoord(line.points[0].x, false));
+            }
+        }
+
+        return retList.OrderBy(xcoord => xcoord.x);
     }
 }
 
