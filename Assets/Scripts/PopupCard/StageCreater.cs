@@ -36,7 +36,7 @@ public class StageCreater : Singlton<StageCreater>
         set;
     }
 
-    public void CreateNewStage(float xOffset = 0f, float zOffset = -50f)
+    public void CreateNewStage(float xOffset = 50f, float zOffset = -50f)
     {
         bool existStage = _Root != null;
         if(existStage)
