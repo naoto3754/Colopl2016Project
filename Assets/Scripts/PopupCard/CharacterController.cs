@@ -73,6 +73,11 @@ public class CharacterController : Singlton<CharacterController>
                 _DummyCharacter.transform.position -= 0.05f * Vector3.up;
             }
             UpdateCharacterState(moveDir);
+            //ゴール判定
+            if(StageManager.I.AcheiveGoal(_DummyCharacter.transform.position))
+            {
+                StageManager.I.InstantiateStage(StageManager.I.CurrentStageIndex+1);
+            }
         }
     }
     /// <summary>

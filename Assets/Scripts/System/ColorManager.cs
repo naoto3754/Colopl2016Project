@@ -19,6 +19,8 @@ public class ColorManager
                 return Color.red;
             case ColorData.ORANGE:
                 return new Color(1f, 1f, 0f);
+            case ColorData.GREEN:
+                return new Color(0.5f, 1f, 0.5f);
             case ColorData.PINK:
                 return new Color(1f, 0.5f, 0.5f);
         }

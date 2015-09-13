@@ -18,6 +18,8 @@ public class StageInfomation : MonoBehaviour
     private ColorData _InitialCharacterColor;
     [SerializeField]
     private Color _BackgroundColor;
+    [SerializeField]
+    private GameObject _NextStage;
     //Property
     public float StageWidth
     {
@@ -35,7 +37,16 @@ public class StageInfomation : MonoBehaviour
     {
         get { return _BackgroundColor; }
     }
+    public GameObject NextStage
+    {
+        get { return _NextStage; }
+    }
     //ステージオブジェクトリスト
+    private CardRect _Goal;
+    public CardRect Goal
+    {
+        get { return _Goal; }
+    }
     private List<Line> _FoldLine;
     public List<Line> FoldLine
     {
@@ -112,10 +123,15 @@ public class StageInfomation : MonoBehaviour
         }
         foreach (SpriteRenderer renderer in StageComponent.GetComponentsInChildren<SpriteRenderer>())
         {
+            if(renderer.gameObject.CompareTag("Goal"))
+            {
+                _Goal = new CardRect(renderer.transform.position, renderer.transform.lossyScale.x, renderer.transform.lossyScale.y);
+            }
             _Decoration.Add(renderer.gameObject);
         }
         //ステージマネージャーに自分を渡す
         CharacterController.I.DummyCharacter = _Character;
         StageManager.I.CurrentInfo = this;
+        StageCreater.I.CreateNewStage();
     }
 }

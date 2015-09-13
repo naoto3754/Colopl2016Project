@@ -5,9 +5,15 @@ using System.Linq;
 
 public class StageManager : Singlton<StageManager>
 {
-    private readonly string STAGE_DIR = "Stage";
 
-    private GameObject[] _Stages;
+    [SerializeField]
+    private GameObject _FirstStage;
+    private List<GameObject> _Stages;
+    private int _CurrentStageIndex;
+    public int CurrentStageIndex
+    {
+        get { return _CurrentStageIndex; }
+    }
     private StageInfomation _CurrentInfo;
     public StageInfomation CurrentInfo
     {
@@ -17,7 +23,42 @@ public class StageManager : Singlton<StageManager>
 
     public override void OnInitialize()
     {
-        _Stages = Resources.LoadAll<GameObject>(STAGE_DIR);
+        _Stages = new List<GameObject>();
+        LoadStage(_FirstStage);
+        //TODO:初期ステージ生成ちゃんとやる
+        InstantiateStage(0);
+    }
+    /// <summary>
+    /// 再帰的にステージを読み込む
+    /// </summary>
+    private void LoadStage(GameObject stage)
+    {
+        _Stages.Add(stage);
+        StageInfomation info = stage.GetComponent<StageInfomation>();
+        if(info.NextStage != null)
+            LoadStage(info.NextStage);
+    }
+    /// <summary>
+    /// ステージ生成
+    /// </summary>
+    public void InstantiateStage(int index)
+    {
+        ////仮実装
+        if(index >= _Stages.Count)
+        { 
+            index = 0;
+        }
+        _CurrentStageIndex = index;
+        Instantiate(_Stages[index]);
+        
+        ////本実装？
+        //  if(index < _Stages.Count)
+        //  { 
+        //      _CurrentStageIndex = index;
+        //      Instantiate(_Stages[index]);
+        //  }
+        //  else
+        //      Debug.LogError("Invalid Stage Index");
     }
 
     private bool _JumpUp;
@@ -224,6 +265,13 @@ public class StageManager : Singlton<StageManager>
             }
         }
         return false;
+    }
+    /// <summary>
+    /// ゴールの矩形に含まれているか判定
+    /// </summary>
+    public bool AcheiveGoal(Vector3 charaPos)
+    {
+        return _CurrentInfo.Goal.Contains(charaPos);
     }
     /// <summary>
     /// 自分の真下に飛び出ている部分の上面があるかどうか

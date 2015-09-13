@@ -38,32 +38,13 @@ public class StageCreater : Singlton<StageCreater>
 
     void Start()
     {
-        CreateNewStage();
     }
 
-    public void CreateNewStage(float xOffset = 0f, float zOffset = -50f, bool preview = false)
+    public void CreateNewStage(float xOffset = 0f, float zOffset = -50f)
     {
-        _Root = new GameObject("StageRoot");
-        _XOffset = xOffset;
-        _ZOffset = zOffset;
-        if (preview == false)
-        {
-            InstantiateCharacter();
-            InstantiatePaper();
-            InstantiateDecoration();
-            //HACK:キャラの向きや透過処理をさせたい
-            CharacterController.I.UpdateCharacterState(Vector2.right);
-        }
-        else
-            InstantiatePaper();
-        
-        CloseStage(0f, false);
-        OpenStage(1f);
-    }
-
-    public void CreateNextStage(float xOffset = 0f, float zOffset = -50f)
-    {
-        _PreviousRoot = _Root;
+        bool existStage = _Root != null;
+        if(existStage)
+            _PreviousRoot = _Root;    
         _Root = new GameObject("StageRoot");
         _XOffset = xOffset;
         _ZOffset = zOffset;
@@ -72,16 +53,19 @@ public class StageCreater : Singlton<StageCreater>
         InstantiateDecoration();
         //HACK:キャラの向きや透過処理をさせたい
         CharacterController.I.UpdateCharacterState(Vector2.right);
-            
+        
         CloseStage(0f, false);
-        OpenStage(1f);
-        CloseStage(1f, true, true);
+        OpenStage(1.5f);
+        if(existStage)
+            CloseStage(1.5f, true, true);
     }
+
     /// <summary>
     /// キャラクターを生成する
     /// </summary>
     private void InstantiateCharacter()
     {
+        CharacterController.I.color = StageManager.I.CurrentInfo.InitialCharacterColor;
         //X方向に動くキャラクター
         GameObject character = Instantiate(CharacterController.I.DummyCharacter,
                                            CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET * 2, 0f, _ZOffset - OFFSET * 2),
@@ -281,7 +265,7 @@ public class StageCreater : Singlton<StageCreater>
 
     private IEnumerator OpenObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool openleft, float time)
     {
-        int frameNum = 60;
+        int frameNum = 120;
         float weight = ANIMATION_INITIAL_WEIGHT;
         if (time == 0f)
         {
@@ -335,7 +319,7 @@ public class StageCreater : Singlton<StageCreater>
 
     private IEnumerator CloseObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool closeleft, float time)
     {
-        int frameNum = 60;
+        int frameNum = 120;
         float weight = ANIMATION_INITIAL_WEIGHT;
         if (time == 0f)
         {
