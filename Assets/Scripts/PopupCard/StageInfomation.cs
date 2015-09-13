@@ -42,11 +42,6 @@ public class StageInfomation : MonoBehaviour
         get { return _NextStage; }
     }
     //ステージオブジェクトリスト
-    private CardRect _Goal;
-    public CardRect Goal
-    {
-        get { return _Goal; }
-    }
     private List<Line> _FoldLine;
     public List<Line> FoldLine
     {
@@ -56,11 +51,6 @@ public class StageInfomation : MonoBehaviour
     public List<Line> GroundLine
     {
         get { return _GroundLine; }
-    }
-    private List<CardRect> _Ladder;
-    public List<CardRect> Ladder
-    {
-        get { return _Ladder; }
     }
     private List<Line> _Slope;
     public List<Line> Slope
@@ -80,20 +70,21 @@ public class StageInfomation : MonoBehaviour
 
     void Awake()
     {
-        Initialize();   
+        InitList();
+        InitSystemInfo();   
     }
     
-    public void Initialize()
+    public void InitList()
     {
         _FoldLine = new List<Line>();
         _GroundLine = new List<Line>();
-        _Ladder = new List<CardRect>();
         _Slope = new List<Line>();
         _Wall = new List<Line>();
         _Decoration = new List<GameObject>();
-
+        //折れ線リスト作成
         foreach (LineRenderer line in FoldLines.GetComponentsInChildren<LineRenderer>())
             _FoldLine.Add(new Line(line.transform.position, line.transform.position + line.transform.lossyScale, null));
+        //その他の線のリスト（地面　＿、坂　/、壁　｜）
         foreach (LineRenderer renderer in StageComponent.GetComponentsInChildren<LineRenderer>())
         {
             Vector3 linePos = renderer.transform.position;
@@ -114,24 +105,18 @@ public class StageInfomation : MonoBehaviour
             else
                 _Slope.Add(new Line(linePos, linePos + lineScale, param));
         }
-        foreach (Ladder ladder in StageComponent.GetComponentsInChildren<Ladder>())
-        {
-            _Ladder.Add(new CardRect(ladder.transform.position,
-                                     ladder.transform.lossyScale.x,
-                                     ladder.transform.lossyScale.y,
-                                     ladder.GetComponent<StageObjectParameter>().color));
-        }
+        //ステージ表示物
         foreach (SpriteRenderer renderer in StageComponent.GetComponentsInChildren<SpriteRenderer>())
-        {
-            if(renderer.gameObject.CompareTag("Goal"))
-            {
-                _Goal = new CardRect(renderer.transform.position, renderer.transform.lossyScale.x, renderer.transform.lossyScale.y);
-            }
+        {            
             _Decoration.Add(renderer.gameObject);
         }
-        //ステージマネージャーに自分を渡す
+    }
+    
+    private void InitSystemInfo()
+    {
         if(StageManager.I.CurrentInfo != null)
             Destroy(StageManager.I.CurrentInfo.gameObject);
+        CharacterController.I.ClearStage = false;
         CharacterController.I.DummyCharacter = _Character;
         StageManager.I.CurrentInfo = this;
         StageCreater.I.CreateNewStage();

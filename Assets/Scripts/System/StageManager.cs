@@ -251,29 +251,6 @@ public class StageManager : Singlton<StageManager>
         return ret;
     }
     /// <summary>
-    /// はしごの矩形に含まれているか判定
-    /// </summary>
-    public bool CanUseLadder(Vector3 charaPos, ref float deltaY)
-    {
-        foreach (CardRect rect in _CurrentInfo.Ladder)
-        {
-            if (rect.Contains(charaPos))
-            {
-                if(deltaY > 0f && charaPos.y+deltaY > rect.up)
-                    deltaY = rect.up - charaPos.y + 0.01f;
-                return true;
-            }
-        }
-        return false;
-    }
-    /// <summary>
-    /// ゴールの矩形に含まれているか判定
-    /// </summary>
-    public bool AcheiveGoal(Vector3 charaPos)
-    {
-        return _CurrentInfo.Goal.Contains(charaPos);
-    }
-    /// <summary>
     /// 自分の真下に飛び出ている部分の上面があるかどうか
     /// </summary>
     public bool OnTopOfWall()

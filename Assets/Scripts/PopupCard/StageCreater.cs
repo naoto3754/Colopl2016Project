@@ -6,7 +6,7 @@ using System.Linq;
 
 public class StageCreater : Singlton<StageCreater>
 {
-    public static readonly float OFFSET = 0.01f;
+    public static readonly float OFFSET = 0.02f;
     private readonly float ANIMATION_TIME = 0.5f;
     private float _XOffset;
     public float XOffset
@@ -54,7 +54,7 @@ public class StageCreater : Singlton<StageCreater>
         {
             CloseStage(ANIMATION_TIME, true, true);
             CloseStage(0f, false);
-            Invoke("OpenForInvoke", 0.02f);
+            Invoke("OpenForInvoke", 0.01f);
 
         }
         else
@@ -274,7 +274,7 @@ public class StageCreater : Singlton<StageCreater>
 
     private IEnumerator OpenObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool openleft, float time)
     {
-        int frameNum = 120;
+        int frameNum = 60;
         if (time == 0f)
         {
             frameNum = 1;
@@ -322,7 +322,7 @@ public class StageCreater : Singlton<StageCreater>
 
     private IEnumerator CloseObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool closeleft, float time)
     {
-        int frameNum = 120;
+        int frameNum = 60;
         if (time <= 0.1f)
             frameNum = 1;
         for (int i = 0; i < frameNum; i++)

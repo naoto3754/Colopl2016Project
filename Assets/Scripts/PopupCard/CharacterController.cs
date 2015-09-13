@@ -29,13 +29,19 @@ public class CharacterController : Singlton<CharacterController>
     [SerializeField]
     public ColorData color;
 
-    private bool _IsTopOfWall = false;
+    //キャラクターの状態を表すプロパティ
     public bool IsTopOfWall
     {
-        get { return _IsTopOfWall; }
-        set { _IsTopOfWall = value; }
+        get; set;
     }
-
+    public bool CanUseLadder
+    {
+        get; set;
+    }
+    public bool ClearStage
+    {
+        get; set;
+    }
     void Update()
     {
         //アニメーション中はキャラクターを動かさない
@@ -59,7 +65,7 @@ public class CharacterController : Singlton<CharacterController>
             } 
             float deltaDrop = Time.deltaTime * _DropSpeed;
 
-            if (!StageManager.I.CanUseLadder(_DummyCharacter.transform.position, ref deltaVer))
+            if (!CanUseLadder)
             {
                 deltaVer = -deltaDrop;
             }
@@ -67,14 +73,14 @@ public class CharacterController : Singlton<CharacterController>
             Vector2 moveDir = StageManager.I.CalcAmountOfMovement(new Vector2(deltaHol, deltaVer));
 
             UpdateDummyCharacterPosition(moveDir);
-            if (Input.GetKeyDown(KeyCode.DownArrow) && _IsTopOfWall ||
-                touchPos.y > 0.1f && touchPos.y < 0.3f && _IsTopOfWall)
+            if (Input.GetKeyDown(KeyCode.DownArrow) && IsTopOfWall ||
+                touchPos.y > 0.1f && touchPos.y < 0.3f && IsTopOfWall)
             {
                 _DummyCharacter.transform.position -= 0.05f * Vector3.up;
             }
             UpdateCharacterState(moveDir);
             //ゴール判定
-            if(StageManager.I.AcheiveGoal(_DummyCharacter.transform.position))
+            if(ClearStage)
             {
                 StageManager.I.InstantiateStage(StageManager.I.CurrentStageIndex+1);
             }
@@ -88,8 +94,8 @@ public class CharacterController : Singlton<CharacterController>
         _DummyCharacter.transform.position += new Vector3(moveDir.x, moveDir.y, 0f);
         IEnumerable foldXList = StageManager.I.GetSortXCoordList(_DummyCharacter.transform.position.y);
         //飛び出ている部分の上に乗っているか判定
-        if (_IsTopOfWall)
-            _IsTopOfWall = StageManager.I.OnTopOfWall();
+        if (IsTopOfWall)
+            IsTopOfWall = StageManager.I.OnTopOfWall();
         // ダミーキャラの位置を実際のキャラ反映させる
         UpdateXZCharacterPosition(moveDir, foldXList);
         //キャラクター部分透過
