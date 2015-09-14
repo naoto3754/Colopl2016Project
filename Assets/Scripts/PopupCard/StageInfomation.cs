@@ -21,6 +21,8 @@ public class StageInfomation : MonoBehaviour
     [SerializeField]
     private Color _BackgroundColor;
     [SerializeField]
+    private Texture _BackgroundTexture;
+    [SerializeField]
     private GameObject _NextStage;
     //Property
     public float StageWidth
@@ -38,6 +40,10 @@ public class StageInfomation : MonoBehaviour
     public Color BackgroundColor
     {
         get { return _BackgroundColor; }
+    }
+    public Texture BackgroundTexture
+    {
+        get { return _BackgroundTexture; }
     }
     public GameObject NextStage
     {

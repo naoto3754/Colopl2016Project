@@ -130,7 +130,8 @@ public class StageCreater : Singlton<StageCreater>
     /// </summary>
     private void InstantiatePaper()
     {
-        float thickness = _Paper.transform.localScale.z;
+        Vector3 scale = _Paper.transform.localScale;
+        float thickness = scale.z;
         //ステージの紙オブジェクト生成
         IEnumerable<float> yCoordList = StageManager.I.GetSortYCoordList();
         float prevY = yCoordList.First();
@@ -150,6 +151,9 @@ public class StageCreater : Singlton<StageCreater>
                 if(duringHole == false){
                     GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
                     paper.transform.SetParent(_Root.transform);
+                    paper.GetComponent<Renderer>().material.mainTexture = StageManager.I.CurrentInfo.BackgroundTexture;
+                    paper.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight);
+                    paper.GetComponent<Renderer>().material.mainTextureScale = new Vector2((xCoord.x-prevX)/StageWidth, (y-prevY)/StageHeight);
                     if (setX)
                     {
                         paper.transform.position = new Vector3((xCoord.x - prevX) / 2 + xOffset + _XOffset, (y - prevY) / 2 + yOffset, zOffset + thickness / 2);
@@ -162,6 +166,7 @@ public class StageCreater : Singlton<StageCreater>
                         paper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
                         zOffset -= xCoord.x - prevX;
                     }
+                    paper.transform.eulerAngles += 180*Vector3.forward;
                     paper.transform.localScale = new Vector3(xCoord.x - prevX, y - prevY, _Paper.transform.localScale.z);
                     if (xCoord.x == xCoordList.First().x)
                         paper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
