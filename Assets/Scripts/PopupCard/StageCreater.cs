@@ -314,7 +314,6 @@ public class StageCreater : Singlton<StageCreater>
                 obj.rotation = currentRotation;
             yield return new WaitForSeconds(time / frameNum);
         }
-        obj.position -= new Vector3(THICKNESS,0f,-THICKNESS);
         IsPlayingAnimation = false;
         Destroy(obj.GetComponent<TmpParameter>());
         if(_PreviousRoot != null)
@@ -328,23 +327,23 @@ public class StageCreater : Singlton<StageCreater>
         IsPlayingAnimation = true;
         TmpParameter.CloseDirctionLeft = closeleft;
         GameObject _AnimationRoot = previous ? _PreviousRoot : _Root;
-        if(previous == false)
+        if(previous)
             foreach (Transform stageObj in _AnimationRoot.transform)
-                stageObj.position += new Vector3(THICKNESS,0f,-THICKNESS);
+                stageObj.position += new Vector3(-THICKNESS,0f,THICKNESS);
         foreach (Transform stageObj in _AnimationRoot.transform)
         {
             Vector3 anchorPos;
             if (closeleft)
             {
                 anchorPos = new Vector3(stageObj.position.x, 0f, _ZOffset);
-                if(previous == false)
-                    anchorPos += new Vector3(0f, 0f, -THICKNESS);
+                if(previous)
+                    anchorPos += new Vector3(0f, 0f, THICKNESS);
             }
             else
             {
-                anchorPos = new Vector3(_XOffset+THICKNESS, 0f, stageObj.position.z);
-                if(previous == false)
-                    anchorPos += new Vector3(THICKNESS, 0f, 0f);
+                anchorPos = new Vector3(_XOffset, 0f, stageObj.position.z);
+                if(previous)
+                    anchorPos += new Vector3(-THICKNESS, 0f, 0f);
             }
             bool dirX = Mathf.Abs(stageObj.eulerAngles.y) < 45f;
             TmpParameter tmpParam = stageObj.gameObject.AddComponent<TmpParameter>();
