@@ -26,7 +26,10 @@ public class StageManager : Singlton<StageManager>
         _Stages = new List<GameObject>();
         LoadStage(_FirstStage);
         //TODO:初期ステージ生成ちゃんとやる
-        InstantiateStage(0);
+        if(_CurrentInfo == null)
+        {
+            InstantiateStage(0);
+        }
     }
     /// <summary>
     /// 再帰的にステージを読み込む

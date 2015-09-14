@@ -9,6 +9,7 @@ public class StageCreater : Singlton<StageCreater>
     [SerializeField]
     private GameObject _Paper;
     public static readonly float OFFSET = 0.02f;
+    public readonly float THICKNESS = 0.1f;
     private readonly float ANIMATION_TIME = 0.5f;
     private float _XOffset;
     public float XOffset
@@ -55,20 +56,8 @@ public class StageCreater : Singlton<StageCreater>
         CharacterController.I.UpdateCharacterState(Vector2.right);
         
         if(existStage)
-        {
             CloseStage(ANIMATION_TIME, true, true);
-            CloseStage(0f, false);
-            Invoke("OpenForInvoke", 0.01f);
-
-        }
-        else
-        {
-            CloseStage(0f, false);
-            OpenStage(ANIMATION_TIME);
-        }
-    }
-    private void OpenForInvoke()
-    {
+        CloseStage(0f, false);
         OpenStage(ANIMATION_TIME);
     }
     
@@ -325,6 +314,7 @@ public class StageCreater : Singlton<StageCreater>
                 obj.rotation = currentRotation;
             yield return new WaitForSeconds(time / frameNum);
         }
+        obj.position -= new Vector3(THICKNESS,0f,-THICKNESS);
         IsPlayingAnimation = false;
         Destroy(obj.GetComponent<TmpParameter>());
         if(_PreviousRoot != null)
@@ -338,16 +328,23 @@ public class StageCreater : Singlton<StageCreater>
         IsPlayingAnimation = true;
         TmpParameter.CloseDirctionLeft = closeleft;
         GameObject _AnimationRoot = previous ? _PreviousRoot : _Root;
+        if(previous == false)
+            foreach (Transform stageObj in _AnimationRoot.transform)
+                stageObj.position += new Vector3(THICKNESS,0f,-THICKNESS);
         foreach (Transform stageObj in _AnimationRoot.transform)
         {
             Vector3 anchorPos;
             if (closeleft)
             {
                 anchorPos = new Vector3(stageObj.position.x, 0f, _ZOffset);
+                if(previous == false)
+                    anchorPos += new Vector3(0f, 0f, -THICKNESS);
             }
             else
             {
-                anchorPos = new Vector3(_XOffset, 0f, stageObj.position.z);
+                anchorPos = new Vector3(_XOffset+THICKNESS, 0f, stageObj.position.z);
+                if(previous == false)
+                    anchorPos += new Vector3(THICKNESS, 0f, 0f);
             }
             bool dirX = Mathf.Abs(stageObj.eulerAngles.y) < 45f;
             TmpParameter tmpParam = stageObj.gameObject.AddComponent<TmpParameter>();
