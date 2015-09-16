@@ -49,7 +49,7 @@ public class StageCreater : Singlton<StageCreater>
         _XOffset = xOffset;
         _ZOffset = zOffset;
         InstantiateCharacter();
-        InstantiateBackground();
+        //  InstantiateBackground();
         InstantiatePaper();
         InstantiateDecoration();
         //HACK:キャラの向きや透過処理をさせたい
