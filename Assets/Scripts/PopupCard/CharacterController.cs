@@ -42,7 +42,7 @@ public class CharacterController : Singlton<CharacterController>
     {
         get; set;
     }
-    void Update()
+    void FixedUpdate()
     {
         //アニメーション中はキャラクターを動かさない
         if (StageCreater.I.IsPlayingAnimation == false)

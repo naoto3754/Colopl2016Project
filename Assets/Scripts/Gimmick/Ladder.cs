@@ -26,7 +26,7 @@ public class Ladder : MonoBehaviour
         }
     }
     
-    void Update()
+    void FixedUpdate()
     {
         if(_Rect.Contains(CharacterController.I.DummyCharacter.transform.position))
         {

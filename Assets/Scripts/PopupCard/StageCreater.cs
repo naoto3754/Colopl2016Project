@@ -6,11 +6,18 @@ using System.Linq;
 
 public class StageCreater : Singlton<StageCreater>
 {
-    [SerializeField]
-    private GameObject _Paper;
     public static readonly float OFFSET = 0.02f;
     public readonly float THICKNESS = 0.1f;
-    private readonly float ANIMATION_TIME = 0.5f;
+    public readonly float ANIMATION_TIME = 0.5f;
+    
+    [SerializeField]
+    private GameObject _Paper;
+    private GameObject _Book;
+    public GameObject Book
+    {
+        get { return _Book; }
+        set { _Book = value; }
+    }
     private float _XOffset;
     public float XOffset
     {
@@ -58,7 +65,7 @@ public class StageCreater : Singlton<StageCreater>
         if(existStage)
             CloseStage(ANIMATION_TIME, true, true);
         CloseStage(0f, false);
-        OpenStage(ANIMATION_TIME);
+        OpenStage(ANIMATION_TIME, existStage);
     }
     
     /// <summary>
@@ -283,10 +290,11 @@ public class StageCreater : Singlton<StageCreater>
     /// <summary>
     /// ステージを開く
     /// </summary>
-    public void OpenStage(float time)
+    public void OpenStage(float time, bool existStage)
     {
         IsPlayingAnimation = true;
         bool openleft = !TmpParameter.CloseDirctionLeft;
+        StartCoroutine(OpenObjectAnimation(_Book.transform.GetChild(0), _Book.transform.GetChild(0).position, true, openleft, time));
         foreach (Transform stageObj in _Root.transform)
         {
             TmpParameter tmpParam = stageObj.GetComponent<TmpParameter>();

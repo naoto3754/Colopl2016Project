@@ -11,7 +11,7 @@ public class Goal : MonoBehaviour
         _Rect = new CardRect(transform.position, transform.lossyScale.x, transform.localScale.y);
     }
     
-    void Update()
+    void FixedUpdate()
     {
         if(_Rect.Contains(CharacterController.I.DummyCharacter.transform.position))
         {
