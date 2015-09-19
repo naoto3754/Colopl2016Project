@@ -294,7 +294,9 @@ public class StageCreater : Singlton<StageCreater>
     {
         IsPlayingAnimation = true;
         bool openleft = !TmpParameter.CloseDirctionLeft;
-        StartCoroutine(OpenObjectAnimation(_Book.transform.GetChild(0), _Book.transform.GetChild(0).position, true, openleft, time));
+        //ステージがないときは本開く
+        if(existStage == false)
+            StartCoroutine(OpenObjectAnimation(_Book.transform.GetChild(0), _Book.transform.GetChild(0).position, true, openleft, time));
         foreach (Transform stageObj in _Root.transform)
         {
             TmpParameter tmpParam = stageObj.GetComponent<TmpParameter>();
