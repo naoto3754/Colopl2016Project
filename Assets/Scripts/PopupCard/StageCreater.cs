@@ -296,17 +296,17 @@ public class StageCreater : Singlton<StageCreater>
         bool openleft = !TmpParameter.CloseDirctionLeft;
         //ステージがないときは本開く
         if(existStage == false)
-            StartCoroutine(OpenObjectAnimation(_Book.transform.GetChild(0), _Book.transform.GetChild(0).position, true, openleft, time));
+            StartCoroutine(OpenObjectAnimation(_Book.transform.GetChild(0), _Book.transform.GetChild(0).position, true, openleft, time, true));
         foreach (Transform stageObj in _Root.transform)
         {
             TmpParameter tmpParam = stageObj.GetComponent<TmpParameter>();
             Vector3 anchorPos = tmpParam.AnimationAnchor;
             bool dirX = tmpParam.DirectionX;
-            StartCoroutine(OpenObjectAnimation(stageObj, anchorPos, dirX, openleft, time));
+            StartCoroutine(OpenObjectAnimation(stageObj, anchorPos, dirX, openleft, time, false));
         }
     }
 
-    private IEnumerator OpenObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool openleft, float time)
+    private IEnumerator OpenObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool openleft, float time, bool isBook)
     {
         int frameNum = 60;
         if (time == 0f)
@@ -328,6 +328,8 @@ public class StageCreater : Singlton<StageCreater>
         Destroy(obj.GetComponent<TmpParameter>());
         if(_PreviousRoot != null)
             Destroy(_PreviousRoot);
+        if(isBook)
+            obj.position += new Vector3(-THICKNESS,0f,THICKNESS);
     }
     /// <summary>
     /// ステージを閉じる
