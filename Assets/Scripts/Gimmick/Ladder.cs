@@ -4,6 +4,8 @@ using System.Collections;
 [RequireComponent(typeof(StageObjectParameter))]
 public class Ladder : MonoBehaviour
 {
+    public static float MovementLimit;
+    
     [SerializeField]
     private GameObject _LadderSprite;
     private CardRect _Rect;
@@ -32,6 +34,7 @@ public class Ladder : MonoBehaviour
         {
             _PreviousBool = true;
             CharacterController.I.CanUseLadder = true;
+            MovementLimit = _Rect.up - CharacterController.I.DummyCharacter.transform.position.y;
         }
         else
         {

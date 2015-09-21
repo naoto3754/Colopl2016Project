@@ -68,6 +68,9 @@ public class CharacterController : Singlton<CharacterController>
             if (!CanUseLadder)
             {
                 deltaVer = -deltaDrop;
+            }else if(deltaVer > Ladder.MovementLimit)
+            {
+                deltaVer = Ladder.MovementLimit+0.01f;
             }
 
             Vector2 moveDir = StageManager.I.CalcAmountOfMovement(new Vector2(deltaHol, deltaVer));
