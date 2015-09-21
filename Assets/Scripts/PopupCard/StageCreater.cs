@@ -99,7 +99,7 @@ public class StageCreater : Singlton<StageCreater>
         CharacterController.I.CharacterZ = character;
     }
     /// <summary>
-    /// 背景を生成する
+    /// 背景を生成する（いらないかも）
     /// </summary>
     private void InstantiateBackground()
     {
@@ -206,6 +206,9 @@ public class StageCreater : Singlton<StageCreater>
         }
     }
 
+    /// <summary>
+    /// 表示物をセット
+    /// </summary>
     private void SetDecoration(GameObject deco)
     {
         //表示物がないオブジェクトなら処理をしない
@@ -385,6 +388,7 @@ public class StageCreater : Singlton<StageCreater>
     }
 }
 
+//折れ線と穴開け用の線のどちらの線かを判断するために実装。
 public struct XCoord
 {
     public float x;

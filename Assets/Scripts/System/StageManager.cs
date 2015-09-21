@@ -47,6 +47,7 @@ public class StageManager : Singlton<StageManager>
             index = 0;
         }
         _CurrentStageIndex = index;
+        //ダミーカードをInstantiateすると、ダミーカードのAwakeでステージ情報を更新し、ステージ生成まで行う
         Instantiate(_Stages[index]);
         
         ////本実装？
@@ -311,7 +312,7 @@ public class StageManager : Singlton<StageManager>
         return retList.OrderBy(x => x);
     }
     /// <summary>
-    /// 引数のy座標を含む折り目とのx座標をソートした配列を取得
+    /// 引数のy座標を含む折り目と穴のx座標をソートした配列を取得
     /// </summary>
     public IEnumerable<XCoord> GetXCoordList(float y)
     {

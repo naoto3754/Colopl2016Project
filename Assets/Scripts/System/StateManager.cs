@@ -2,6 +2,9 @@
 using System;
 using System.Collections;
 
+/*
+ * ゲームの進行を管理する
+ */
 public class StateManager : Singlton<StateManager> {
 
 	[SerializeField]

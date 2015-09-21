@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 
+/*
+ * ステージセレクト画面時の挙動を制御
+ */
 public class StageSelectManager : Singlton<StageSelectManager> {
 
 	[SerializeField]

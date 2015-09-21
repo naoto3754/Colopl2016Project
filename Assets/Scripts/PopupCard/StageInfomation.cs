@@ -83,7 +83,9 @@ public class StageInfomation : MonoBehaviour
 
     void Awake()
     {
+        //ステージ構成物のリストを作成
         InitList();
+        //システム周りにパラメータを渡す
         InitSystemInfo();   
     }
     
@@ -130,7 +132,9 @@ public class StageInfomation : MonoBehaviour
             _Decoration.Add(renderer.gameObject);
         }
     }
-    
+    /// <summary>
+    /// ステージを始める上で初期化しておくべき情報をセットする
+    /// </summary>
     private void InitSystemInfo()
     {
         if(StageManager.I.CurrentInfo != null)

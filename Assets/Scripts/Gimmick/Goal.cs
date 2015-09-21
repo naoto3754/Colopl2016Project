@@ -13,6 +13,7 @@ public class Goal : MonoBehaviour
     
     void FixedUpdate()
     {
+        //ゴールに入ったらステージクリアフラグを立てる
         if(_Rect.Contains(CharacterController.I.DummyCharacter.transform.position))
         {
 			CharacterController.I.ClearStage = true;   
