@@ -71,7 +71,7 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 				for(int i = 0; i < _Books.Count; i++)
 				{
 					if(i < idx){
-						_Books[i].transform.DOMove(_Books[i].transform.position + new Vector3(-50, 0, 50), 0.5f);
+						_Books[i].transform.DOMove(_Books[i].transform.position + new Vector3(-30, 0, 30), 1.0f);
 					}else if(i == idx){
 						_Books[i].transform.DOMove(_Books[i].transform.parent.position, 0.5f).SetDelay(0.25f);
 						_Books[i].transform.DORotate(315*Vector3.up, 0.5f).SetEase(Ease.OutSine).SetDelay(0.25f);
@@ -84,7 +84,7 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 								StateManager.I.GoState(StateManager.State.INGAME);
 							});
 					}else{
-						_Books[i].transform.DOMove(_Books[i].transform.position + new Vector3(50, 0, -50), 0.5f);
+						_Books[i].transform.DOMove(_Books[i].transform.position + new Vector3(30, 0, -30), 1.0f);
 					}
 				}
 			}
