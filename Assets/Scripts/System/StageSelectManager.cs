@@ -75,9 +75,9 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 				//目次表示時
 				if(_ViewContents)
 				{
-					if(tappedObj != null && tappedObj.name == "Sumbnail(Clone)")
+					if(tappedObj != null && tappedObj.GetComponent<StageIndex>() != null)
 					{
-						SelectedStageIdx = 1;
+						SelectedStageIdx = tappedObj.GetComponent<StageIndex>().stageIdx;
 						StateManager.I.GoState(State.INGAME);
 					}
 					else
