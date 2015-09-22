@@ -12,7 +12,7 @@ public class TitleManager : Singlton<TitleManager> {
 	{
 		if(InputManager.I.GetAnyTapDown())
 		{
-			StateManager.I.GoState(StateManager.State.STAGE_SELECT);
+			StateManager.I.GoState(State.STAGE_SELECT);
 		}
 	}
 }

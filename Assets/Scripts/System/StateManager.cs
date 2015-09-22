@@ -72,16 +72,15 @@ public class StateManager : Singlton<StateManager> {
 		case State.INGAME:
 			foreach(Transform child in _InGame.transform)
 				child.gameObject.SetActive(true);
-			StageCreater.I.Book = BookForStageCreater;
-			StageManager.I.InstantiateStage(0);
+			StageManager.I.InstantiateStage(StageSelectManager.I.SelectedChapter, StageSelectManager.I.SelectedStageIdx);
 			break;
 		}
 	}
+}
 
-	public enum State
-	{
-		TITLE = 0,
-		STAGE_SELECT,
-		INGAME,
-	}
+public enum State
+{
+	TITLE = 0,
+	STAGE_SELECT,
+	INGAME,
 }

@@ -7,8 +7,13 @@ public class StageManager : Singlton<StageManager>
 {
 
     [SerializeField]
-    private GameObject _FirstStage;
-    private List<GameObject> _Stages;
+    private List<GameObject> _Chapters;
+    private List<List<GameObject>> _Stages;
+    private int _CurrentChapter;
+    public int CurrentChapter
+    {
+        get { return _CurrentChapter; }
+    }
     private int _CurrentStageIndex;
     public int CurrentStageIndex
     {
@@ -23,32 +28,37 @@ public class StageManager : Singlton<StageManager>
 
     public override void OnInitialize()
     {
-        _Stages = new List<GameObject>();
-        LoadStage(_FirstStage);
+        _Stages = new List<List<GameObject>>();
+        for(int i = 0; i < _Chapters.Count; i++)
+        {
+            _Stages.Add(new List<GameObject>());
+            LoadStage(_Chapters[i], i);
+        }
     }
     /// <summary>
     /// 再帰的にステージを読み込む
     /// </summary>
-    private void LoadStage(GameObject stage)
+    private void LoadStage(GameObject stage, int index)
     {
-        _Stages.Add(stage);
+        _Stages[index].Add(stage);
         StageInfomation info = stage.GetComponent<StageInfomation>();
         if(info.NextStage != null)
-            LoadStage(info.NextStage);
+            LoadStage(info.NextStage, index);
     }
     /// <summary>
     /// ステージ生成
     /// </summary>
-    public void InstantiateStage(int index)
+    public void InstantiateStage(int chapter, int index)
     {
         ////仮実装
         if(index >= _Stages.Count)
         { 
-            index = 0;
+            index = 1;
         }
+        _CurrentChapter = chapter;
         _CurrentStageIndex = index;
         //ダミーカードをInstantiateすると、ダミーカードのAwakeでステージ情報を更新し、ステージ生成まで行う
-        Instantiate(_Stages[index]);
+        Instantiate(_Stages[chapter][index]);
         
         ////本実装？
         //  if(index < _Stages.Count)

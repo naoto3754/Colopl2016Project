@@ -85,7 +85,7 @@ public class CharacterController : Singlton<CharacterController>
             //ゴール判定
             if(ClearStage)
             {
-                StageManager.I.InstantiateStage(StageManager.I.CurrentStageIndex+1);
+                StageManager.I.InstantiateStage(StageManager.I.CurrentChapter, StageManager.I.CurrentStageIndex+1);
             }
         }
     }
