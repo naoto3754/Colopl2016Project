@@ -163,7 +163,7 @@ public class StageCreater : Singlton<StageCreater>
                         zOffset -= xCoord.x - prevX;
                     }
                     paper.transform.eulerAngles += 180*Vector3.forward;
-                    paper.transform.localScale = new Vector3(xCoord.x - prevX, y - prevY, _Paper.transform.localScale.z);
+                    paper.transform.localScale = new Vector3(xCoord.x - prevX-0.001f, y - prevY, thickness);
                     if (xCoord.x == xCoordList.First().x)
                         paper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
                     
