@@ -7,6 +7,8 @@ using DG.Tweening;
  * ステージセレクト画面時の挙動を制御
  */
 public class StageSelectManager : Singlton<StageSelectManager> {
+	private readonly Vector3 DEFAULT_LEFTANCHOR_LOCALPOSITION = new Vector3(0.506f, 0.78254f, 0f); 
+
 
 	[SerializeField]
 	private List<GameObject> _Books;
@@ -118,12 +120,14 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 	{
 		_IsPlayingAnimation = true;
 		_ViewContents = false;
+		StageCreater.I.Clear();
 		for(int i = 0; i < _Books.Count; i++)
 		{
 			_Books[i].transform.DOMove(_BookPosList[i], 1f);
 			_Books[i].transform.DORotate(135*Vector3.up, 1f);
-			_Books[i].transform.GetChild(0).DOLocalRotate(0*Vector3.up, 1f);
-			_Books[i].transform.GetChild(1).DOLocalRotate(0*Vector3.up, 1f);
+			_Books[i].transform.GetChild(0).DOLocalRotate(Vector3.zero, 1f);
+			_Books[i].transform.GetChild(0).DOLocalMove(DEFAULT_LEFTANCHOR_LOCALPOSITION, 1f);
+			_Books[i].transform.GetChild(1).DOLocalRotate(Vector3.zero, 1f);
 			_Books[i].transform.DOScale(_BookScaleList[i] * 0.5f, 1f)
 				.OnComplete(() => {
 					_IsPlayingAnimation = false;

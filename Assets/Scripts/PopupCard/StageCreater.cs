@@ -47,7 +47,7 @@ public class StageCreater : Singlton<StageCreater>
     /// <summary>
     /// ステージを生成する。すでにステージがある場合、閉じてから破棄する
     /// </summary>
-    public void CreateNewStage(float xOffset = 50f, float zOffset = -50f)
+    public void CreateNewStage(bool existCharacter = true, float xOffset = 50f, float zOffset = -50f)
     {
         bool existStage = _Root != null;
         if(existStage)
@@ -55,12 +55,15 @@ public class StageCreater : Singlton<StageCreater>
         _Root = new GameObject("StageRoot");
         _XOffset = xOffset;
         _ZOffset = zOffset;
-        InstantiateCharacter();
-        //  InstantiateBackground();
+        
         InstantiatePaper();
         InstantiateDecoration();
-        //HACK:キャラの向きや透過処理をさせたい
-        CharacterController.I.UpdateCharacterState(Vector2.right);
+        if(existCharacter)
+        {
+            InstantiateCharacter();
+            //HACK:キャラの向きや透過処理をさせたい
+            CharacterController.I.UpdateCharacterState(Vector2.right);
+        }
         
         if(existStage)
             CloseStage(ANIMATION_TIME, true, true);
@@ -72,12 +75,12 @@ public class StageCreater : Singlton<StageCreater>
     /// キャラクターを生成する
     /// </summary>
     private void InstantiateCharacter()
-    {
+    {        
         CharacterController.I.color = StageManager.I.CurrentInfo.InitialCharacterColor;
         //X方向に動くキャラクター
         GameObject character = Instantiate(CharacterController.I.DummyCharacter,
-                                           CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET * 2, 0f, _ZOffset - OFFSET * 2),
-                                           Quaternion.identity) as GameObject;
+                                        CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET * 2, 0f, _ZOffset - OFFSET * 2),
+                                        Quaternion.identity) as GameObject;
         character.transform.SetParent(_Root.transform);
         character.layer = 0;
         foreach (Transform child in character.transform)
@@ -140,7 +143,7 @@ public class StageCreater : Singlton<StageCreater>
             bool duringHole = false;
             float prevX = -StageWidth / 2;
             float xOffset = -StageWidth / 2, zOffset = _ZOffset;
-            IEnumerable<XCoord> xCoordList = StageManager.I.GetXCoordList((prevY + y) / 2);
+            IEnumerable<XCoord> xCoordList = StageManager.I.GetXCoordList((prevY + y) / 2, true);
             foreach (XCoord xCoord in xCoordList)
             {
                 //折れ線の場合
@@ -229,7 +232,7 @@ public class StageCreater : Singlton<StageCreater>
         bool facingX = true;
         float prevX = -StageWidth / 2;
 
-        foreach (float x in StageManager.I.GetFoldXCoordList(decoPos.y + decoScale.y / 2 * anchorHeightScale))
+        foreach (float x in StageManager.I.GetFoldXCoordList(decoPos.y + decoScale.y / 2 * anchorHeightScale, true))
         {
             if (decoPos.x - decoScale.x / 2 < x)
                 break;
@@ -260,7 +263,7 @@ public class StageCreater : Singlton<StageCreater>
         float delta = decoScale.x;
         Vector2 decoAnchorPos = new Vector2(decoPos.x - delta / 2,
                                             decoPos.y + decoScale.y / 2 * anchorHeightScale);
-        float foldlineDist = StageManager.I.CalcFoldLineDistance(decoAnchorPos, delta);
+        float foldlineDist = StageManager.I.CalcFoldLineDistance(decoAnchorPos, delta, true);
         if (Mathf.Abs(foldlineDist) < Mathf.Abs(delta))
         {
             if (facingX)
@@ -385,6 +388,14 @@ public class StageCreater : Singlton<StageCreater>
             yield return new WaitForSeconds(time / frameNum);
         }
         
+    }
+    
+    public void Clear()
+    {
+        if(_PreviousRoot != null)
+            Destroy( _PreviousRoot );
+        if(_Root != null)
+            Destroy( _Root );
     }
 }
 

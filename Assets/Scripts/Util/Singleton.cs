@@ -9,27 +9,8 @@ public class Singlton<T> : MonoBehaviour where T : Singlton<T> {
 		{
 			if(instance != null)
 				return instance;
-				
-			System.Type type = typeof(T);
- 
-            T I = GameObject.FindObjectOfType(type) as T;
- 
-            if( I == null )
-            {
-                string typeName = type.ToString();
- 
-                GameObject gameObject = new GameObject( typeName, type );
-                I = gameObject.GetComponent<T>();
- 
-                if( I == null )
-                {
-                    Debug.LogError("Problem during the creation of " + typeName,gameObject );
-                }
-            }
-            else
-            {
-                Initialize(I);
-            }
+			else
+                Debug.LogError("Error");
             return instance;
 		} 
 	 }

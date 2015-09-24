@@ -51,7 +51,7 @@ public class StageManager : Singlton<StageManager>
     public void InstantiateStage(int chapter, int index)
     {
         ////仮実装
-        if(index >= _Stages.Count)
+        if(index >= _Stages[chapter].Count)
         { 
             index = 1;
         }
@@ -244,10 +244,13 @@ public class StageManager : Singlton<StageManager>
     /// <summary>
     /// 与えられた距離内にある折り目までの距離を返す
     /// </summary>
-    public float CalcFoldLineDistance(Vector2 pos, float delta)
+    public float CalcFoldLineDistance(Vector2 pos, float delta, bool createStage = false)
     {
-        if (CharacterController.I.IsTopOfWall)
-            pos -= 0.02f * Vector2.up;
+        if(createStage == false)
+        {
+            if (CharacterController.I.IsTopOfWall)
+                pos -= 0.02f * Vector2.up;
+        }
         float ret = delta + Mathf.Sign(delta) * 1f;
         foreach (Line foldline in _CurrentInfo.FoldLine)
         {
@@ -304,10 +307,12 @@ public class StageManager : Singlton<StageManager>
     /// <summary>
     /// 引数のy座標を含む折り目のx座標をソートした配列を取得
     /// </summary>
-    public IEnumerable<float> GetFoldXCoordList(float y)
-    {
-        if (CharacterController.I.IsTopOfWall)
-            y -= 0.05f;
+    public IEnumerable<float> GetFoldXCoordList(float y, bool createStage = false)
+    {   
+        if(createStage == false){
+            if (CharacterController.I.IsTopOfWall)
+                y -= 0.05f;
+        }
         List<float> retList = new List<float>();
         retList.Add(StageCreater.I.StageWidth/2);
         foreach (Line line in _CurrentInfo.FoldLine)
@@ -324,10 +329,12 @@ public class StageManager : Singlton<StageManager>
     /// <summary>
     /// 引数のy座標を含む折り目と穴のx座標をソートした配列を取得
     /// </summary>
-    public IEnumerable<XCoord> GetXCoordList(float y)
+    public IEnumerable<XCoord> GetXCoordList(float y, bool createStage = false)
     {
-        if (CharacterController.I.IsTopOfWall)
-            y -= 0.05f;
+        if(createStage == false){
+            if (CharacterController.I.IsTopOfWall)
+               y -= 0.05f;
+        }
         List<XCoord> retList = new List<XCoord>();
         retList.Add(new XCoord(StageCreater.I.StageWidth/2, true));
         foreach (Line line in _CurrentInfo.FoldLine)

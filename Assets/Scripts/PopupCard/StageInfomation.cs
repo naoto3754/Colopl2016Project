@@ -139,9 +139,12 @@ public class StageInfomation : MonoBehaviour
     {
         if(StageManager.I.CurrentInfo != null)
             Destroy(StageManager.I.CurrentInfo.gameObject);
-        CharacterController.I.ClearStage = false;
-        CharacterController.I.DummyCharacter = _Character;
+        if(_Character != null)
+        {
+            CharacterController.I.ClearStage = false;
+            CharacterController.I.DummyCharacter = _Character;
+        }
         StageManager.I.CurrentInfo = this;
-        StageCreater.I.CreateNewStage();
+        StageCreater.I.CreateNewStage(_Character != null);
     }
 }
