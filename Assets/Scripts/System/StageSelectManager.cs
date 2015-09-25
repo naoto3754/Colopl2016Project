@@ -7,8 +7,10 @@ using DG.Tweening;
  * ステージセレクト画面時の挙動を制御
  */
 public class StageSelectManager : Singlton<StageSelectManager> {
-	private readonly Vector3 DEFAULT_LEFTANCHOR_LOCALPOSITION = new Vector3(0.506f, 0.78254f, 0f); 
-
+	private readonly Vector3 START_BOOK_OFFSET = new Vector3(0f, 15f, 0f);
+	private readonly Vector3 DEFAULT_LEFTANCHOR_LOCALPOSITION = new Vector3(0.506f, 0.78254f, 0f);
+	private readonly Vector3 STAGE_BOOK_SCALE = new Vector3(21f, 35.7f, 21f);
+	private readonly Vector3 DEFAULT_BOOK_SCALE = new Vector3(10.5f, 17.85f, 18.64f);
 
 	[SerializeField]
 	private List<GameObject> _Books;
@@ -18,7 +20,6 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 	}
 	private List<Vector3> _BookPosList;
 	private List<Vector3> _BookRotList;
-	private List<Vector3> _BookScaleList;
 	private bool _ViewContents;
 	private bool _IsPlayingAnimation;
 	
@@ -34,12 +35,10 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 	public override void OnInitialize () {
 		_BookPosList = new List<Vector3>();
 		_BookRotList = new List<Vector3>();
-		_BookScaleList=new List<Vector3>();
 		foreach(GameObject book in _Books)
 		{
 			_BookPosList.Add(book.transform.position);
 			_BookRotList.Add(book.transform.eulerAngles);
-			_BookScaleList.Add(book.transform.localScale);
 		}
 	}
 	
@@ -49,10 +48,19 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 			OnInitialize();
 		for(int i = 0; i < _Books.Count; i++)
 		{
+			//初期設定
 			_Books[i].SetActive(true);
-			_Books[i].transform.position = _BookPosList[i] + 100*Vector3.up;
-			_Books[i].transform.localScale *= 0.5f;
-			_Books[i].transform.DOMove(_BookPosList[i], 1f).SetEase(Ease.OutBounce).SetDelay(i*0.2f);
+			_Books[i].transform.position = _BookPosList[i] + START_BOOK_OFFSET;
+			_Books[i].transform.localScale = DEFAULT_BOOK_SCALE;
+			Color defaultColor = _Books[i].GetComponentInChildren<Renderer>().material.color;
+			Color transparent = defaultColor;
+			transparent.a = 0f;
+			foreach(Renderer renderer in _Books[i].GetComponentsInChildren<Renderer>())
+			{
+				renderer.material.color = transparent;
+				renderer.material.DOColor(defaultColor, 1f).SetEase(Ease.OutQuart).SetDelay(i*0.2f);
+			}
+			_Books[i].transform.DOMove(_BookPosList[i], 1f).SetEase(Ease.OutQuart).SetDelay(i*0.2f);
 		}
 	}
 	
@@ -103,7 +111,7 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 				_Books[i].transform.DORotate(315*Vector3.up, 0.5f).SetEase(Ease.OutSine).SetDelay(0.25f);
 				_Books[i].transform.GetChild(0).DOLocalRotate(-45*Vector3.up, 0.5f).SetEase(Ease.OutSine).SetDelay(0.25f);
 				_Books[i].transform.GetChild(1).DOLocalRotate(-45*Vector3.up, 0.5f).SetEase(Ease.OutSine).SetDelay(0.25f);
-				_Books[i].transform.DOScale(_Books[i].transform.localScale*2, 0.5f).SetDelay(0.25f)
+				_Books[i].transform.DOScale(STAGE_BOOK_SCALE, 0.5f).SetDelay(0.25f)
 					.OnComplete(() => {
 						_IsPlayingAnimation = false;
 						_ViewContents = true;
@@ -128,7 +136,7 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 			_Books[i].transform.GetChild(0).DOLocalRotate(Vector3.zero, 1f);
 			_Books[i].transform.GetChild(0).DOLocalMove(DEFAULT_LEFTANCHOR_LOCALPOSITION, 1f);
 			_Books[i].transform.GetChild(1).DOLocalRotate(Vector3.zero, 1f);
-			_Books[i].transform.DOScale(_BookScaleList[i] * 0.5f, 1f)
+			_Books[i].transform.DOScale(DEFAULT_BOOK_SCALE, 1f)
 				.OnComplete(() => {
 					_IsPlayingAnimation = false;
 				});
