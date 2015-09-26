@@ -397,6 +397,7 @@ public class StageCreater : Singlton<StageCreater>
     
     public void Clear()
     {
+        StopAllCoroutines();
         if(_PreviousRoot != null)
             Destroy( _PreviousRoot );
         if(_Root != null)

@@ -46,6 +46,9 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 	{
 		if(_BookPosList == null)
 			OnInitialize();
+			
+		Sequence seq = DOTween.Sequence();
+		_IsPlayingAnimation = true;
 		for(int i = 0; i < _Books.Count; i++)
 		{
 			//初期設定
@@ -55,13 +58,15 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 			Color defaultColor = _Books[i].GetComponentInChildren<Renderer>().material.color;
 			Color transparent = defaultColor;
 			transparent.a = 0f;
+			seq.Join( _Books[i].transform.DOMove(_BookPosList[i], 1f).SetEase(Ease.OutQuart).SetDelay(i*0.2f) );
 			foreach(Renderer renderer in _Books[i].GetComponentsInChildren<Renderer>())
 			{
 				renderer.material.color = transparent;
-				renderer.material.DOColor(defaultColor, 1f).SetEase(Ease.OutQuart).SetDelay(i*0.2f);
+				seq.Join( renderer.material.DOColor(defaultColor, 1f).SetEase(Ease.OutQuart) );
 			}
-			_Books[i].transform.DOMove(_BookPosList[i], 1f).SetEase(Ease.OutQuart).SetDelay(i*0.2f);
 		}
+		seq.OnComplete(() => { _IsPlayingAnimation = false; });
+		seq.Play();
 	}
 	
 	void FixedUpdate () {
@@ -99,47 +104,50 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 	
 	private void OpenBook(GameObject tappedObj)
 	{
+		Sequence seq = DOTween.Sequence();
 		_IsPlayingAnimation = true;
 		int idx = _Books.IndexOf(tappedObj);
 		SelectedChapter = idx;
 		for(int i = 0; i < _Books.Count; i++)
 		{
 			if(i < idx){
-				_Books[i].transform.DOMove(_Books[i].transform.position + new Vector3(-30, 0, 30), 1.0f);
+				seq.Join( _Books[i].transform.DOMove(_Books[i].transform.position + new Vector3(-30, 0, 30), 1.0f) );
 			}else if(i == idx){
-				_Books[i].transform.DOMove(_Books[i].transform.parent.position, 0.5f).SetDelay(0.25f);
-				_Books[i].transform.DORotate(315*Vector3.up, 0.5f).SetEase(Ease.OutSine).SetDelay(0.25f);
-				_Books[i].transform.GetChild(0).DOLocalRotate(-45*Vector3.up, 0.5f).SetEase(Ease.OutSine).SetDelay(0.25f);
-				_Books[i].transform.GetChild(1).DOLocalRotate(-45*Vector3.up, 0.5f).SetEase(Ease.OutSine).SetDelay(0.25f);
-				_Books[i].transform.DOScale(STAGE_BOOK_SCALE, 0.5f).SetDelay(0.25f)
-					.OnComplete(() => {
-						_IsPlayingAnimation = false;
-						_ViewContents = true;
-						StageCreater.I.Book = _Books[idx];
-						StageManager.I.InstantiateStage(SelectedChapter,0);
-					});
+				seq.Join( _Books[i].transform.DOMove(_Books[i].transform.parent.position, 0.5f).SetDelay(0.25f) );
+				seq.Join( _Books[i].transform.DORotate(315*Vector3.up, 0.5f).SetEase(Ease.OutSine) );
+				seq.Join( _Books[i].transform.GetChild(0).DOLocalRotate(-45*Vector3.up, 0.5f).SetEase(Ease.OutSine) );
+				seq.Join( _Books[i].transform.GetChild(1).DOLocalRotate(-45*Vector3.up, 0.5f).SetEase(Ease.OutSine) );
+				seq.Join( _Books[i].transform.DOScale(STAGE_BOOK_SCALE, 0.5f) );
 			}else{
-				_Books[i].transform.DOMove(_Books[i].transform.position + new Vector3(30, 0, -30), 1.0f);
+				seq.Join( _Books[i].transform.DOMove(_Books[i].transform.position + new Vector3(30, 0, -30), 1.0f) );
 			}
 		}
+		seq.OnComplete(() => 
+		{
+			_IsPlayingAnimation = false;
+			_ViewContents = true;
+			StageCreater.I.Book = _Books[idx];
+			StageManager.I.InstantiateStage(SelectedChapter,0); 
+		});
+		seq.Play();
 	}
 	
 	private void CloseBook()
 	{
+		Sequence seq = DOTween.Sequence();
 		_IsPlayingAnimation = true;
 		_ViewContents = false;
 		StageCreater.I.Clear();
 		for(int i = 0; i < _Books.Count; i++)
 		{
-			_Books[i].transform.DOMove(_BookPosList[i], 1f);
-			_Books[i].transform.DORotate(135*Vector3.up, 1f);
-			_Books[i].transform.GetChild(0).DOLocalRotate(Vector3.zero, 1f);
-			_Books[i].transform.GetChild(0).DOLocalMove(DEFAULT_LEFTANCHOR_LOCALPOSITION, 1f);
-			_Books[i].transform.GetChild(1).DOLocalRotate(Vector3.zero, 1f);
-			_Books[i].transform.DOScale(DEFAULT_BOOK_SCALE, 1f)
-				.OnComplete(() => {
-					_IsPlayingAnimation = false;
-				});
+			seq.Join( _Books[i].transform.DOMove(_BookPosList[i], 1f) );
+			seq.Join( _Books[i].transform.DORotate(135*Vector3.up, 1f) );
+			seq.Join( _Books[i].transform.GetChild(0).DOLocalRotate(Vector3.zero, 1f) );
+			seq.Join( _Books[i].transform.GetChild(0).DOLocalMove(DEFAULT_LEFTANCHOR_LOCALPOSITION, 1f) );
+			seq.Join( _Books[i].transform.GetChild(1).DOLocalRotate(Vector3.zero, 1f) );
+			seq.Join( _Books[i].transform.DOScale(DEFAULT_BOOK_SCALE, 1f) );
 		}
+		seq.OnComplete(() => { _IsPlayingAnimation = false; });
+		seq.Play();
 	}
 }
