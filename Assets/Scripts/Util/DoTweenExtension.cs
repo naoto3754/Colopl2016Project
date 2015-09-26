@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using UnityEngine.UI;
 using UnityStandardAssets.ImageEffects;
 using DG.Tweening;
 
@@ -12,8 +12,14 @@ public static class DoTweenExtension
 	}
 	
 	//Texture2D
-	public static Tween DOPixelColor(this Texture2D target, float endValue, float duration)
+	public static Tween DOColor(this Image target, Color endValue, float duration)
 	{
-		return DOTween.To(()=>target.GetPixel(0,0).a , x=>target.SetPixel(0,0,new Color(0f,0f,0f,x)), endValue, duration );
+		return DOTween.To(()=>target.color , x=>target.color=x, endValue, duration );
+	}
+	
+	//Text
+	public static Tween DOColor(this Text target, Color endValue, float duration)
+	{
+		return DOTween.To(()=>target.color , x=>target.color=x, endValue, duration );
 	}
 }

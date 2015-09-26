@@ -1,17 +1,18 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using DG.Tweening;
 
 public class FadeManager : Singlton<FadeManager> { 
 	readonly Color INIT_COLOR = new Color(0,0,0,0);
 	
-	Texture2D _FadeTexture;
+	Image _FadeImage;
 	bool _IsFading;
 	//  Color _TexColor;
 	
 	public override void OnInitialize()
 	{
-		_FadeTexture = new Texture2D(1,1,TextureFormat.RGBA32, false);
+		_FadeImage = GetComponentInChildren<Image>();
 	}
 	
 	void Update()
@@ -21,7 +22,9 @@ public class FadeManager : Singlton<FadeManager> {
 	public void FadeIn(float duration)
 	{
 		_IsFading = true;
-		_FadeTexture.DOPixelColor(0f, duration).OnComplete(() => {
+		Color c = _FadeImage.color;
+		c.a = 0f;
+		_FadeImage.DOColor(c, duration).OnComplete(() => {
 			_IsFading = false;
 		});
 	}
@@ -29,17 +32,9 @@ public class FadeManager : Singlton<FadeManager> {
 	public void FadeOut(float duration)
 	{
 		_IsFading = true;
-		_FadeTexture.SetPixel(0,0,INIT_COLOR);
-		_FadeTexture.Apply();
-		_FadeTexture.DOPixelColor(0.7f, duration);
-	}
-	
-	void OnGUI()
-	{
-		if(_IsFading)
-		{
-			_FadeTexture.Apply();
-			GUI.DrawTexture( new Rect( 0, 0, Screen.width, Screen.height ), _FadeTexture );
-		}
+		_FadeImage.color = INIT_COLOR;
+		Color c = _FadeImage.color;
+		c.a = 0.7f;
+		_FadeImage.DOColor(c, duration);
 	}
 }
