@@ -335,7 +335,7 @@ public class StageCreater : Singlton<StageCreater>
                 obj.rotation = currentRotation;
             yield return new WaitForSeconds(time / frameNum);
         }
-        IsPlayingAnimation = false;
+        InGameManager.I.DisplayDictionary();
         Destroy(obj.GetComponent<TmpParameter>());
         if(_PreviousRoot != null)
             Destroy(_PreviousRoot);
