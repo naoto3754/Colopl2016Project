@@ -14,6 +14,8 @@ public class InGameManager : Singlton<InGameManager>
 	
 	public void DisplayDictionary()
 	{
+		if(gameObject.activeSelf == false)
+			return;
 		if(_NowDisplaying)
 			return;
 		

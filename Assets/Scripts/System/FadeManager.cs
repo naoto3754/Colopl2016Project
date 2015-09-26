@@ -15,10 +15,6 @@ public class FadeManager : Singlton<FadeManager> {
 		_FadeImage = GetComponentInChildren<Image>();
 	}
 	
-	void Update()
-	{
-	}
-	
 	public void FadeIn(float duration)
 	{
 		_IsFading = true;
