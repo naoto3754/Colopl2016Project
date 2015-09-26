@@ -45,7 +45,7 @@ public class StageCreater : Singlton<StageCreater>
     }
 
     /// <summary>
-    /// ステージを生成する。すでにステージがある場合、閉じてから破棄する
+    /// ステージを生成する。すでにステージがある場合、閉じた後に破棄する
     /// </summary>
     public void CreateNewStage(bool existCharacter = true, float xOffset = 50f, float zOffset = -50f)
     {
@@ -57,6 +57,7 @@ public class StageCreater : Singlton<StageCreater>
         _ZOffset = zOffset;
         
         InstantiatePaper();
+        InstantiateBackground();
         InstantiateDecoration();
         if(existCharacter)
         {
@@ -102,7 +103,7 @@ public class StageCreater : Singlton<StageCreater>
         CharacterController.I.CharacterZ = character;
     }
     /// <summary>
-    /// 背景を生成する（いらないかも）
+    /// 背景を生成する
     /// </summary>
     private void InstantiateBackground()
     {
@@ -110,19 +111,23 @@ public class StageCreater : Singlton<StageCreater>
         //背景の生成
         //x方向
         GameObject background = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
-        background.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-        background.GetComponent<Renderer>().material.color = StageManager.I.CurrentInfo.BackgroundColor;
+        background.GetComponent<Renderer>().material.mainTexture = StageManager.I.CurrentInfo.LiningTexture;
+        background.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(0f,0f);
+        background.GetComponent<Renderer>().material.mainTextureScale = new Vector2(0.5f, 1f);
         background.transform.SetParent(_Root.transform);
-        background.transform.position = new Vector3(-StageWidth/4 + thickness/2 + _XOffset, StageHeight/2, thickness/2 + _ZOffset);
-        background.transform.localScale = new Vector3(StageWidth/2, StageHeight, thickness/2);
+        background.transform.localScale = new Vector3(StageWidth/2, StageHeight, 0.01f);
+        background.transform.position = new Vector3(-StageWidth/4 + _XOffset, StageHeight/2, _ZOffset + 0.01f);
+        background.transform.eulerAngles += 180*Vector3.forward;
         //z方向
         background = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
-        background.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
-        background.GetComponent<Renderer>().material.color = StageManager.I.CurrentInfo.BackgroundColor;
+        background.GetComponent<Renderer>().material.mainTexture = StageManager.I.CurrentInfo.LiningTexture;
+        background.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(0.5f,0f);
+        background.GetComponent<Renderer>().material.mainTextureScale = new Vector2(0.5f, 1f);
         background.transform.SetParent(_Root.transform);
-        background.transform.position = new Vector3(thickness/2 + _XOffset, StageHeight/2, -StageWidth/4 + thickness/2 + _ZOffset);
-        background.transform.localScale = new Vector3(StageWidth/2, StageHeight, thickness/2);
+        background.transform.localScale = new Vector3(StageWidth/2, StageHeight, 0.01f);
+        background.transform.position = new Vector3(_XOffset + 0.01f, StageHeight/2, -StageWidth/4 + _ZOffset);
         background.transform.forward = Vector3.right;
+        background.transform.eulerAngles += 180*Vector3.forward;
     }
     /// <summary>
     /// ステージのカード部分をを生成する
