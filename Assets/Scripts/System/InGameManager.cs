@@ -12,6 +12,36 @@ public class InGameManager : Singlton<InGameManager>
 	
 	bool _NowDisplaying = false;
 	
+	void FixedUpdate ()
+	{
+		if(Input.GetKeyDown(KeyCode.R))
+		{
+			Restart();
+		}
+		else if(Input.GetKeyDown(KeyCode.H))
+		{
+			ReturnHome();
+		}
+	}
+	
+	/// <summay>
+	/// リスタートする
+	/// </summay>
+	private void Restart()
+	{
+		Debug.Log("Restart");
+	}
+	/// <summay>
+	/// ホームに戻る
+	/// </summay>
+	private void ReturnHome()
+	{
+		Debug.Log("Return Home");
+	}
+	
+	/// <summay>
+	/// 辞書表示
+	/// </summay>
 	public void DisplayDictionary()
 	{
 		if(gameObject.activeSelf == false)
