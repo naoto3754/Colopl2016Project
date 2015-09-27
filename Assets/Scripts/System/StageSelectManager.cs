@@ -8,11 +8,12 @@ using DG.Tweening;
  */
 public class StageSelectManager : Singlton<StageSelectManager> {
 	private readonly Vector3 START_BOOK_OFFSET = new Vector3(0f, 15f, 0f);
-	private readonly Vector3 DEFAULT_LEFTANCHOR_LOCALPOSITION = new Vector3(0.506f, 0.78254f, 0f);
-	private readonly Vector3 STAGE_BOOK_SCALE = new Vector3(21f, 35.7f, 21f);
+	private readonly Vector3 DEFAULT_LEFTANCHOR_LOCALPOSITION = new Vector3(0.5f, 0f, 0f);
+	private readonly Vector3 STAGE_BOOK_SCALE = new Vector3(22f, 36f, 22f);
 	private readonly Vector3 DEFAULT_BOOK_SCALE = new Vector3(10.5f, 17.85f, 18.64f);
 
 	[SerializeField]
+	private GameObject _BookRoot;
 	private List<GameObject> _Books;
 	public List<GameObject> Books
 	{
@@ -33,6 +34,12 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 	}
 	
 	public override void OnInitialize () {
+		_Books = new List<GameObject>();
+		foreach(Transform child in _BookRoot.transform)
+		{
+			_Books.Add(child.gameObject);
+		}
+		
 		_BookPosList = new List<Vector3>();
 		_BookRotList = new List<Vector3>();
 		foreach(GameObject book in _Books)
@@ -55,14 +62,17 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 			_Books[i].SetActive(true);
 			_Books[i].transform.position = _BookPosList[i] + START_BOOK_OFFSET;
 			_Books[i].transform.localScale = DEFAULT_BOOK_SCALE;
-			Color defaultColor = _Books[i].GetComponentInChildren<Renderer>().material.color;
-			Color transparent = defaultColor;
-			transparent.a = 0f;
 			seq.Join( _Books[i].transform.DOMove(_BookPosList[i], 1f).SetEase(Ease.OutQuart).SetDelay(i*0.2f) );
 			foreach(Renderer renderer in _Books[i].GetComponentsInChildren<Renderer>())
 			{
-				renderer.material.color = transparent;
-				seq.Join( renderer.material.DOColor(defaultColor, 1f).SetEase(Ease.OutQuart) );
+				foreach(Material material in renderer.materials)
+				{
+					Color defaultColor = material.color;
+					Color transparent = defaultColor;
+					transparent.a = 0f;
+					material.color = transparent;
+					seq.Join( material.DOColor(defaultColor, 1f).SetEase(Ease.OutQuart) );
+				}
 			}
 		}
 		seq.OnComplete(() => { _IsPlayingAnimation = false; });
