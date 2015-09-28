@@ -7,6 +7,7 @@ using DG.Tweening;
  * ステージセレクト画面時の挙動を制御
  */
 public class StageSelectManager : Singlton<StageSelectManager> {
+	private readonly Vector3 CAMERA_POSITION = new Vector3(-22.2f, 58.2f, -122.2f);
 	private readonly Vector3 START_BOOK_OFFSET = new Vector3(0f, 15f, 0f);
 	private readonly Vector3 DEFAULT_LEFTANCHOR_LOCALPOSITION = new Vector3(0.5f, 0f, 0f);
 	private readonly Vector3 STAGE_BOOK_SCALE = new Vector3(22f, 36f, 22f);
