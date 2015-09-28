@@ -122,16 +122,16 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 		{
 			if(i < idx){
 				seq.Join( _Books[i].transform.DOMove(_Books[i].transform.position + new Vector3(-30, 0, 30), 1.0f) );
-			}else if(i == idx){
-				seq.Join( _Books[i].transform.DOMove(_Books[i].transform.parent.position, 0.5f).SetDelay(0.25f) );
-				seq.Join( _Books[i].transform.DORotate(315*Vector3.up, 0.5f).SetEase(Ease.OutSine) );
-				seq.Join( _Books[i].transform.GetChild(0).DOLocalRotate(-45*Vector3.up, 0.5f).SetEase(Ease.OutSine) );
-				seq.Join( _Books[i].transform.GetChild(1).DOLocalRotate(-45*Vector3.up, 0.5f).SetEase(Ease.OutSine) );
-				seq.Join( _Books[i].transform.DOScale(STAGE_BOOK_SCALE, 0.5f) );
-			}else{
+			}else if(i > idx){
 				seq.Join( _Books[i].transform.DOMove(_Books[i].transform.position + new Vector3(30, 0, -30), 1.0f) );
 			}
 		}
+		seq.Join( _Books[idx].transform.DOMove(_Books[idx].transform.parent.position, 0.5f).SetDelay(0.25f) );
+		seq.Join( _Books[idx].transform.DORotate(315*Vector3.up, 0.5f).SetEase(Ease.OutSine) );
+		seq.Join( _Books[idx].transform.GetChild(0).DOLocalRotate(-45*Vector3.up, 0.5f).SetEase(Ease.OutSine) );
+		seq.Join( _Books[idx].transform.GetChild(1).DOLocalRotate(-45*Vector3.up, 0.5f).SetEase(Ease.OutSine) );
+		seq.Join( _Books[idx].transform.DOScale(STAGE_BOOK_SCALE, 0.5f) );
+		
 		seq.OnComplete(() => 
 		{
 			_IsPlayingAnimation = false;
