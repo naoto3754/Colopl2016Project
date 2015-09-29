@@ -262,4 +262,23 @@ public class InputManager : Singlton<InputManager>
 				
 		return Vector2.zero;
 	}
+	
+	/// <summary>
+	/// スワイプ情報を返す
+	/// </summary>
+	public Vector2 GetMoveDelta(int index = 0)
+	{
+#if UNITY_EDITOR
+		return Input.mouseScrollDelta;
+#elif UNITY_IOS || UNITY_ANDROID
+		if(Input.touchCount <= index){
+			if(index != 0)
+				Debug.Log("[InputManager.GetSwipeDirction] Invalid Touch Index : "+index);
+			return Vector2.zero;
+		}
+		return Input.GetTouch(index).deltaPosition;
+#else
+		return Input.mouseScrollDelta;
+#endif
+	}
 }

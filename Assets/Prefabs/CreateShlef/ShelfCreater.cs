@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class ShelfCreater : MonoBehaviour {
-	
+	readonly float BOTTOM_SPACE = 10f;
+    
     float _Height;
 	float _Width;
     List<Line> _FoldLines;
@@ -132,10 +133,19 @@ public class ShelfCreater : MonoBehaviour {
         
         foreach(int i in Enumerable.Range(0,_ChapterCount))
         {
+            int idx = _ChapterCount-i-1;
             GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
             paper.transform.SetParent(_Root.transform);
-            paper.transform.position = new Vector3(_Offset.x-_SizePerChapter/2, 2.5f+i*_SizePerChapter, _Offset.y-_SizePerChapter/2);
-            paper.transform.localScale = new Vector3(_SizePerChapter, thickness, _SizePerChapter);
+            if(idx%2 == 0)
+            {
+                paper.transform.position = new Vector3(_Offset.x-_SizePerChapter/2, 2.5f+i*_SizePerChapter+BOTTOM_SPACE, _Offset.y-_SizePerChapter/2-2.5f);
+                paper.transform.localScale = new Vector3(_SizePerChapter-5f, thickness, _SizePerChapter-5f);
+            }
+            else
+            {
+                paper.transform.position = new Vector3(_Offset.x-_SizePerChapter/2-2.5f, 2.5f+i*_SizePerChapter+BOTTOM_SPACE, _Offset.y-_SizePerChapter/2);
+                paper.transform.localScale = new Vector3(_SizePerChapter-5f, thickness, _SizePerChapter-5f);
+            }
         }
     }
     
@@ -146,16 +156,16 @@ public class ShelfCreater : MonoBehaviour {
         
         foreach(int i in Enumerable.Range(0,_ChapterCount))
         {
-            int idx = _ChapterCount-i-1;        
+            int idx = _ChapterCount-i-1;
             GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
             paper.transform.SetParent(_Root.transform);
-            paper.transform.position = new Vector3(_Offset.x-_SizePerChapter/2, (i+0.5f)*_SizePerChapter, _Offset.y + thickness/2);
+            paper.transform.position = new Vector3(_Offset.x-_SizePerChapter/2, (i+0.5f)*_SizePerChapter+BOTTOM_SPACE, _Offset.y + thickness/2);
             paper.transform.localScale = new Vector3(_SizePerChapter, _SizePerChapter, thickness);
             paper.GetComponent<Renderer>().material.color = _StageColor[idx];
             //2枚目
             paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
             paper.transform.SetParent(_Root.transform);
-            paper.transform.position = new Vector3(_Offset.x + thickness/2, (i+0.5f)*_SizePerChapter, _Offset.y-_SizePerChapter/2);
+            paper.transform.position = new Vector3(_Offset.x + thickness/2, (i+0.5f)*_SizePerChapter+BOTTOM_SPACE, _Offset.y-_SizePerChapter/2);
             paper.transform.localScale = new Vector3(_SizePerChapter, _SizePerChapter, thickness);
             paper.transform.forward = Vector3.right;
             paper.GetComponent<Renderer>().material.color = _StageColor[idx];
