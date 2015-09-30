@@ -138,13 +138,13 @@ public class ShelfCreater : MonoBehaviour {
             paper.transform.SetParent(_Root.transform);
             if(idx%2 == 0)
             {
-                paper.transform.position = new Vector3(_Offset.x-_SizePerChapter/2, 2.5f+i*_SizePerChapter+BOTTOM_SPACE, _Offset.y-_SizePerChapter/2-2.5f);
-                paper.transform.localScale = new Vector3(_SizePerChapter-5f, thickness, _SizePerChapter-5f);
+                paper.transform.position = new Vector3(_Offset.x-_SizePerChapter/2, 2f+i*_SizePerChapter+BOTTOM_SPACE, _Offset.y-_SizePerChapter/2-2f);
+                paper.transform.localScale = new Vector3(_SizePerChapter-4f, thickness, _SizePerChapter-4f);
             }
             else
             {
-                paper.transform.position = new Vector3(_Offset.x-_SizePerChapter/2-2.5f, 2.5f+i*_SizePerChapter+BOTTOM_SPACE, _Offset.y-_SizePerChapter/2);
-                paper.transform.localScale = new Vector3(_SizePerChapter-5f, thickness, _SizePerChapter-5f);
+                paper.transform.position = new Vector3(_Offset.x-_SizePerChapter/2-2f, 2f+i*_SizePerChapter+BOTTOM_SPACE, _Offset.y-_SizePerChapter/2);
+                paper.transform.localScale = new Vector3(_SizePerChapter-4f, thickness, _SizePerChapter-4f);
             }
         }
     }
