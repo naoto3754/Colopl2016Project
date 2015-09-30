@@ -36,8 +36,7 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 	}
 	
 	public void Init()
-	{
-			
+	{	
 		Sequence seq = DOTween.Sequence();
 		_IsPlayingAnimation = true;
 		
@@ -61,6 +60,17 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 		shelfPos.y = shelfY;
 		_Shelf.transform.position = shelfPos;
 		
+		if(InputManager.I.GetAnyTapDown())
+		{
+			Destroy(_Shelf);
+			StateManager.I.BookForStageCreater = new GameObject();
+			GameObject child = new GameObject();
+			child.transform.SetParent(StateManager.I.BookForStageCreater.transform);
+			StageCreater.I.Book = StateManager.I.BookForStageCreater;
+			SelectedStageIdx = 1;
+			StateManager.I.GoState(State.INGAME);
+		}
+
 	}
 	
 	private void OpenBook(GameObject tappedObj)
