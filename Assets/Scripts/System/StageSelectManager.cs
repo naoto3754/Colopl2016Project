@@ -62,13 +62,17 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 		
 		if(InputManager.I.GetAnyTapDown())
 		{
-			Destroy(_Shelf);
-			StateManager.I.BookForStageCreater = new GameObject();
-			GameObject child = new GameObject();
-			child.transform.SetParent(StateManager.I.BookForStageCreater.transform);
-			StageCreater.I.Book = StateManager.I.BookForStageCreater;
-			SelectedStageIdx = 1;
-			StateManager.I.GoState(State.INGAME);
+			GameObject tappedObj = InputManager.I.GetTappedGameObject();
+			if(tappedObj != null && tappedObj.GetComponent<Book>() != null)
+			{
+				Destroy(_Shelf);
+				StateManager.I.BookForStageCreater = new GameObject();
+				GameObject child = new GameObject();
+				child.transform.SetParent(StateManager.I.BookForStageCreater.transform);
+				StageCreater.I.Book = StateManager.I.BookForStageCreater;
+				SelectedStageIdx = 1;
+				StateManager.I.GoState(State.INGAME);
+			}
 		}
 
 	}
