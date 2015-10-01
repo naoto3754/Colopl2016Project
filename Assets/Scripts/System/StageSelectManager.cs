@@ -65,6 +65,9 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 			GameObject tappedObj = InputManager.I.GetTappedGameObject();
 			if(tappedObj != null && tappedObj.GetComponent<Book>() != null)
 			{
+				Book bookInfo = tappedObj.GetComponent<Book>();
+				Debug.Log("Chapter = "+bookInfo.chapter);
+				Debug.Log("Book ID = "+bookInfo.bookID);
 				Destroy(_Shelf);
 				StateManager.I.BookForStageCreater = new GameObject();
 				GameObject child = new GameObject();
