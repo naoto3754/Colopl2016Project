@@ -187,7 +187,7 @@ public class CharacterController : Singlton<CharacterController>
         
         foreach (float x in foldXList)
         {
-            if (prevX < charaAnchor && charaAnchor < x && findOnXSide == false)
+            if (prevX < charaPos.x && charaPos.x < x && findOnXSide == false)
             {
                 if (r == 0) //x方向移動
                 {
