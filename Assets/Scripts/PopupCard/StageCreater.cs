@@ -101,6 +101,17 @@ public class StageCreater : Singlton<StageCreater>
         foreach (Transform child in character.transform)
             child.gameObject.layer = 0;
         CharacterController.I.CharacterZ = character;
+        //Z方向に動くキャラクター
+        character = Instantiate(CharacterController.I.DummyCharacter,
+                                CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET * 2, 0f, _ZOffset - OFFSET * 2),
+                                Quaternion.identity) as GameObject;
+        character.transform.SetParent(_Root.transform);
+        character.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_MainColor", new Color(0,0,0,0.5f));
+        character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor", new Color(0,0,0,0.5f));
+        character.layer = 0;
+        foreach (Transform child in character.transform)
+            child.gameObject.layer = 0;
+        CharacterController.I.DestinationCharacter = character;
     }
     /// <summary>
     /// 背景を生成する
