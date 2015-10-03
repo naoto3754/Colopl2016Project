@@ -3,12 +3,17 @@ using UnityEngine.Rendering;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 
 public class StageCreater : Singlton<StageCreater>
 {
+    private readonly string X_TAG_NAME = "XSideComponent";
+    private readonly string Z_TAG_NAME = "ZSideComponent";
+    private readonly Ease OPEN_EASE = Ease.Linear;
+    private readonly Ease CLOSE_EASE = Ease.Linear;
     public static readonly float OFFSET = 0.02f;
     public readonly float THICKNESS = 0.1f;
-    public readonly float ANIMATION_TIME = 0.5f;
+    public readonly float ANIMATION_TIME = 2f;
     
     [SerializeField]
     private GameObject _Paper;
@@ -66,10 +71,7 @@ public class StageCreater : Singlton<StageCreater>
             CharacterController.I.UpdateCharacterState(Vector2.right);
         }
         
-        if(existStage)
-            CloseStage(ANIMATION_TIME, true, true);
-        CloseStage(0f, false);
-        OpenStage(ANIMATION_TIME, existStage);
+        OpenStage(ANIMATION_TIME, true, existStage);
     }
     
     /// <summary>
@@ -80,8 +82,8 @@ public class StageCreater : Singlton<StageCreater>
         CharacterController.I.color = StageManager.I.CurrentInfo.InitialCharacterColor;
         //X方向に動くキャラクター
         GameObject character = Instantiate(CharacterController.I.DummyCharacter,
-                                        CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET * 2, 0f, _ZOffset - OFFSET * 2),
-                                        Quaternion.identity) as GameObject;
+                                           CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET * 2, 0f, _ZOffset - OFFSET * 2),
+                                           Quaternion.identity) as GameObject;
         character.transform.SetParent(_Root.transform);
         character.layer = 0;
         foreach (Transform child in character.transform)
@@ -128,6 +130,7 @@ public class StageCreater : Singlton<StageCreater>
         background.transform.localScale = new Vector3(StageWidth/2, StageHeight, 0.01f);
         background.transform.position = new Vector3(-StageWidth/4 + _XOffset, StageHeight/2, _ZOffset + 0.01f);
         background.transform.eulerAngles += 180*Vector3.forward;
+        background.tag = X_TAG_NAME;
         //z方向
         background = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
         background.GetComponent<Renderer>().material.mainTexture = StageManager.I.CurrentInfo.LiningTexture;
@@ -138,6 +141,7 @@ public class StageCreater : Singlton<StageCreater>
         background.transform.position = new Vector3(_XOffset + 0.01f, StageHeight/2, -StageWidth/4 + _ZOffset);
         background.transform.forward = Vector3.right;
         background.transform.eulerAngles += 180*Vector3.forward;
+        background.tag = Z_TAG_NAME;
     }
     /// <summary>
     /// ステージのカード部分をを生成する
@@ -172,6 +176,7 @@ public class StageCreater : Singlton<StageCreater>
                     {
                         paper.transform.position = new Vector3((xCoord.x - prevX) / 2 + xOffset + _XOffset, (y - prevY) / 2 + yOffset, zOffset + thickness / 2);
                         xOffset += xCoord.x - prevX;
+                        paper.tag = X_TAG_NAME;
                     }
                     else
                     {
@@ -179,6 +184,7 @@ public class StageCreater : Singlton<StageCreater>
                         paper.transform.forward = Vector3.right;
                         paper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
                         zOffset -= xCoord.x - prevX;
+                        paper.tag = Z_TAG_NAME;
                     }
                     paper.transform.eulerAngles += 180*Vector3.forward;
                     paper.transform.localScale = new Vector3(xCoord.x - prevX-0.001f, y - prevY, thickness);
@@ -268,10 +274,12 @@ public class StageCreater : Singlton<StageCreater>
         if (facingX)
         {
             ColorManager.MultiplyShadowColor(newDeco);
+            newDeco.tag = X_TAG_NAME;
         }
         else
         {
             newDeco.transform.eulerAngles += new Vector3(0f, 90f, 0f);
+            newDeco.tag = Z_TAG_NAME;
         }
 
         //折り目にまたがっている場合は2枚で表示
@@ -292,6 +300,7 @@ public class StageCreater : Singlton<StageCreater>
                 newDeco2.transform.eulerAngles += new Vector3(0f, 90f, 0f);
                 newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist / delta);
                 newDeco2.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist / delta);
+                newDeco2.tag = Z_TAG_NAME;
             }
             else
             {
@@ -305,67 +314,92 @@ public class StageCreater : Singlton<StageCreater>
 
                 newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist / delta);
                 newDeco2.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist / delta);
+                newDeco2.tag = X_TAG_NAME;
             }
         }
     }
     /// <summary>
     /// ステージを開く
     /// </summary>
-    public void OpenStage(float time, bool existStage)
+    public void OpenStage(float time, bool openleft, bool existStage)
     {
+        if(existStage)
+            CloseStage(time, openleft, true);
+        CloseStage(0f, !openleft);
+        
         IsPlayingAnimation = true;
-        bool openleft = !TmpParameter.CloseDirctionLeft;
+        Sequence seq = DOTween.Sequence();
         //ステージがないときは本開く
-        if(existStage == false)
-            StartCoroutine(OpenObjectAnimation(_Book.transform.GetChild(0), _Book.transform.GetChild(0).position, true, openleft, time, true));
-        foreach (Transform stageObj in _Root.transform)
+        //  if(existStage == false)
+        //      StartCoroutine(OpenObjectAnimation(_Book.transform.GetChild(0), _Book.transform.GetChild(0).position, openleft, time, true));
+        foreach (Transform tmpAnchor in _Root.transform)
         {
-            TmpParameter tmpParam = stageObj.GetComponent<TmpParameter>();
-            Vector3 anchorPos = tmpParam.AnimationAnchor;
-            bool dirX = tmpParam.DirectionX;
-            StartCoroutine(OpenObjectAnimation(stageObj, anchorPos, dirX, openleft, time, false));
+            bool dirX = tmpAnchor.GetChild(0).tag != "ZSideComponent";
+            if (openleft)
+            {
+                if(dirX)
+                {
+                    seq.Join( tmpAnchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(OPEN_EASE) );
+                }
+                else
+                {
+                    Transform child = tmpAnchor.transform.GetChild(0);
+                    Quaternion defaultRotation = child.rotation; 
+                    seq.Join( tmpAnchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(OPEN_EASE)
+                    .OnUpdate(() =>{
+                        child.rotation = defaultRotation;
+                    }) );
+                }
+            }else{
+                if (!dirX)
+                {
+                    Transform child = tmpAnchor.transform.GetChild(0);
+                    Quaternion defaultRotation = child.rotation;
+                    seq.Join(tmpAnchor.transform.DOBlendableRotateBy(-90 * Vector3.up, time).SetEase(OPEN_EASE)
+                    .OnUpdate(() => 
+                   {
+                        child.rotation = defaultRotation;
+                    }));
+                }
+                else
+                {
+                    seq.Join( tmpAnchor.transform.DOBlendableRotateBy(-90*Vector3.up, time).SetEase(OPEN_EASE) );
+                }
+            }
         }
+        seq.OnComplete(() => {
+            IsPlayingAnimation = false;
+            List<Transform> rootChildren = new List<Transform>(_Root.transform.childCount);
+            foreach (Transform child in _Root.transform)
+                rootChildren.Add(child);
+            foreach (Transform tmp in rootChildren)
+            {
+                tmp.GetChild(0).SetParent(_Root.transform);
+                Destroy(tmp.gameObject);
+            }
+            InGameManager.I.DisplayDictionary();
+        });
+        seq.Play();
     }
 
-    private IEnumerator OpenObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool openleft, float time, bool isBook)
-    {
-        int frameNum = 60;
-        if (time == 0f)
-        {
-            frameNum = 1;
-        }
-        for (int i = 0; i < frameNum; i++)
-        {
-            Quaternion currentRotation = obj.rotation;
-            if (openleft)
-                obj.RotateAround(anchor, Vector3.up, 90f / frameNum);
-            else
-                obj.RotateAround(anchor, Vector3.up, -90f / frameNum);
-            if (openleft && !dirX || !openleft && dirX)
-                obj.rotation = currentRotation;
-            yield return new WaitForSeconds(time / frameNum);
-        }
-        InGameManager.I.DisplayDictionary();
-        Destroy(obj.GetComponent<TmpParameter>());
-        if(_PreviousRoot != null)
-            Destroy(_PreviousRoot);
-        if(isBook)
-            obj.position += new Vector3(-THICKNESS,0f,THICKNESS);
-    }
     /// <summary>
     /// ステージを閉じる
     /// </summary>
     public void CloseStage(float time, bool closeleft, bool previous = false)
     {
         IsPlayingAnimation = true;
-        TmpParameter.CloseDirctionLeft = closeleft;
+        Sequence seq = DOTween.Sequence();
         GameObject _AnimationRoot = previous ? _PreviousRoot : _Root;
         if(previous)
             foreach (Transform stageObj in _AnimationRoot.transform)
                 stageObj.position += new Vector3(-THICKNESS,0f,THICKNESS);
-        foreach (Transform stageObj in _AnimationRoot.transform)
+        List<Transform> rootChildren = new List<Transform>(_AnimationRoot.transform.childCount);
+        foreach (Transform child in _AnimationRoot.transform)
+            rootChildren.Add(child);
+        foreach (Transform stageObj in rootChildren)
         {
             Vector3 anchorPos;
+            bool dirX = stageObj.tag != "ZSideComponent";
             if (closeleft)
             {
                 anchorPos = new Vector3(stageObj.position.x, 0f, _ZOffset);
@@ -378,31 +412,43 @@ public class StageCreater : Singlton<StageCreater>
                 if(previous)
                     anchorPos += new Vector3(-THICKNESS, 0f, 0f);
             }
-            bool dirX = Mathf.Abs(stageObj.eulerAngles.y) < 45f;
-            TmpParameter tmpParam = stageObj.gameObject.AddComponent<TmpParameter>();
-            tmpParam.AnimationAnchor = anchorPos;
-            tmpParam.DirectionX = dirX;
-            StartCoroutine(CloseObjectAnimation(stageObj, anchorPos, dirX, closeleft, time));
-        }
-    }
-
-    private IEnumerator CloseObjectAnimation(Transform obj, Vector3 anchor, bool dirX, bool closeleft, float time)
-    {
-        int frameNum = 60;
-        if (time <= 0.1f)
-            frameNum = 1;
-        for (int i = 0; i < frameNum; i++)
-        {
-            Quaternion currentRotation = obj.rotation;
+            GameObject anchor = new GameObject("TmpAnchor");
+            anchor.transform.SetParent(_AnimationRoot.transform);
+            anchor.transform.position = anchorPos;
+            stageObj.SetParent(anchor.transform);
             if (closeleft)
-                obj.RotateAround(anchor, Vector3.up, 90f / frameNum);
+            {
+                if(dirX)
+                {
+                    Quaternion defaultRotation = anchor.transform.GetChild(0).rotation; 
+                    seq.Join( anchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(CLOSE_EASE)
+                    .OnUpdate(() =>{
+                        anchor.transform.GetChild(0).rotation = defaultRotation;
+                    }) );
+                }
+                else
+                {
+                    seq.Join( anchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(CLOSE_EASE) );
+                }
+            }
             else
-                obj.RotateAround(anchor, Vector3.up, -90f / frameNum);
-            if (closeleft && dirX || !closeleft && !dirX)
-                obj.rotation = currentRotation;
-            yield return new WaitForSeconds(time / frameNum);
+            {
+                if(!dirX)
+                {
+                    Quaternion defaultRotation = anchor.transform.GetChild(0).rotation; 
+                    seq.Join( anchor.transform.DOBlendableRotateBy(-90*Vector3.up, time).SetEase(CLOSE_EASE)
+                    .OnUpdate(() =>{
+                        anchor.transform.GetChild(0).rotation = defaultRotation;
+                    }) );
+                }
+                else
+                {
+                    seq.Join( anchor.transform.DOBlendableRotateBy(-90*Vector3.up, time).SetEase(CLOSE_EASE) );
+                }
+            }
         }
-        
+        seq.OnComplete(() => IsPlayingAnimation = false);
+        seq.Play();
     }
     
     public void Clear()
