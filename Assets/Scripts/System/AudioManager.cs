@@ -27,8 +27,6 @@ public class AudioManager : MonoBehaviour {
 
 	public List<AudioContents> BGMList;
 	public List<AudioContents> SEList;
-	// 音量
-	public AudioVolume volume = new AudioVolume();
 
 	// === AudioSource ===
 	// BGM
