@@ -6,9 +6,7 @@ using System.Collections;
  */
 public class TitleManager : Singlton<TitleManager> {
 
-	private readonly float SHELF_HEIGHT = -102.5f; 
-
-	public void Init() {}
+	private readonly float SHELF_HEIGHT = -102.5f;
 	
 	void FixedUpdate()
 	{
