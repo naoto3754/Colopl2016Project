@@ -174,15 +174,12 @@ public class CharacterController : Singlton<CharacterController>
     {
         List<Vector2> rangeList = new List<Vector2>();
         int r = 0;
-        Vector3 charaPos = _DummyCharacter.transform.position;
-        float delta = _DummyCharacter.transform.lossyScale.x;
-        float foldlineDist = StageManager.I.CalcFoldLineDistance(_DummyCharacter.transform.position - delta / 2 * Vector3.right, delta);
+        Vector3 charaPos = _DummyCharacter.transform.position;        
         float prevX = -StageCreater.I.StageWidth/2;
         float searchX = 0f;
         float searchOffset = -StageCreater.I.StageWidth/2;
         float xOffset = StageCreater.I.XOffset-StageCreater.I.StageWidth/2;
         float zOffset = StageCreater.I.ZOffset;
-        float charaAnchor = _DummyCharacter.transform.position.x - delta / 2;
         bool findOnXSide = false;
         
         foreach (float x in foldXList)

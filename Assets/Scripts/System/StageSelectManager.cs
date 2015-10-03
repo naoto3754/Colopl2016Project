@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 using DG.Tweening;
 
 /*
@@ -19,7 +18,6 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 	private GameObject _Shelf;
 	
 	private bool _ViewContents;
-	private bool _IsPlayingAnimation;
 	
 	public int SelectedChapter
 	{
@@ -30,21 +28,14 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 		get; set;
 	}
 	
-	public override void OnInitialize () 
-	{
-		
-	}
-	
 	public void Init()
 	{	
 		Sequence seq = DOTween.Sequence();
-		_IsPlayingAnimation = true;
 		
 		Vector3 toPos = _Shelf.transform.position;
 		toPos.y = HIGHEST_HEIGHT; 
 		seq.Append(_Shelf.transform.DOMove(toPos, 1.5f) );
 		
-		seq.OnComplete(() => { _IsPlayingAnimation = false; });
 		seq.Play();
 	}
 	
@@ -78,54 +69,5 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 			}
 		}
 
-	}
-	
-	private void OpenBook(GameObject tappedObj)
-	{
-		//  Sequence seq = DOTween.Sequence();
-		//  _IsPlayingAnimation = true;
-		//  int idx = _Books.IndexOf(tappedObj);
-		//  SelectedChapter = idx;
-		//  for(int i = 0; i < _Books.Count; i++)
-		//  {
-		//  	if(i < idx){
-		//  		seq.Join( _Books[i].transform.DOMove(_Books[i].transform.position + new Vector3(-30, 0, 30), 1.0f) );
-		//  	}else if(i > idx){
-		//  		seq.Join( _Books[i].transform.DOMove(_Books[i].transform.position + new Vector3(30, 0, -30), 1.0f) );
-		//  	}
-		//  }
-		//  seq.Join( _Books[idx].transform.DOMove(_Books[idx].transform.parent.position, 0.5f).SetDelay(0.25f) );
-		//  seq.Join( _Books[idx].transform.DORotate(315*Vector3.up, 0.5f).SetEase(Ease.OutSine) );
-		//  seq.Join( _Books[idx].transform.GetChild(0).DOLocalRotate(-45*Vector3.up, 0.5f).SetEase(Ease.OutSine) );
-		//  seq.Join( _Books[idx].transform.GetChild(1).DOLocalRotate(-45*Vector3.up, 0.5f).SetEase(Ease.OutSine) );
-		//  seq.Join( _Books[idx].transform.DOScale(STAGE_BOOK_SCALE, 0.5f) );
-		
-		//  seq.OnComplete(() => 
-		//  {
-		//  	_IsPlayingAnimation = false;
-		//  	_ViewContents = true;
-		//  	StageCreater.I.Book = _Books[idx];
-		//  	StageManager.I.InstantiateStage(SelectedChapter,0); 
-		//  });
-		//  seq.Play();
-	}
-	
-	private void CloseBook()
-	{
-	//  	Sequence seq = DOTween.Sequence();
-	//  	_IsPlayingAnimation = true;
-	//  	_ViewContents = false;
-	//  	StageCreater.I.Clear();
-	//  	for(int i = 0; i < _Books.Count; i++)
-	//  	{
-	//  		seq.Join( _Books[i].transform.DOMove(_BookPosList[i], 1f) );
-	//  		seq.Join( _Books[i].transform.DORotate(135*Vector3.up, 1f) );
-	//  		seq.Join( _Books[i].transform.GetChild(0).DOLocalRotate(Vector3.zero, 1f) );
-	//  		seq.Join( _Books[i].transform.GetChild(0).DOLocalMove(DEFAULT_LEFTANCHOR_LOCALPOSITION, 1f) );
-	//  		seq.Join( _Books[i].transform.GetChild(1).DOLocalRotate(Vector3.zero, 1f) );
-	//  		seq.Join( _Books[i].transform.DOScale(DEFAULT_BOOK_SCALE, 1f) );
-	//  	}
-	//  	seq.OnComplete(() => { _IsPlayingAnimation = false; });
-	//  	seq.Play();
-	}
+	}	
 }

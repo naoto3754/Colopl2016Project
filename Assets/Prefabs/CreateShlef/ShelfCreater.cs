@@ -6,7 +6,6 @@ using System.Linq;
 public class ShelfCreater : MonoBehaviour {
 	readonly float BOTTOM_SPACE = 10f;
     
-    float _Height;
 	float _Width;
     List<Line> _FoldLines;
     List<Line> _HoleLines;
@@ -32,7 +31,6 @@ public class ShelfCreater : MonoBehaviour {
 	
 	public void Create()
 	{
-        _Height = _Shelf2D.transform.lossyScale.y;
         _Width = _Shelf2D.transform.lossyScale.x;
         
         _FoldLines = new List<Line>();

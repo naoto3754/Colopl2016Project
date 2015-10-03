@@ -118,7 +118,6 @@ public class StageCreater : Singlton<StageCreater>
     /// </summary>
     private void InstantiateBackground()
     {
-        float thickness = _Paper.transform.localScale.z;
         //背景の生成
         //x方向
         GameObject background = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
