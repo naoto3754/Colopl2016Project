@@ -361,8 +361,7 @@ public class StageCreater : Singlton<StageCreater>
     /// ステージを開く
     /// </summary>
     public void OpenStage(float time, bool existStage)
-    {   
-        Debug.Log("Open");
+    {
         IsPlayingAnimation = true;        
         //ステージがないときは本開く
         //  if(existStage == false)

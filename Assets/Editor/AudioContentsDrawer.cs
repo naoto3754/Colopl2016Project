@@ -16,13 +16,13 @@ public class ListTesterInspector : Editor
 			EditorGUILayout.PropertyField(BGMList.FindPropertyRelative("Array.size"));			
 			for (int i = 0; i < BGMList.arraySize; i++) {
 				EditorGUILayout.BeginHorizontal();
-				EditorGUILayout.PropertyField(BGMList.GetArrayElementAtIndex(i).FindPropertyRelative("Clip"), GUIContent.none);
 				EditorGUILayout.PropertyField(BGMList.GetArrayElementAtIndex(i).FindPropertyRelative("Title"), GUIContent.none);
+				EditorGUILayout.PropertyField(BGMList.GetArrayElementAtIndex(i).FindPropertyRelative("Clip"), GUIContent.none);
 				EditorGUILayout.EndHorizontal();
 				EditorGUILayout.PropertyField(BGMList.GetArrayElementAtIndex(i).FindPropertyRelative("Volume"), GUIContent.none);
 				
-				EditorGUILayout.Space();
-				EditorGUILayout.Space();
+				EditorGUILayout.Separator();
+				
 			}
 			EditorGUI.indentLevel -= 1;
 		}
@@ -34,13 +34,12 @@ public class ListTesterInspector : Editor
 			EditorGUILayout.PropertyField(SEList.FindPropertyRelative("Array.size"));
 			for (int i = 0; i < SEList.arraySize; i++) {
 				EditorGUILayout.BeginHorizontal();
-				EditorGUILayout.PropertyField(SEList.GetArrayElementAtIndex(i).FindPropertyRelative("Clip"), GUIContent.none);
 				EditorGUILayout.PropertyField(SEList.GetArrayElementAtIndex(i).FindPropertyRelative("Title"), GUIContent.none);
+				EditorGUILayout.PropertyField(SEList.GetArrayElementAtIndex(i).FindPropertyRelative("Clip"), GUIContent.none);
 				EditorGUILayout.EndHorizontal();
 				EditorGUILayout.PropertyField(SEList.GetArrayElementAtIndex(i).FindPropertyRelative("Volume"), GUIContent.none);
 				
-				EditorGUILayout.Space();
-				EditorGUILayout.Space();
+				EditorGUILayout.Separator();
 			}
 			EditorGUI.indentLevel -= 1;
 		}
