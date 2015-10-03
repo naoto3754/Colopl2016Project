@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public class AudioManager : MonoBehaviour {
 
@@ -24,36 +25,18 @@ public class AudioManager : MonoBehaviour {
 
 	}
 
+	public List<AudioContents> BGMList;
+	public List<AudioContents> SEList;
 	// 音量
 	public AudioVolume volume = new AudioVolume();
-
 
 	// === AudioSource ===
 	// BGM
 	private AudioSource BGMSource;
 	// SE
 	private AudioSource[] SESources = new AudioSource[16];
-	// 音声
-	private AudioSource[] VoiceSources = new AudioSource[16];
-
-	// === AudioClip ===
-	// BGM
-	public AudioClip[] BGM;
-	// SE
-	public AudioClip[] SE;
-	// 音声
-	public AudioClip[] Voice;
-
 
 	void Awake (){
-		GameObject[] obj = GameObject.FindGameObjectsWithTag ("AudioManager");
-		if (obj.Length > 1) {
-			// 既に存在しているなら削除
-			Destroy (gameObject);
-		} else {
-			// 音管理はシーン遷移では破棄させない
-			DontDestroyOnLoad (gameObject);
-		}
 
 		// 全てのAudioSourceコンポーネントを追加する
 
@@ -66,47 +49,42 @@ public class AudioManager : MonoBehaviour {
 		for(int i = 0 ; i < SESources.Length ; i++ ){
 			SESources[i] = gameObject.AddComponent<AudioSource>();
 		}
-
-		// 音声 AudioSource
-		for(int i = 0 ; i < VoiceSources.Length ; i++ ){
-			VoiceSources[i] = gameObject.AddComponent<AudioSource>();
-		}
 	}
 
 	void Update () {
 		// ミュート設定
-		BGMSource.mute = volume.Mute;
-		foreach (AudioSource source in SESources) {
-			source.mute = volume.Mute;
-		}
-		foreach (AudioSource source in VoiceSources) {
-			source.mute = volume.Mute;
-		}
+//		BGMSource.mute = volume.Mute;
+//		foreach (AudioSource source in SESources) {
+//			source.mute = volume.Mute;
+//		}
+//		foreach (AudioSource source in VoiceSources) {
+//			source.mute = volume.Mute;
+//		}
 
 		// ボリューム設定
-		BGMSource.volume = volume.BGM;
-		foreach(AudioSource source in SESources){
-			source.volume = volume.SE;
-		}
-		foreach(AudioSource source in VoiceSources){
-			source.volume = volume.Voice;
-		}
+//		BGMSource.volume = volume.BGM;
+//		foreach(AudioSource source in SESources){
+//			source.volume = volume.SE;
+//		}
+//		foreach(AudioSource source in VoiceSources){
+//			source.volume = volume.Voice;
+//		}
 	}
 
 
 	// *****  BGM再生 *****
 	// BGM再生
-	public void PlayBGM(int index){
-		if (0 > index || BGM.Length <= index) {
-			return;
+	public void PlayBGM(AudioContents.AudioTitle Title){
+		foreach (AudioContents contents in BGMList) {
+			if (contents.Title == Title) {
+				BGMSource.Stop();
+				BGMSource.clip = contents.Clip;
+				BGMSource.volume = contents.Volume;
+				BGMSource.Play ();
+				return;
+			}
 		}
-		// 同じBGMの場合は何もしない
-		if (BGMSource.clip == BGM [index]) {
-			return;
-		}
-		BGMSource.Stop ();
-		BGMSource.clip = BGM [index];
-		BGMSource.Play ();
+		Debug.LogError("BGM not found");
 	}
 
 	// BGM停止
@@ -117,51 +95,23 @@ public class AudioManager : MonoBehaviour {
 
 
 	// *****  SE再生 *****
-	public void PlaySE(int index){
-		if( 0 > index || SE.Length <= index ){
-			return;
-		}
-
-		// 再生中で無いAudioSouceで鳴らす
-		foreach(AudioSource source in SESources){
-			if( false == source.isPlaying ){
-				source.clip = SE[index];
-				source.Play();
+	public void PlaySE(AudioContents.AudioTitle Title){
+		foreach (AudioContents contents in SEList) {
+			if (contents.Title == Title) {
+				SESources[0].Stop ();
+				SESources[0].clip = contents.Clip;
+				SESources[0].volume = contents.Volume;
+				SESources[0].Play ();
 				return;
 			}
-		}  
+		}
+		Debug.LogError("SE not found");
 	}
 
 	// SE停止
 	public void StopSE(){
 		// 全てのSE用のAudioSouceを停止する
 		foreach(AudioSource source in SESources){
-			source.Stop();
-			source.clip = null;
-		}  
-	}
-
-
-	// ***** 音声再生 *****
-	// 音声再生
-	public void PlayVoice(int index){
-		if( 0 > index || Voice.Length <= index ){
-			return;
-		}
-		// 再生中で無いAudioSouceで鳴らす
-		foreach(AudioSource source in VoiceSources){
-			if( false == source.isPlaying ){
-				source.clip = Voice[index];
-				source.Play();
-				return;
-			}
-		} 
-	}
-
-	// 音声停止
-	public void StopVoice(){
-		// 全ての音声用のAudioSouceを停止する
-		foreach(AudioSource source in VoiceSources){
 			source.Stop();
 			source.clip = null;
 		}  
@@ -181,5 +131,21 @@ public class AudioVolume{
 		Voice = 1.0f;
 		SE = 1.0f;
 		Mute = false;
+	}
+}
+
+[Serializable]
+public class AudioContents{
+	public enum AudioTitle{
+		TEST
+	}
+	public AudioClip Clip;
+	public AudioTitle Title;
+	public float Volume = 1.0f;
+
+	public void Init(){
+		Clip = null;
+		Title = AudioTitle.TEST;
+		Volume = 1.0f;
 	}
 }
