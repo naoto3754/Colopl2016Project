@@ -77,6 +77,9 @@ public class InGameManager : Singlton<InGameManager>
 			_NowDisplaying = false;
 		});
 		seq.Play();
+
+		// BGM再生
+		AudioManager.Instance.PlayBGM (0);
 	}
 	
 	private void DisplayText()
