@@ -54,12 +54,16 @@ public class StageCreater : Singlton<StageCreater>
     /// </summary>
     public void CreateNewStage(bool existCharacter = true, float xOffset = 50f, float zOffset = -50f)
     {
+        _Sequence.Complete();
+        _Sequence = DOTween.Sequence();
+        
         bool existStage = _Root != null;
         if(existStage)
             _PreviousRoot = _Root;    
         _Root = new GameObject("StageRoot");
         _XOffset = xOffset;
         _ZOffset = zOffset;
+        _Root.transform.position = new Vector3(_XOffset, 0f, _ZOffset);
         
         InstantiatePaper();
         InstantiateBackground();
@@ -71,7 +75,12 @@ public class StageCreater : Singlton<StageCreater>
             CharacterController.I.UpdateCharacterState(Vector2.right);
         }
         
-        OpenStage(ANIMATION_TIME, true, existStage);
+        //  if(existStage)
+        //      CloseStage(ANIMATION_TIME, true);
+        //  CloseStage(0f);
+        //  OpenStage(ANIMATION_TIME, existStage);
+        
+        ReOpenStage(45f, ANIMATION_TIME, ANIMATION_TIME, ANIMATION_TIME);
     }
     
     /// <summary>
@@ -318,56 +327,47 @@ public class StageCreater : Singlton<StageCreater>
             }
         }
     }
+    
+    private Sequence _Sequence;
+    
+    /// <summary>
+    /// ステージを閉じて開く
+    /// </summary>
+    public void ReOpenStage(float angle, float opentime, float closetime, float waittime)
+    {
+        _Sequence.Append( _Root.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+        CloseStage(closetime);
+        _Sequence.Append( _Root.transform.DOBlendableRotateBy(-angle*Vector3.up, opentime).SetEase(OPEN_EASE).SetDelay(waittime) );
+        OpenStage(opentime, false);
+        _Sequence.Play();
+    }
     /// <summary>
     /// ステージを開く
     /// </summary>
-    public void OpenStage(float time, bool openleft, bool existStage)
-    {
-        if(existStage)
-            CloseStage(time, openleft, true);
-        CloseStage(0f, !openleft);
-        
-        IsPlayingAnimation = true;
-        Sequence seq = DOTween.Sequence();
+    public void OpenStage(float time, bool existStage)
+    {   
+        IsPlayingAnimation = true;        
         //ステージがないときは本開く
         //  if(existStage == false)
         //      StartCoroutine(OpenObjectAnimation(_Book.transform.GetChild(0), _Book.transform.GetChild(0).position, openleft, time, true));
         foreach (Transform tmpAnchor in _Root.transform)
         {
             bool dirX = tmpAnchor.GetChild(0).tag != "ZSideComponent";
-            if (openleft)
+            if(dirX)
             {
-                if(dirX)
-                {
-                    seq.Join( tmpAnchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(OPEN_EASE) );
-                }
-                else
-                {
-                    Transform child = tmpAnchor.transform.GetChild(0);
-                    Quaternion defaultRotation = child.rotation; 
-                    seq.Join( tmpAnchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(OPEN_EASE)
-                    .OnUpdate(() =>{
-                        child.rotation = defaultRotation;
-                    }) );
-                }
-            }else{
-                if (!dirX)
-                {
-                    Transform child = tmpAnchor.transform.GetChild(0);
-                    Quaternion defaultRotation = child.rotation;
-                    seq.Join(tmpAnchor.transform.DOBlendableRotateBy(-90 * Vector3.up, time).SetEase(OPEN_EASE)
-                    .OnUpdate(() => 
-                   {
-                        child.rotation = defaultRotation;
-                    }));
-                }
-                else
-                {
-                    seq.Join( tmpAnchor.transform.DOBlendableRotateBy(-90*Vector3.up, time).SetEase(OPEN_EASE) );
-                }
+                _Sequence.Join( tmpAnchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(OPEN_EASE) );
+            }
+            else
+            {
+                Transform child = tmpAnchor.transform.GetChild(0); 
+                _Sequence.Join( tmpAnchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(OPEN_EASE)
+                .OnUpdate(() =>{
+                    child.eulerAngles = _Root.transform.eulerAngles+90*Vector3.up;
+                }) );
             }
         }
-        seq.OnComplete(() => {
+        _Sequence.Append( transform.DOMove(transform.position, 0f)
+        .OnComplete(() => {
             IsPlayingAnimation = false;
             List<Transform> rootChildren = new List<Transform>(_Root.transform.childCount);
             foreach (Transform child in _Root.transform)
@@ -378,17 +378,15 @@ public class StageCreater : Singlton<StageCreater>
                 Destroy(tmp.gameObject);
             }
             InGameManager.I.DisplayDictionary();
-        });
-        seq.Play();
+        }) );
     }
 
     /// <summary>
     /// ステージを閉じる
     /// </summary>
-    public void CloseStage(float time, bool closeleft, bool previous = false)
+    public void CloseStage(float time, bool previous = false)
     {
         IsPlayingAnimation = true;
-        Sequence seq = DOTween.Sequence();
         GameObject _AnimationRoot = previous ? _PreviousRoot : _Root;
         if(previous)
             foreach (Transform stageObj in _AnimationRoot.transform)
@@ -400,7 +398,7 @@ public class StageCreater : Singlton<StageCreater>
         {
             Vector3 anchorPos;
             bool dirX = stageObj.tag != "ZSideComponent";
-            if (closeleft)
+            if (previous)
             {
                 anchorPos = new Vector3(stageObj.position.x, 0f, _ZOffset);
                 if(previous)
@@ -416,39 +414,36 @@ public class StageCreater : Singlton<StageCreater>
             anchor.transform.SetParent(_AnimationRoot.transform);
             anchor.transform.position = anchorPos;
             stageObj.SetParent(anchor.transform);
-            if (closeleft)
+            if (previous)
             {
                 if(dirX)
                 {
-                    Quaternion defaultRotation = anchor.transform.GetChild(0).rotation; 
-                    seq.Join( anchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(CLOSE_EASE)
+                    _Sequence.Join( anchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(CLOSE_EASE)
                     .OnUpdate(() =>{
-                        anchor.transform.GetChild(0).rotation = defaultRotation;
+                        anchor.transform.GetChild(0).eulerAngles = _Root.transform.eulerAngles+90*Vector3.up;
                     }) );
                 }
                 else
                 {
-                    seq.Join( anchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(CLOSE_EASE) );
+                    _Sequence.Join( anchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(CLOSE_EASE) );
                 }
             }
             else
             {
                 if(!dirX)
-                {
-                    Quaternion defaultRotation = anchor.transform.GetChild(0).rotation; 
-                    seq.Join( anchor.transform.DOBlendableRotateBy(-90*Vector3.up, time).SetEase(CLOSE_EASE)
+                { 
+                    _Sequence.Join( anchor.transform.DOBlendableRotateBy(-90*Vector3.up, time).SetEase(CLOSE_EASE)
                     .OnUpdate(() =>{
-                        anchor.transform.GetChild(0).rotation = defaultRotation;
+                        anchor.transform.GetChild(0).eulerAngles = _Root.transform.eulerAngles+90*Vector3.up;
                     }) );
                 }
                 else
                 {
-                    seq.Join( anchor.transform.DOBlendableRotateBy(-90*Vector3.up, time).SetEase(CLOSE_EASE) );
+                    _Sequence.Join( anchor.transform.DOBlendableRotateBy(-90*Vector3.up, time).SetEase(CLOSE_EASE) );
                 }
             }
         }
-        seq.OnComplete(() => IsPlayingAnimation = false);
-        seq.Play();
+        _Sequence.Append( transform.DOMove(transform.position, 0f).OnComplete(() => { IsPlayingAnimation = false; }) );
     }
     
     public void Clear()
