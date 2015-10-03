@@ -141,6 +141,7 @@ public class AudioContents{
 	}
 	public AudioClip Clip;
 	public AudioTitle Title;
+	[Range(0,1)]
 	public float Volume = 1.0f;
 
 	public void Init(){

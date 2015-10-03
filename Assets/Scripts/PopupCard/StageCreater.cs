@@ -80,7 +80,7 @@ public class StageCreater : Singlton<StageCreater>
         //  CloseStage(0f);
         //  OpenStage(ANIMATION_TIME, existStage);
         
-        ReOpenStage(45f, ANIMATION_TIME, ANIMATION_TIME, ANIMATION_TIME);
+        ReOpenStage(45f, ANIMATION_TIME, 0f, 0f);
     }
     
     /// <summary>
@@ -366,8 +366,7 @@ public class StageCreater : Singlton<StageCreater>
                 }) );
             }
         }
-        _Sequence.Append( transform.DOMove(transform.position, 0f)
-        .OnComplete(() => {
+        _Sequence.OnComplete(() => {
             IsPlayingAnimation = false;
             List<Transform> rootChildren = new List<Transform>(_Root.transform.childCount);
             foreach (Transform child in _Root.transform)
@@ -378,7 +377,7 @@ public class StageCreater : Singlton<StageCreater>
                 Destroy(tmp.gameObject);
             }
             InGameManager.I.DisplayDictionary();
-        }) );
+        });
     }
 
     /// <summary>
