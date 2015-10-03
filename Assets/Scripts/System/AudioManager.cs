@@ -49,27 +49,6 @@ public class AudioManager : MonoBehaviour {
 		}
 	}
 
-	void Update () {
-		// ミュート設定
-//		BGMSource.mute = volume.Mute;
-//		foreach (AudioSource source in SESources) {
-//			source.mute = volume.Mute;
-//		}
-//		foreach (AudioSource source in VoiceSources) {
-//			source.mute = volume.Mute;
-//		}
-
-		// ボリューム設定
-//		BGMSource.volume = volume.BGM;
-//		foreach(AudioSource source in SESources){
-//			source.volume = volume.SE;
-//		}
-//		foreach(AudioSource source in VoiceSources){
-//			source.volume = volume.Voice;
-//		}
-	}
-
-
 	// *****  BGM再生 *****
 	// BGM再生
 	public void PlayBGM(AudioContents.AudioTitle Title){
