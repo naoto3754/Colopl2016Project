@@ -10,6 +10,8 @@ public class StageCreater : Singlton<StageCreater>
 {
     private readonly string X_TAG_NAME = "XSideComponent";
     private readonly string Z_TAG_NAME = "ZSideComponent";
+    public readonly float START_ANGLE = 45f;
+    
     private Ease OPEN_EASE = Ease.Linear;
     private Ease CLOSE_EASE = Ease.Linear;
     public static readonly float OFFSET = 0.02f;
@@ -69,10 +71,19 @@ public class StageCreater : Singlton<StageCreater>
         InstantiateDecoration();
         if(existCharacter)
         {
+            
             InstantiateCharacter();
             //HACK:キャラの向きや透過処理をさせたい
             CharacterController.I.UpdateCharacterState(Vector2.right);
         }
+
+        foreach(Renderer renderer in _Root.GetComponentsInChildren<Renderer>())
+        {
+            if(renderer.enabled == false)
+                renderer.gameObject.SetActive(false);
+            renderer.enabled = false;
+        }
+
         _Sequence = DOTween.Sequence();
         _PrevSequence = DOTween.Sequence();
         Ease[] array = Enum.GetValues(typeof(Ease)) as Ease[];
@@ -82,11 +93,11 @@ public class StageCreater : Singlton<StageCreater>
         if(existStage)
         {
             ClosePrevStage(90f, ANIMATION_TIME);
-            ReOpenStage(0f, ANIMATION_TIME, 0f, 0f);
+            ReOpenStage(0f, ANIMATION_TIME, 0f, 0f, existStage);
         }
         else
         {
-            ReOpenStage(45f, ANIMATION_TIME, 0f, 0f);
+            ReOpenStage(START_ANGLE, ANIMATION_TIME, 0f, 0f, existStage);
         }
     }
     
@@ -354,11 +365,21 @@ public class StageCreater : Singlton<StageCreater>
     /// <summary>
     /// ステージを閉じて開く
     /// </summary>
-    public void ReOpenStage(float angle, float opentime, float closetime, float waittime)
+    public void ReOpenStage(float angle, float opentime, float closetime, float waittime, bool existStage)
     {
+        _Sequence.OnStart(() => {
+             foreach(Renderer renderer in _Root.GetComponentsInChildren<Renderer>())
+                renderer.enabled = true; 
+        });
         _Sequence.Append( _Root.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
         CloseStage(closetime);
         _Sequence.Append( _Root.transform.DOBlendableRotateBy(-angle*Vector3.up, opentime).SetEase(OPEN_EASE).SetDelay(waittime) );
+        //はじめは本を開く処理もする
+        if(existStage == false)
+        {    
+            _Sequence.Join( _Book.transform.GetChild(0).DORotate(0*Vector3.up, opentime).SetEase(OPEN_EASE) );
+            _Sequence.Join( _Book.transform.GetChild(1).DORotate(-90*Vector3.up, opentime).SetEase(OPEN_EASE) );
+        }
         OpenStage(opentime);
         _Sequence.Play();
     }
@@ -382,7 +403,9 @@ public class StageCreater : Singlton<StageCreater>
                 Transform child = tmpAnchor.transform.GetChild(0); 
                 _Sequence.Join( tmpAnchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(OPEN_EASE)
                 .OnUpdate(() =>{
-                    child.eulerAngles = _Root.transform.eulerAngles+90*Vector3.up;
+                    Vector3 angle = child.eulerAngles;
+                    angle.y = _Root.transform.eulerAngles.y+90f;
+                    child.eulerAngles = angle;
                 }) );
             }
         }
@@ -433,7 +456,9 @@ public class StageCreater : Singlton<StageCreater>
             { 
                 targetSequence.Join( anchor.transform.DOBlendableRotateBy(-90*Vector3.up, time).SetEase(CLOSE_EASE)
                 .OnUpdate(() =>{
-                    anchor.transform.GetChild(0).eulerAngles = _AnimationRoot.transform.eulerAngles+90*Vector3.up;
+                    Vector3 angle = anchor.transform.GetChild(0).eulerAngles;
+                    angle.y = _AnimationRoot.transform.eulerAngles.y+90f;
+                    anchor.transform.GetChild(0).eulerAngles = angle;                    
                 }) );
             }
             else
