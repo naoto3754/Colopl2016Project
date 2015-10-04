@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Rendering;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,8 @@ public class StageCreater : Singlton<StageCreater>
 {
     private readonly string X_TAG_NAME = "XSideComponent";
     private readonly string Z_TAG_NAME = "ZSideComponent";
-    private readonly Ease OPEN_EASE = Ease.Linear;
-    private readonly Ease CLOSE_EASE = Ease.Linear;
+    private Ease OPEN_EASE = Ease.Linear;
+    private Ease CLOSE_EASE = Ease.Linear;
     public static readonly float OFFSET = 0.02f;
     public readonly float THICKNESS = 0.1f;
     public readonly float ANIMATION_TIME = 2f;
@@ -74,6 +75,10 @@ public class StageCreater : Singlton<StageCreater>
         }
         _Sequence = DOTween.Sequence();
         _PrevSequence = DOTween.Sequence();
+        Ease[] array = Enum.GetValues(typeof(Ease)) as Ease[];
+        int rand = UnityEngine.Random.Range(0, array.Length-2);
+        OPEN_EASE = array[rand];
+        CLOSE_EASE = array[rand];
         if(existStage)
         {
             ClosePrevStage(90f, ANIMATION_TIME);
@@ -354,16 +359,15 @@ public class StageCreater : Singlton<StageCreater>
         _Sequence.Append( _Root.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
         CloseStage(closetime);
         _Sequence.Append( _Root.transform.DOBlendableRotateBy(-angle*Vector3.up, opentime).SetEase(OPEN_EASE).SetDelay(waittime) );
-        OpenStage(opentime, false);
+        OpenStage(opentime);
         _Sequence.Play();
     }
     /// <summary>
     /// ステージを開く
     /// </summary>
-    public void OpenStage(float time, bool existStage)
+    public void OpenStage(float time)
     {
         IsPlayingAnimation = true;        
-        //ステージがないときは本開く
         //  if(existStage == false)
         //      StartCoroutine(OpenObjectAnimation(_Book.transform.GetChild(0), _Book.transform.GetChild(0).position, openleft, time, true));
         foreach (Transform tmpAnchor in _Root.transform)

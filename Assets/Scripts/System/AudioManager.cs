@@ -35,9 +35,6 @@ public class AudioManager : MonoBehaviour {
 	private AudioSource[] SESources = new AudioSource[16];
 
 	void Awake (){
-
-		// 全てのAudioSourceコンポーネントを追加する
-
 		// BGM AudioSource
 		BGMSource = gameObject.AddComponent<AudioSource>();
 		// BGMはループを有効にする
@@ -92,22 +89,6 @@ public class AudioManager : MonoBehaviour {
 			source.Stop();
 			source.clip = null;
 		}  
-	}
-}
-
-// 音量クラス
-[Serializable]
-public class AudioVolume{
-	public float BGM = 1.0f;
-	public float Voice = 1.0f;
-	public float SE = 1.0f;
-	public bool Mute = false;
-
-	public void Init(){
-		BGM = 1.0f;
-		Voice = 1.0f;
-		SE = 1.0f;
-		Mute = false;
 	}
 }
 

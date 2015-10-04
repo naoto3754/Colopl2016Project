@@ -68,6 +68,5 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 				StateManager.I.GoState(State.INGAME);
 			}
 		}
-
 	}	
 }
