@@ -8,6 +8,7 @@ using DG.Tweening;
 
 public class StageCreater : Singlton<StageCreater>
 {
+    
     private readonly string X_TAG_NAME = "XSideComponent";
     private readonly string Z_TAG_NAME = "ZSideComponent";
     public readonly float START_ANGLE = 45f;
@@ -18,6 +19,10 @@ public class StageCreater : Singlton<StageCreater>
     public readonly float THICKNESS = 0.1f;
     public readonly float ANIMATION_TIME = 2f;
     
+    [SerializeField]
+    Shader opa;
+    [SerializeField]
+    Shader tra;
     [SerializeField]
     private GameObject _Paper;
     private GameObject _Book;
@@ -50,6 +55,18 @@ public class StageCreater : Singlton<StageCreater>
     {
         get;
         set;
+    }
+
+    void Update(){
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            Ease[] array = Enum.GetValues(typeof(Ease)) as Ease[];
+            int rand = UnityEngine.Random.Range(0, array.Length-2);
+            OPEN_EASE = array[rand];
+            CLOSE_EASE = array[rand];
+            _Sequence = DOTween.Sequence();
+            ReOpenStage(0f, ANIMATION_TIME, ANIMATION_TIME, ANIMATION_TIME, false);
+        }
     }
 
     /// <summary>
@@ -368,10 +385,40 @@ public class StageCreater : Singlton<StageCreater>
     public void ReOpenStage(float angle, float opentime, float closetime, float waittime, bool existStage)
     {
         _Sequence.OnStart(() => {
+            foreach(Renderer renderer in _Book.GetComponentsInChildren<Renderer>())
+            {
+                foreach(Material material in renderer.materials)
+                {
+                    material.shader = tra;
+                    Color c = material.color;
+                    c.a = 0.5f; 
+                    material.color = c;
+                }
+            }
              foreach(Renderer renderer in _Root.GetComponentsInChildren<Renderer>())
-                renderer.enabled = true; 
+             {
+                renderer.enabled = true;
+                if(renderer.GetComponent<SpriteRenderer>() != null)
+                {
+                    Color c = renderer.GetComponent<SpriteRenderer>().color;
+                    c.a = 0.5f; 
+                    renderer.GetComponent<SpriteRenderer>().color = c;
+                }
+                else if(renderer.GetComponent<LineRenderer>() == null)
+                {
+                    renderer.material.shader = tra;
+                    Color c = renderer.material.color;
+                    c.a = 0.5f; 
+                    renderer.material.color = c;
+                }
+             } 
         });
         _Sequence.Append( _Root.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+        if(existStage == false)
+        {    
+            _Sequence.Join( _Book.transform.GetChild(0).DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+            _Sequence.Join( _Book.transform.GetChild(1).DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+        }
         CloseStage(closetime);
         _Sequence.Append( _Root.transform.DOBlendableRotateBy(-angle*Vector3.up, opentime).SetEase(OPEN_EASE).SetDelay(waittime) );
         //はじめは本を開く処理もする
@@ -418,6 +465,33 @@ public class StageCreater : Singlton<StageCreater>
             {
                 tmp.GetChild(0).SetParent(_Root.transform);
                 Destroy(tmp.gameObject);
+            }
+            
+            foreach(Renderer renderer in _Book.GetComponentsInChildren<Renderer>())
+            {
+                foreach(Material material in renderer.materials)
+                {
+                    material.shader = opa;
+                    Color c = material.color;
+                    c.a = 1f; 
+                    material.color = c;
+                }
+            }
+            foreach(Renderer renderer in _Root.GetComponentsInChildren<Renderer>())
+            {  
+                if(renderer.GetComponent<SpriteRenderer>() != null)
+                {
+                    Color c = renderer.GetComponent<SpriteRenderer>().color;
+                    c.a = 1f; 
+                    renderer.GetComponent<SpriteRenderer>().color = c;
+                }
+                else if(renderer.GetComponent<LineRenderer>() == null)
+                {
+                    renderer.material.shader = opa;
+                    Color c = renderer.material.color;
+                    c.a = 1f; 
+                    renderer.material.color = c;
+                }
             }
             InGameManager.I.DisplayDictionary();
         });
