@@ -20,10 +20,6 @@ public class StageCreater : Singlton<StageCreater>
     public readonly float ANIMATION_TIME = 2f;
     
     [SerializeField]
-    Shader opa;
-    [SerializeField]
-    Shader tra;
-    [SerializeField]
     private GameObject _Paper;
     private GameObject _Book;
     public GameObject Book
@@ -385,32 +381,9 @@ public class StageCreater : Singlton<StageCreater>
     public void ReOpenStage(float angle, float opentime, float closetime, float waittime, bool existStage)
     {
         _Sequence.OnStart(() => {
-            foreach(Renderer renderer in _Book.GetComponentsInChildren<Renderer>())
-            {
-                foreach(Material material in renderer.materials)
-                {
-                    material.shader = tra;
-                    Color c = material.color;
-                    c.a = 0.5f; 
-                    material.color = c;
-                }
-            }
              foreach(Renderer renderer in _Root.GetComponentsInChildren<Renderer>())
              {
                 renderer.enabled = true;
-                if(renderer.GetComponent<SpriteRenderer>() != null)
-                {
-                    Color c = renderer.GetComponent<SpriteRenderer>().color;
-                    c.a = 0.5f; 
-                    renderer.GetComponent<SpriteRenderer>().color = c;
-                }
-                else if(renderer.GetComponent<LineRenderer>() == null)
-                {
-                    renderer.material.shader = tra;
-                    Color c = renderer.material.color;
-                    c.a = 0.5f; 
-                    renderer.material.color = c;
-                }
              } 
         });
         _Sequence.Append( _Root.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
@@ -467,32 +440,6 @@ public class StageCreater : Singlton<StageCreater>
                 Destroy(tmp.gameObject);
             }
             
-            foreach(Renderer renderer in _Book.GetComponentsInChildren<Renderer>())
-            {
-                foreach(Material material in renderer.materials)
-                {
-                    material.shader = opa;
-                    Color c = material.color;
-                    c.a = 1f; 
-                    material.color = c;
-                }
-            }
-            foreach(Renderer renderer in _Root.GetComponentsInChildren<Renderer>())
-            {  
-                if(renderer.GetComponent<SpriteRenderer>() != null)
-                {
-                    Color c = renderer.GetComponent<SpriteRenderer>().color;
-                    c.a = 1f; 
-                    renderer.GetComponent<SpriteRenderer>().color = c;
-                }
-                else if(renderer.GetComponent<LineRenderer>() == null)
-                {
-                    renderer.material.shader = opa;
-                    Color c = renderer.material.color;
-                    c.a = 1f; 
-                    renderer.material.color = c;
-                }
-            }
             InGameManager.I.DisplayDictionary();
         });
     }
