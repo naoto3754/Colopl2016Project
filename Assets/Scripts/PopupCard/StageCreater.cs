@@ -17,7 +17,7 @@ public class StageCreater : Singlton<StageCreater>
     private Ease CLOSE_EASE = Ease.Linear;
     public static readonly float OFFSET = 0.02f;
     public readonly float THICKNESS = 0.1f;
-    public readonly float ANIMATION_TIME = 2f;
+    public readonly float ANIMATION_TIME = 1f;
     
     [SerializeField]
     private GameObject _Paper;
@@ -61,7 +61,7 @@ public class StageCreater : Singlton<StageCreater>
             OPEN_EASE = array[rand];
             CLOSE_EASE = array[rand];
             _Sequence = DOTween.Sequence();
-            ReOpenStage(0f, ANIMATION_TIME, ANIMATION_TIME, ANIMATION_TIME, false);
+            ReOpenStage(45f, ANIMATION_TIME, ANIMATION_TIME, 0.3f, false);
         }
     }
 
