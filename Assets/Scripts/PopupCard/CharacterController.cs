@@ -15,10 +15,15 @@ public class CharacterController : Singlton<CharacterController>
     {
         set { _CharacterZ = value; }
     }
-    private GameObject _DestinationCharacter;
-    public GameObject DestinationCharacter
+    private GameObject _DestCharacterX;
+    public GameObject DestCharacterX
     {
-        set { _DestinationCharacter = value; }
+        set { _DestCharacterX = value; }
+    }
+    private GameObject _DestCharacterZ;
+    public GameObject DestCharacterZ
+    {
+        set { _DestCharacterZ = value; }
     }
     private GameObject _DummyCharacter;
     public GameObject DummyCharacter
@@ -104,24 +109,34 @@ public class CharacterController : Singlton<CharacterController>
         //飛び出ている部分の上に乗っているか判定
         if (IsTopOfWall)
             IsTopOfWall = StageManager.I.OnTopOfWall();
+            
+        Vector3 destPos = _DummyCharacter.transform.position;
+        destPos.x *= -1;
         // ダミーキャラの位置を実際のキャラ反映させる
-        UpdateXZCharacterPosition(moveDir, foldXList);        
+        UpdateXZCharacterPosition(_DummyCharacter.transform.position, _DummyCharacter.transform.lossyScale.x, 
+                                  _CharacterX.transform, _CharacterZ.transform, 
+                                  moveDir, foldXList);        
+        UpdateXZCharacterPosition(destPos, _DummyCharacter.transform.lossyScale.x, 
+                                  _DestCharacterX.transform, _DestCharacterZ.transform, 
+                                  moveDir, foldXList);
+                
         //キャラクター部分透過
-        UpdateSubTransparent(moveDir, foldXList);
+        UpdateSubTransparent(_DummyCharacter.transform.position, _DummyCharacter.transform.lossyScale.x, 
+                             _CharacterX, _CharacterZ, moveDir, foldXList);
+        UpdateSubTransparent(destPos, _DummyCharacter.transform.lossyScale.x, 
+                             _DestCharacterX, _DestCharacterZ, moveDir, foldXList);
     }
     /// <summary>
     /// ダミーキャラの位置を実際のキャラ反映させる
     /// </summary>
-    private void UpdateXZCharacterPosition(Vector2 moveDir, IEnumerable foldXList)
+    private void UpdateXZCharacterPosition(Vector3 charaPos, float delta, Transform xTrans, Transform zTrans, Vector2 moveDir, IEnumerable foldXList)
     {
         int r = 0;
-        Vector3 charaPos = _DummyCharacter.transform.position;
-        float delta = _DummyCharacter.transform.lossyScale.x;
-        float foldlineDist = StageManager.I.CalcFoldLineDistance(_DummyCharacter.transform.position - delta / 2 * Vector3.right, delta);
+        float foldlineDist = StageManager.I.CalcFoldLineDistance(charaPos - delta / 2 * Vector3.right, delta);
         float prevX = -StageCreater.I.StageWidth/2;
         float xOffset = StageCreater.I.XOffset-StageCreater.I.StageWidth/2;
         float zOffset = StageCreater.I.ZOffset;
-        float charaAnchor = _DummyCharacter.transform.position.x - delta / 2;   
+        float charaAnchor = charaPos.x - delta / 2;   
         foreach (float x in foldXList)
         {
             if (prevX < charaAnchor && charaAnchor < x)
@@ -130,13 +145,13 @@ public class CharacterController : Singlton<CharacterController>
                 {
                     if (foldlineDist == delta + 1f)
                     {
-                        _CharacterX.transform.position = new Vector3(xOffset+charaPos.x-prevX-0.01f, charaPos.y, zOffset-0.01f);
+                        xTrans.position = new Vector3(xOffset+charaPos.x-prevX-0.01f, charaPos.y, zOffset-0.01f);
                         return;
                     }
                     else
                     {
-                        _CharacterX.transform.position = new Vector3(xOffset+charaPos.x-prevX-0.01f, charaPos.y, zOffset-0.01f);
-                        _CharacterZ.transform.position = new Vector3(xOffset+x-prevX-0.01f, charaPos.y, zOffset-delta/2+foldlineDist-0.01f);
+                        xTrans.position = new Vector3(xOffset+charaPos.x-prevX-0.01f, charaPos.y, zOffset-0.01f);
+                        zTrans.position = new Vector3(xOffset+x-prevX-0.01f, charaPos.y, zOffset-delta/2+foldlineDist-0.01f);
                         return;
                     }
                 }
@@ -144,13 +159,13 @@ public class CharacterController : Singlton<CharacterController>
                 {
                     if (foldlineDist == delta + 1f)
                     {
-                        _CharacterZ.transform.position = new Vector3(xOffset-0.01f, charaPos.y, zOffset-charaPos.x+prevX-0.01f);
+                        zTrans.position = new Vector3(xOffset-0.01f, charaPos.y, zOffset-charaPos.x+prevX-0.01f);
                         return;
                     }
                     else
                     {
-                        _CharacterX.transform.position = new Vector3(xOffset+delta/2-foldlineDist-0.01f, charaPos.y, zOffset-x+prevX-0.01f);
-                        _CharacterZ.transform.position = new Vector3(xOffset-0.01f, charaPos.y, zOffset-charaPos.x+prevX-0.01f);
+                        xTrans.position = new Vector3(xOffset+delta/2-foldlineDist-0.01f, charaPos.y, zOffset-x+prevX-0.01f);
+                        zTrans.position = new Vector3(xOffset-0.01f, charaPos.y, zOffset-charaPos.x+prevX-0.01f);
                         return;
                     }
                 }
@@ -170,30 +185,29 @@ public class CharacterController : Singlton<CharacterController>
     /// <summary>
     /// キャラクターの部分透過を設定
     /// </summary>
-    private void UpdateSubTransparent(Vector2 moveDir, IEnumerable foldXList)
+    private void UpdateSubTransparent(Vector3 charaPos, float delta, GameObject xChara, GameObject zChara, Vector2 moveDir, IEnumerable foldXList)
     {
         int r = 0;
-        float delta = _DummyCharacter.transform.lossyScale.x;
-        float foldlineDist = StageManager.I.CalcFoldLineDistance(_DummyCharacter.transform.position - delta / 2 * Vector3.right, delta);
+        float foldlineDist = StageManager.I.CalcFoldLineDistance(charaPos - delta / 2 * Vector3.right, delta);
         foreach (float x in foldXList)
         {
-            if (_DummyCharacter.transform.position.x - delta / 2 < x)
+            if (charaPos.x - delta / 2 < x)
             {
                 if (r == 0) //x方向移動
                 {
                     if (foldlineDist == delta + 1f)
                     {
-                        SetCharacterTransparent(1f, 0f, 0f, 1f);
+                        SetCharacterTransparent(xChara, zChara, 1f, 0f, 0f, 1f);
                         return;
                     }
                     if (moveDir.x > 0f)
                     {
-                        SetCharacterTransparent(foldlineDist / delta, 0f, 1f, foldlineDist / delta);
+                        SetCharacterTransparent(xChara, zChara, foldlineDist / delta, 0f, 1f, foldlineDist / delta);
                         return;
                     }
                     else if (moveDir.x < 0f)
                     {
-                        SetCharacterTransparent(1f, 1f - foldlineDist / delta, 1f - foldlineDist / delta, 0f);
+                        SetCharacterTransparent(xChara, zChara, 1f, 1f - foldlineDist / delta, 1f - foldlineDist / delta, 0f);
                         return;
                     }
                 }
@@ -201,17 +215,17 @@ public class CharacterController : Singlton<CharacterController>
                 {
                     if (foldlineDist == delta + 1f)
                     {
-                        SetCharacterTransparent(0f, 1f, 1f, 0f);
+                        SetCharacterTransparent(xChara, zChara, 0f, 1f, 1f, 0f);
                         return;
                     }
                     if (moveDir.x > 0f)
                     {
-                        SetCharacterTransparent(1f, foldlineDist / delta, foldlineDist / delta, 0f);
+                        SetCharacterTransparent(xChara, zChara, 1f, foldlineDist / delta, foldlineDist / delta, 0f);
                         return;
                     }
                     else if (moveDir.x < 0f)
                     {
-                        SetCharacterTransparent(1f - foldlineDist / delta, 0f, 1f, 1f - foldlineDist / delta);
+                        SetCharacterTransparent(xChara, zChara, 1f - foldlineDist / delta, 0f, 1f, 1f - foldlineDist / delta);
                         return;
                     }
                 }
@@ -220,31 +234,31 @@ public class CharacterController : Singlton<CharacterController>
         }
         if (foldlineDist == delta + 1f)
         {
-            SetCharacterTransparent(0f, 1f, 1f, 0f);
+            SetCharacterTransparent(xChara, zChara, 0f, 1f, 1f, 0f);
             return;
         }
         if (moveDir.x > 0f)
         {
-            SetCharacterTransparent(1f, foldlineDist / delta, foldlineDist / delta, 0f);
+            SetCharacterTransparent(xChara, zChara, 1f, foldlineDist / delta, foldlineDist / delta, 0f);
             return;
         }
         else if (moveDir.x < 0f)
         {
-            SetCharacterTransparent(1f - foldlineDist / delta, 1f, 0f, 1f - foldlineDist / delta);
+            SetCharacterTransparent(xChara, zChara, 1f - foldlineDist / delta, 1f, 0f, 1f - foldlineDist / delta);
             return;
         }
     }
     //キャラクター透過用関数
-    private void SetCharacterTransparent(float xForward, float xBack, float zForward, float zBack)
+    private void SetCharacterTransparent(GameObject xChara, GameObject zChara, float xForward, float xBack, float zForward, float zBack)
     {
-        _CharacterX.transform.GetChild(0).position = _CharacterX.transform.GetChild(1).position + new Vector3(-0.001f, 0f, 0f);
-        _CharacterZ.transform.GetChild(0).position = _CharacterZ.transform.GetChild(1).position + new Vector3(0f, 0f, -0.001f);
-        foreach (Material material in _CharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material))
+        xChara.transform.GetChild(0).position = xChara.transform.GetChild(1).position + new Vector3(-0.001f, 0f, 0f);
+        zChara.transform.GetChild(0).position = zChara.transform.GetChild(1).position + new Vector3(0f, 0f, -0.001f);
+        foreach (Material material in xChara.GetComponentsInChildren<Renderer>().Select(x => x.material))
         {
             material.SetFloat("_ForwardThreshold", xForward);
             material.SetFloat("_BackThreshold", xBack);
         }
-        foreach (Material material in _CharacterZ.GetComponentsInChildren<Renderer>().Select(x => x.material))
+        foreach (Material material in zChara.GetComponentsInChildren<Renderer>().Select(x => x.material))
         {
             material.SetFloat("_ForwardThreshold", zForward);
             material.SetFloat("_BackThreshold", zBack);
@@ -260,39 +274,31 @@ public class CharacterController : Singlton<CharacterController>
         {
             _CharacterX.GetComponent<Animator>().Play("walk");
             _CharacterZ.GetComponent<Animator>().Play("walk");
+            _DestCharacterX.GetComponent<Animator>().Play("walk");
+            _DestCharacterZ.GetComponent<Animator>().Play("walk");
         }
         else
         {
             _CharacterX.GetComponent<Animator>().Play("idle");
             _CharacterZ.GetComponent<Animator>().Play("idle");
+            _DestCharacterX.GetComponent<Animator>().Play("idle");
+            _DestCharacterZ.GetComponent<Animator>().Play("idle");
         }
         //キャラクター向き
         if (moveDir.x > 0f)
         {
             _CharacterX.transform.forward = Vector3.forward;
             _CharacterZ.transform.forward = Vector3.right;
+            _DestCharacterX.transform.forward = Vector3.forward;
+            _DestCharacterZ.transform.forward = Vector3.right;
         }
         else if (moveDir.x < 0f)
         {
             _CharacterX.transform.forward = Vector3.back;
             _CharacterZ.transform.forward = Vector3.left;
+            _DestCharacterX.transform.forward = Vector3.back;
+            _DestCharacterZ.transform.forward = Vector3.left;
         }
-    }
-    
-    /// <summary>
-    /// 現在の移動方向を計算する
-    /// </summary>
-    private bool CalcCurrentMoveDirection(IEnumerable foldXList)
-    {
-        bool moveX = true;
-        Vector3 charaPos = _DummyCharacter.transform.position;
-        foreach (float x in foldXList)
-        {
-            if (charaPos.x < x)
-                break;
-            moveX = !moveX;
-        }
-        return moveX;
     }
 
     //キャラクターの位置パラメータ
