@@ -62,6 +62,9 @@ public class StageCreater : Singlton<StageCreater>
             CLOSE_EASE = array[rand];
             _Sequence = DOTween.Sequence();
             ReOpenStage(45f, ANIMATION_TIME, ANIMATION_TIME, 0.3f, false);
+            Vector3 pos = CharacterController.I.DummyCharacter.transform.position;
+            pos.x *= -1;
+            CharacterController.I.DummyCharacter.transform.position = pos; 
         }
     }
 
