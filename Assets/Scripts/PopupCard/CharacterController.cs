@@ -105,8 +105,7 @@ public class CharacterController : Singlton<CharacterController>
         if (IsTopOfWall)
             IsTopOfWall = StageManager.I.OnTopOfWall();
         // ダミーキャラの位置を実際のキャラ反映させる
-        UpdateXZCharacterPosition(moveDir, foldXList);
-        UpdateDestCharacterPosition(moveDir, foldXList);
+        UpdateXZCharacterPosition(moveDir, foldXList);        
         //キャラクター部分透過
         UpdateSubTransparent(moveDir, foldXList);
     }
@@ -162,79 +161,6 @@ public class CharacterController : Singlton<CharacterController>
                     xOffset += x - prevX;
                 else
                     zOffset -= x - prevX;
-            }
-            prevX = x;
-            r = (int)Mathf.Repeat(r + 1, 2);
-        }
-    }
-    /// <summary>
-    /// 折り返し位置にキャラを表示
-    /// </summary>
-    private void UpdateDestCharacterPosition(Vector2 moveDir, IEnumerable foldXList)
-    {
-        List<Vector2> rangeList = new List<Vector2>();
-        int r = 0;
-        Vector3 charaPos = _DummyCharacter.transform.position;        
-        float prevX = -StageCreater.I.StageWidth/2;
-        float searchX = 0f;
-        float searchOffset = -StageCreater.I.StageWidth/2;
-        float xOffset = StageCreater.I.XOffset-StageCreater.I.StageWidth/2;
-        float zOffset = StageCreater.I.ZOffset;
-        bool findOnXSide = false;
-        
-        foreach (float x in foldXList)
-        {
-            if (prevX < charaPos.x && charaPos.x < x && findOnXSide == false)
-            {
-                if (r == 0) //x方向移動
-                {
-                    searchX = searchOffset + charaPos.x - prevX;
-                    findOnXSide = true;
-                    xOffset += x - prevX;
-                    searchOffset += x - prevX;
-                }
-                else //z方向移動
-                {
-                    searchX = searchOffset - charaPos.x + prevX;
-                    for(int i = rangeList.Count-1; i >= 0; i--)
-                    {
-                        if(rangeList.Count%2 == i%2)
-                        {
-                            zOffset += rangeList[i].y - rangeList[i].x;
-                        }
-                        else
-                        {
-                            if(rangeList[i].x < searchX && searchX < rangeList[i].y)
-                            {
-                                _DestinationCharacter.transform.position = new Vector3(xOffset-rangeList[i].y+searchX-0.01f, charaPos.y, zOffset-0.01f);
-                                _DestinationCharacter.transform.forward = Vector3.back;
-                                return;
-                            }
-                            xOffset -= rangeList[i].y - rangeList[i].x;
-                        } 
-                    }
-                }
-            }
-            else
-            {   
-                if(r == 0)
-                {
-                    xOffset += x - prevX;
-                    rangeList.Add(new Vector2(searchOffset, searchOffset + x - prevX));
-                    searchOffset += x - prevX;
-                }
-                else
-                {
-                    if(findOnXSide && (searchOffset-x+prevX < searchX && searchX < searchOffset))
-                    {
-                        _DestinationCharacter.transform.position = new Vector3(xOffset-0.01f, charaPos.y, zOffset-searchOffset+searchX-0.01f);
-                        _DestinationCharacter.transform.forward = Vector3.right;
-                        return;
-                    }
-                    zOffset -= x - prevX;
-                    rangeList.Add(new Vector2(searchOffset - x + prevX, searchOffset));
-                    searchOffset -= x - prevX;
-                }
             }
             prevX = x;
             r = (int)Mathf.Repeat(r + 1, 2);
