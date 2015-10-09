@@ -69,6 +69,10 @@ public class InGameManager : Singlton<InGameManager>
 			c.a = 0f;
 			seq.Join( text.DOColor(c, FADEIN_DURATION) );
 		}
+		foreach(Image image in GetComponentsInChildren<Image>())
+		{
+			seq.Join( image.transform.DOScaleX(0, FADEIN_DURATION) );
+		}
 		//終了処理
 		seq.OnComplete(() => 
 		{
@@ -84,12 +88,19 @@ public class InGameManager : Singlton<InGameManager>
 	
 	private void DisplayText()
 	{
+		Sequence seq = DOTween.Sequence();
+		foreach(Image image in GetComponentsInChildren<Image>())
+		{
+			seq.Join( image.transform.DOScaleX(200, DISPLAY_DURATION/3) );
+		}
+		seq.Append( transform.DOMove(transform.position, DISPLAY_DURATION/3) );
 		foreach(Text text in GetComponentsInChildren<Text>())
 		{
 			Color c = text.color;
 			c.a = 1f;
-			text.color = c;
+			seq.Join( text.DOColor(c, DISPLAY_DURATION/3) );
 		}
+		seq.Play();
 	} 
 	
 }
