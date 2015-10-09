@@ -8,6 +8,13 @@ using DG.Tweening;
 
 public class StageCreater : Singlton<StageCreater>
 {
+    public enum ReOpenType
+    {
+        FIRST_OPEN,
+        TO_NEXT,
+        REVERSE_GIMMICK,
+        RESTART_STAGE,
+    }
     
     private readonly string X_TAG_NAME = "XSideComponent";
     private readonly string Z_TAG_NAME = "ZSideComponent";
@@ -56,15 +63,17 @@ public class StageCreater : Singlton<StageCreater>
     void Update(){
         if(Input.GetKeyDown(KeyCode.Space))
         {
-            Ease[] array = Enum.GetValues(typeof(Ease)) as Ease[];
-            int rand = UnityEngine.Random.Range(0, array.Length-2);
-            OPEN_EASE = array[rand];
-            CLOSE_EASE = array[rand];
             _Sequence = DOTween.Sequence();
-            ReOpenStage(45f, ANIMATION_TIME, ANIMATION_TIME, 0.3f, false);
+            ReOpenStage(45f, 0.3f, 0.3f, 0.3f, ReOpenType.REVERSE_GIMMICK);
             Vector3 pos = CharacterController.I.DummyCharacter.transform.position;
             pos.x *= -1;
             CharacterController.I.DummyCharacter.transform.position = pos; 
+        }
+        
+        if(Input.GetKeyDown(KeyCode.Return))
+        {
+            _Sequence = DOTween.Sequence();
+            ReOpenStage(45f, 0.3f, 0.3f, 0.3f, ReOpenType.RESTART_STAGE); 
         }
     }
 
@@ -102,18 +111,14 @@ public class StageCreater : Singlton<StageCreater>
 
         _Sequence = DOTween.Sequence();
         _PrevSequence = DOTween.Sequence();
-        Ease[] array = Enum.GetValues(typeof(Ease)) as Ease[];
-        int rand = UnityEngine.Random.Range(0, array.Length-2);
-        OPEN_EASE = array[rand];
-        CLOSE_EASE = array[rand];
         if(existStage)
         {
             ClosePrevStage(90f, ANIMATION_TIME);
-            ReOpenStage(0f, ANIMATION_TIME, 0f, 0f, existStage);
+            ReOpenStage(0f, ANIMATION_TIME, 0f, 0f, ReOpenType.TO_NEXT);
         }
         else
         {
-            ReOpenStage(START_ANGLE, ANIMATION_TIME, 0f, 0f, existStage);
+            ReOpenStage(START_ANGLE, ANIMATION_TIME, 0f, 0f, ReOpenType.FIRST_OPEN);
         }
     }
     
@@ -393,7 +398,7 @@ public class StageCreater : Singlton<StageCreater>
     /// <summary>
     /// ステージを閉じて開く
     /// </summary>
-    public void ReOpenStage(float angle, float opentime, float closetime, float waittime, bool existStage)
+    public void ReOpenStage(float angle, float opentime, float closetime, float waittime, ReOpenType type)
     {
         _Sequence.OnStart(() => {
              foreach(Renderer renderer in _Root.GetComponentsInChildren<Renderer>())
@@ -402,26 +407,34 @@ public class StageCreater : Singlton<StageCreater>
              } 
         });
         _Sequence.Append( _Root.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
-        if(existStage == false)
+        switch(type)
         {    
+        case ReOpenType.FIRST_OPEN:
+        case ReOpenType.REVERSE_GIMMICK:
+        case ReOpenType.RESTART_STAGE:
             _Sequence.Join( _Book.transform.GetChild(0).DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
             _Sequence.Join( _Book.transform.GetChild(1).DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+            break;
         }
         CloseStage(closetime);
         _Sequence.Append( _Root.transform.DOBlendableRotateBy(-angle*Vector3.up, opentime).SetEase(OPEN_EASE).SetDelay(waittime) );
         //はじめは本を開く処理もする
-        if(existStage == false)
+        switch(type)
         {    
+        case ReOpenType.FIRST_OPEN:
+        case ReOpenType.REVERSE_GIMMICK:
+        case ReOpenType.RESTART_STAGE:
             _Sequence.Join( _Book.transform.GetChild(0).DORotate(0*Vector3.up, opentime).SetEase(OPEN_EASE) );
             _Sequence.Join( _Book.transform.GetChild(1).DORotate(-90*Vector3.up, opentime).SetEase(OPEN_EASE) );
+            break;
         }
-        OpenStage(opentime);
+        OpenStage(opentime, type);
         _Sequence.Play();
     }
     /// <summary>
     /// ステージを開く
     /// </summary>
-    public void OpenStage(float time)
+    public void OpenStage(float time, ReOpenType type)
     {
         IsPlayingAnimation = true;        
         //  if(existStage == false)
@@ -454,8 +467,13 @@ public class StageCreater : Singlton<StageCreater>
                 tmp.GetChild(0).SetParent(_Root.transform);
                 Destroy(tmp.gameObject);
             }
-            
-            InGameManager.I.DisplayDictionary();
+             switch(type)
+            {    
+            case ReOpenType.FIRST_OPEN:
+            case ReOpenType.TO_NEXT:
+                InGameManager.I.DisplayDictionary();
+                break;
+            }
         });
     }
 
