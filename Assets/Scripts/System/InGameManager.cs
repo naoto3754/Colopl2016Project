@@ -71,7 +71,9 @@ public class InGameManager : Singlton<InGameManager>
 		}
 		foreach(Image image in GetComponentsInChildren<Image>())
 		{
-			seq.Join( image.transform.DOScaleX(0, FADEIN_DURATION) );
+			Color c = image.color;
+			c.a = 0f;
+			seq.Join( image.DOColor(c, FADEIN_DURATION) );
 		}
 		//終了処理
 		seq.OnComplete(() => 
@@ -91,6 +93,12 @@ public class InGameManager : Singlton<InGameManager>
 		Sequence seq = DOTween.Sequence();
 		foreach(Image image in GetComponentsInChildren<Image>())
 		{
+			Color c = image.color;
+			c.a = 1f;
+			image.color = c;
+			Vector3 scale = image.transform.localScale;
+			scale.x = 0;  
+			image.transform.localScale = scale; 
 			seq.Join( image.transform.DOScaleX(200, DISPLAY_DURATION/3) );
 		}
 		seq.Append( transform.DOMove(transform.position, DISPLAY_DURATION/3) );
