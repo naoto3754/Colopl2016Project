@@ -95,7 +95,11 @@ public class CharacterController : Singlton<CharacterController>
             //ゴール判定
             if(ClearStage)
             {
-                StageManager.I.InstantiateStage(StageManager.I.CurrentChapter, StageManager.I.CurrentStageIndex+1);
+                int chapter = StageManager.I.CurrentChapter;
+                int bookID = StageManager.I.CurrentBookID;
+                int index = StageManager.I.CurrentStageIndex;
+                int[] indexInfo = StageManager.CalcStageIndexInfo( StageManager.CalcStageListIndex(chapter, bookID, index) + 1 );
+                StageManager.I.InstantiateStage(indexInfo[0], indexInfo[1], indexInfo[2]);
             }
         }
     }

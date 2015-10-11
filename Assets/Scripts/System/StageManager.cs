@@ -7,12 +7,17 @@ public class StageManager : Singlton<StageManager>
 {
 
     [SerializeField]
-    private List<GameObject> _Chapters;
-    private List<List<GameObject>> _Stages;
+    private List<GameObject> _Stages;
+    
     private int _CurrentChapter;
     public int CurrentChapter
     {
         get { return _CurrentChapter; }
+    }
+    private int _CurrentBookID;
+    public int CurrentBookID
+    {
+        get { return _CurrentBookID; }
     }
     private int _CurrentStageIndex;
     public int CurrentStageIndex
@@ -28,46 +33,47 @@ public class StageManager : Singlton<StageManager>
 
     public override void OnInitialize()
     {
-        _Stages = new List<List<GameObject>>();
-        for(int i = 0; i < _Chapters.Count; i++)
-        {
-            _Stages.Add(new List<GameObject>());
-            LoadStage(_Chapters[i], i);
-        }
-    }
-    /// <summary>
-    /// 再帰的にステージを読み込む
-    /// </summary>
-    private void LoadStage(GameObject stage, int index)
-    {
-        _Stages[index].Add(stage);
-        StageInfomation info = stage.GetComponent<StageInfomation>();
-        if(info.NextStage != null)
-            LoadStage(info.NextStage, index);
     }
     /// <summary>
     /// ステージ生成
     /// </summary>
-    public void InstantiateStage(int chapter, int index)
+    public void InstantiateStage(int chapter, int bookID, int index)
     {
+        Debug.Log("chap = "+chapter+", book = "+bookID+", idx = "+index);
+        if(chapter < 1 && 5 < chapter)
+            Debug.LogError("Invalid chapter");
+        if(bookID < 0 && 2 < bookID)
+            Debug.LogError("Invalid bookID");
+        if(index < 0 && 2 < index)
+            Debug.LogError("Invalid stage index");
+        
         ////仮実装
-        if(index >= _Stages[chapter].Count)
-        { 
-            index = 1;
-        }
         _CurrentChapter = chapter;
+        _CurrentBookID = bookID;
         _CurrentStageIndex = index;
         //ダミーカードをInstantiateすると、ダミーカードのAwakeでステージ情報を更新し、ステージ生成まで行う
-        Instantiate(_Stages[chapter][index]);
-        
-        ////本実装？
-        //  if(index < _Stages.Count)
-        //  { 
-        //      _CurrentStageIndex = index;
-        //      Instantiate(_Stages[index]);
-        //  }
-        //  else
-        //      Debug.LogError("Invalid Stage Index");
+        Debug.Log(CalcStageListIndex(chapter, bookID, index));
+        Instantiate(_Stages[ CalcStageListIndex(chapter, bookID, index) ]);
+    }
+    
+    public static int CalcStageListIndex(int chapter, int bookID, int index)
+    {
+        chapter -= 1;
+        int bookCnt = 3;
+        int stageCnt = 3;       
+        return chapter*bookCnt*stageCnt + bookID * stageCnt + index;
+    }
+    
+    public static int[] CalcStageIndexInfo(int index)
+    {
+        int[] ret = new int[3];
+        int bookCnt = 3;
+        int stageCnt = 3;
+        ret[0] = index / (bookCnt*stageCnt) + 1;
+        index = index % (bookCnt*stageCnt);
+        ret[1] = index / stageCnt;
+        ret[2] = index % stageCnt;
+        return ret;
     }
 
     private bool _JumpUp;

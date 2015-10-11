@@ -32,18 +32,6 @@ public class StateManager : Singlton<StateManager> {
 		SwitchActiveManager(_CurrentState);
 	}
 	
-	public void GoNextState()
-	{
-		_CurrentState = (State)Mathf.Clamp((int)_CurrentState+1, 0, Enum.GetValues(typeof(State)).Length);
-		SwitchActiveManager(_CurrentState);
-	}
-	
-	public void GoPrevioiusState()
-	{
-		_CurrentState = (State)Mathf.Clamp((int)_CurrentState-1, 0, Enum.GetValues(typeof(State)).Length);
-		SwitchActiveManager(_CurrentState);
-	}
-	
 	public void GoState(State state)
 	{
 		_CurrentState = state;
@@ -72,7 +60,7 @@ public class StateManager : Singlton<StateManager> {
 		case State.INGAME:
 			foreach(Transform child in _InGame.transform)
 				child.gameObject.SetActive(true);
-			StageManager.I.InstantiateStage(StageSelectManager.I.SelectedChapter, StageSelectManager.I.SelectedStageIdx);
+			StageManager.I.InstantiateStage(StageSelectManager.I.SelectedChapter, StageSelectManager.I.SelectedStageIdx, 0);
 			break;
 		}
 	}

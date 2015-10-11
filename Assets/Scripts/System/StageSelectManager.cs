@@ -56,8 +56,8 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 					GameObject selectedBook = Instantiate(tappedObj, tappedObj.transform.position, tappedObj.transform.rotation) as GameObject;
 					_Shelf.SetActive(false);
 					StageCreater.I.Book = selectedBook;
-					SelectedChapter = 0;
-					SelectedStageIdx = 1;
+					SelectedChapter = 1;
+					SelectedStageIdx = 0;
 					Sequence sequence = DOTween.Sequence();
 					//はじめは本を開く処理もする
 						
