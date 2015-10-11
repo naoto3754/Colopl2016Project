@@ -60,7 +60,7 @@ public class StateManager : Singlton<StateManager> {
 		case State.INGAME:
 			foreach(Transform child in _InGame.transform)
 				child.gameObject.SetActive(true);
-			StageManager.I.InstantiateStage(StageSelectManager.I.SelectedChapter, StageSelectManager.I.SelectedStageIdx, 0);
+			StageManager.I.InstantiateStage(StageSelectManager.I.SelectedChapter, StageSelectManager.I.SelectedBookID, StageSelectManager.I.SelectedStageIdx);
 			break;
 		}
 	}

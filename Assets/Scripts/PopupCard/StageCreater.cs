@@ -69,8 +69,11 @@ public class StageCreater : Singlton<StageCreater>
             pos.x *= -1;
             CharacterController.I.DummyCharacter.transform.position = pos; 
         }
-        
-        if(Input.GetKey(KeyCode.Return) && IsPlayingAnimation == false)
+    }
+    
+    public void RestartStage()
+    {
+        if(IsPlayingAnimation == false)
         {
             _Sequence = DOTween.Sequence();
             ReOpenStage(45f, 0.5f, 0.5f, 0f, ReOpenType.RESTART_STAGE); 

@@ -11,10 +11,6 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 	private readonly float LOWEST_HEIGHT = 0f;
 	private readonly Vector3 BOOK_POS = new Vector3(42.3f, -0.8f, -57.7f);
     private readonly Vector3 BOOK_SCALE = new Vector3(22f, 36f, 22f);
-	//  private readonly Vector3 CAMERA_POSITION = new Vector3(-22.2f, 58.2f, -122.2f);
-	//  private readonly Vector3 START_BOOK_OFFSET = new Vector3(0f, 15f, 0f);
-	//  private readonly Vector3 DEFAULT_LEFTANCHOR_LOCALPOSITION = new Vector3(0.5f, 0f, 0f);
-	//  private readonly Vector3 DEFAULT_BOOK_SCALE = new Vector3(10.5f, 17.85f, 18.64f);
 
 	[SerializeField]
 	private GameObject _Shelf;
@@ -22,6 +18,10 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 	private bool _ViewContents;
 	
 	public int SelectedChapter
+	{
+		get; set;
+	}
+	public int SelectedBookID
 	{
 		get; set;
 	}
@@ -56,7 +56,8 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 					GameObject selectedBook = Instantiate(tappedObj, tappedObj.transform.position, tappedObj.transform.rotation) as GameObject;
 					_Shelf.SetActive(false);
 					StageCreater.I.Book = selectedBook;
-					SelectedChapter = 1;
+					SelectedChapter = bookInfo.chapter;
+					SelectedBookID = bookInfo.bookID;
 					SelectedStageIdx = 0;
 					Sequence sequence = DOTween.Sequence();
 					//はじめは本を開く処理もする

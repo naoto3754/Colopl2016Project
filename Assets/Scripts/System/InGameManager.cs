@@ -29,7 +29,7 @@ public class InGameManager : Singlton<InGameManager>
 	/// </summay>
 	private void Restart()
 	{
-		Debug.Log("Restart");
+		StageCreater.I.RestartStage();
 	}
 	/// <summay>
 	/// ホームに戻る

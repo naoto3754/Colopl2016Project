@@ -39,7 +39,7 @@ public class StageManager : Singlton<StageManager>
     /// </summary>
     public void InstantiateStage(int chapter, int bookID, int index)
     {
-        Debug.Log("chap = "+chapter+", book = "+bookID+", idx = "+index);
+        
         if(chapter < 1 && 5 < chapter)
             Debug.LogError("Invalid chapter");
         if(bookID < 0 && 2 < bookID)
