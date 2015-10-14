@@ -20,6 +20,7 @@ public class InGameManager : Singlton<InGameManager>
 		}
 		else if(Input.GetKeyDown(KeyCode.H))
 		{
+			StageCreater.I.Clear();
 			ReturnHome();
 		}
 	}
@@ -36,7 +37,7 @@ public class InGameManager : Singlton<InGameManager>
 	/// </summay>
 	private void ReturnHome()
 	{
-		Debug.Log("Return Home");
+		StateManager.I.GoState(State.STAGE_SELECT);
 	}
 	
 	/// <summay>

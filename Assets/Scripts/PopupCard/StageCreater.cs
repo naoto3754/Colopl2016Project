@@ -75,6 +75,7 @@ public class StageCreater : Singlton<StageCreater>
     {
         if(IsPlayingAnimation == false)
         {
+            CharacterController.I.SetInitPos();
             _Sequence = DOTween.Sequence();
             ReOpenStage(45f, 0.5f, 0.5f, 0f, ReOpenType.RESTART_STAGE); 
         }
@@ -135,8 +136,9 @@ public class StageCreater : Singlton<StageCreater>
     /// キャラクターを生成する
     /// </summary>
     private void InstantiateCharacter()
-    {        
+    {   
         CharacterController.I.color = StageManager.I.CurrentInfo.InitialCharacterColor;
+        CharacterController.I.InitPosition = CharacterController.I.DummyCharacter.transform.position;
         //X方向に動くキャラクター
         GameObject character = Instantiate(CharacterController.I.DummyCharacter,
                                            CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET * 2, 0f, _ZOffset - OFFSET * 2),
@@ -633,6 +635,8 @@ public class StageCreater : Singlton<StageCreater>
     public void Clear()
     {
         _Sequence.Complete();
+        if(_Book != null)
+            Destroy( _Book );
         if(_PreviousRoot != null)
             Destroy( _PreviousRoot );
         if(_Root != null)

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class CharacterController : Singlton<CharacterController>
-{
+{ 
     private GameObject _CharacterX;
     public GameObject CharacterX
     {
@@ -30,6 +30,11 @@ public class CharacterController : Singlton<CharacterController>
     {
         get { return _DummyCharacter; }
         set { _DummyCharacter = value; }
+    }
+    
+    public Vector2 InitPosition
+    {
+        get; set;
     }
 
     [SerializeField]
@@ -303,6 +308,11 @@ public class CharacterController : Singlton<CharacterController>
             _DestCharacterX.transform.forward = Vector3.back;
             _DestCharacterZ.transform.forward = Vector3.left;
         }
+    }
+    
+    public void SetInitPos()
+    {
+        _DummyCharacter.transform.position = new Vector3(InitPosition.x, InitPosition.y, _DummyCharacter.transform.position.z);
     }
 
     //キャラクターの位置パラメータ

@@ -33,7 +33,9 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 	public void Init()
 	{	
 		Sequence seq = DOTween.Sequence();
+		_ViewContents = false;
 		
+		_Shelf.SetActive(true);
 		Vector3 toPos = _Shelf.transform.position;
 		toPos.y = HIGHEST_HEIGHT; 
 		seq.Append(_Shelf.transform.DOMove(toPos, 1.5f) );
@@ -48,7 +50,7 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 		{
 			GameObject tappedObj = InputManager.I.GetTappedGameObject();
 			if(tappedObj != null)
-			{
+			{				
 				Book bookInfo = tappedObj.GetComponent<Book>();
 				if(bookInfo != null && _ViewContents == false)
 				{
