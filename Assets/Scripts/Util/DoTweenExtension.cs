@@ -22,4 +22,10 @@ public static class DoTweenExtension
 	{
 		return DOTween.To(()=>target.color , x=>target.color=x, endValue, duration );
 	}
+	
+	//Text
+	public static Tween DOOrthographicSize(this Camera target, float endValue, float duration)
+	{
+		return DOTween.To(()=>target.orthographicSize , x=>target.orthographicSize=x, endValue, duration );
+	}
 }

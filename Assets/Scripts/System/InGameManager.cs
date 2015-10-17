@@ -52,7 +52,7 @@ public class InGameManager : Singlton<InGameManager>
 		
 		_NowDisplaying = true;
 		BlurOptimized blur = Camera.main.GetComponent<BlurOptimized>();
-		blur.enabled = true;
+		blur.customEnabled = true;
 		Sequence seq = DOTween.Sequence();
 		//フェードアウト
 		seq.Append( blur.DOBlurSize(3f, FADEOUT_DURATION).SetEase(Ease.OutSine).OnStart(() => {
@@ -79,7 +79,7 @@ public class InGameManager : Singlton<InGameManager>
 		//終了処理
 		seq.OnComplete(() => 
 		{
-			blur.enabled = false;
+			blur.customEnabled = false;
 			StageCreater.I.IsPlayingAnimation = false;
 			_NowDisplaying = false;
 		});

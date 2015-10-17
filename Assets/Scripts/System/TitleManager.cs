@@ -8,7 +8,7 @@ public class TitleManager : Singlton<TitleManager> {
 
 	//  private readonly float SHELF_HEIGHT = -102.5f;
 	
-	void FixedUpdate()
+	void Update()
 	{
 		if(InputManager.I.GetAnyTapDown())
 		{

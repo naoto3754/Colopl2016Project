@@ -64,6 +64,7 @@ public class StageCreater : Singlton<StageCreater>
         if(Input.GetKey(KeyCode.Space) && IsPlayingAnimation == false)
         {
             _Sequence = DOTween.Sequence();
+            //  ReOpenStageForReverse(0.5f, 0.5f, 1f);
             ReOpenStage(45f, 0.5f, 0.5f, 0f, ReOpenType.REVERSE_GIMMICK);
             Vector3 pos = CharacterController.I.DummyCharacter.transform.position;
             pos.x *= -1;
@@ -122,12 +123,6 @@ public class StageCreater : Singlton<StageCreater>
         }
         else
         {
-            //  foreach(Renderer renderer in _Root.GetComponentsInChildren<Renderer>())
-            //   {
-            //      renderer.enabled = true;
-            //   } 
-            //  PullCloseStage(5f, false);
-            //  _Sequence.Play();
             ReOpenStage(START_ANGLE, ANIMATION_TIME, 0f, 0f, ReOpenType.FIRST_OPEN);
         }
     }
@@ -429,10 +424,7 @@ public class StageCreater : Singlton<StageCreater>
             break;
         }
         PushCloseStage(closetime);
-        _Sequence.Append( _Root.transform.DOBlendableRotateBy(-angle*Vector3.up, opentime).SetEase(OPEN_EASE).SetDelay(waittime)
-        .OnStart(() => {
-            //閉じた後、開く前に行うアクション
-        }) );
+        _Sequence.Append( _Root.transform.DOBlendableRotateBy(-angle*Vector3.up, opentime).SetEase(OPEN_EASE).SetDelay(waittime));
         //はじめは本を開く処理もする
         switch(type)
         {    
@@ -444,6 +436,32 @@ public class StageCreater : Singlton<StageCreater>
             break;
         }
         PushOpenStage(opentime, type);
+        _Sequence.Play();
+    }
+    /// <summary>
+    /// ステージを閉じて開く
+    /// </summary>
+    public void ReOpenStageForReverse(float opentime, float closetime, float waittime)
+    {
+        //  _Sequence.Append( _Root.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+        
+        _Sequence.Join( _Book.transform.GetChild(0).DORotate(45*Vector3.up, closetime*1f/6f).SetEase(CLOSE_EASE) );
+        _Sequence.Join( _Book.transform.GetChild(1).DORotate(-135*Vector3.up, closetime*1f/6f).SetEase(CLOSE_EASE) );
+        _Sequence.Append( transform.DOMove(transform.position, 0f) );
+        _Sequence.Join( _Book.transform.GetChild(0).DORotate(-45*Vector3.up, closetime*5f/6f).SetEase(CLOSE_EASE) );
+        _Sequence.Join( _Book.transform.GetChild(1).DORotate(-45*Vector3.up, closetime*5f/6f).SetEase(CLOSE_EASE) );
+        //  PullCloseStage(closetime);
+        //  _Sequence.Append( _Root.transform.DOBlendableRotateBy(-angle*Vector3.up, opentime).SetEase(OPEN_EASE).SetDelay(waittime));
+        _Sequence.Append( transform.DOMove(transform.position, opentime).SetEase(OPEN_EASE).SetDelay(waittime));
+        //はじめは本を開く処理もする
+        
+        _Sequence.Join( _Book.transform.GetChild(0).DORotate(45*Vector3.up, opentime*5f/6f).SetEase(OPEN_EASE) );
+        _Sequence.Join( _Book.transform.GetChild(1).DORotate(-135*Vector3.up, opentime*5f/6f).SetEase(OPEN_EASE) );
+        _Sequence.Append( transform.DOMove(transform.position, 0f) );
+        _Sequence.Join( _Book.transform.GetChild(0).DORotate(0*Vector3.up, opentime*1f/6f).SetEase(OPEN_EASE) );
+        _Sequence.Join( _Book.transform.GetChild(1).DORotate(-90*Vector3.up, opentime*1f/6f).SetEase(OPEN_EASE) );
+            
+        //  PullOpenStage(opentime);
         _Sequence.Play();
     }
     /// <summary>
@@ -532,7 +550,7 @@ public class StageCreater : Singlton<StageCreater>
     /// <summary>
     /// 凹凸を引きながらステージを開く
     /// </summary>
-    public void PullOpenStage(float time, ReOpenType type)
+    public void PullOpenStage(float time)
     {
         IsPlayingAnimation = true;        
         foreach (Transform tmpAnchor in _Root.transform)
@@ -561,13 +579,6 @@ public class StageCreater : Singlton<StageCreater>
             {
                 tmp.GetChild(0).SetParent(_Root.transform);
                 Destroy(tmp.gameObject);
-            }
-             switch(type)
-            {    
-            case ReOpenType.FIRST_OPEN:
-            case ReOpenType.TO_NEXT:
-                InGameManager.I.DisplayDictionary();
-                break;
             }
             IsPlayingAnimation = false;
         });
@@ -599,7 +610,7 @@ public class StageCreater : Singlton<StageCreater>
             if(!dirX)
             { 
                 targetSequence.Join( anchor.transform.DOBlendableRotateBy(90*Vector3.up, time/2).SetEase(CLOSE_EASE)
-                .OnUpdate(() =>{
+                .OnUpdate(() => {
                     Vector3 angle = anchor.transform.GetChild(0).eulerAngles;
                     angle.y = _AnimationRoot.transform.eulerAngles.y+90f;
                     anchor.transform.GetChild(0).eulerAngles = angle;

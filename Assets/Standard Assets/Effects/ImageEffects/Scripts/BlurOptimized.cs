@@ -8,7 +8,7 @@ namespace UnityStandardAssets.ImageEffects
     [AddComponentMenu ("Image Effects/Blur/Blur (Optimized)")]
     public class BlurOptimized : PostEffectsBase
     {
-        public bool enabled;
+        public bool customEnabled;
         
         [Range(0, 2)]
         public int downsample = 1;
@@ -46,7 +46,7 @@ namespace UnityStandardAssets.ImageEffects
         }
 
         public void OnRenderImage (RenderTexture source, RenderTexture destination) {
-            if(enabled == false)
+            if(customEnabled == false)
                 return;
             if (CheckResources() == false) {
                 Graphics.Blit (source, destination);

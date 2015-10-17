@@ -52,7 +52,6 @@ public class StageManager : Singlton<StageManager>
         _CurrentBookID = bookID;
         _CurrentStageIndex = index;
         //ダミーカードをInstantiateすると、ダミーカードのAwakeでステージ情報を更新し、ステージ生成まで行う
-        Debug.Log(CalcStageListIndex(chapter, bookID, index));
         Instantiate(_Stages[ CalcStageListIndex(chapter, bookID, index) ]);
     }
     
