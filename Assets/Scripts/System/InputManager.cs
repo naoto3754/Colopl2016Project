@@ -35,6 +35,7 @@ public class InputManager : Singlton<InputManager>
 	
 	//tmp
 	SwipeInitalInfo swipeInfo = new SwipeInitalInfo();
+	Vector2 initialTouchPos;
 	
 	/// <summary>
 	/// 対応するインデックスにおけるタップ開始を取得
@@ -46,7 +47,7 @@ public class InputManager : Singlton<InputManager>
 #elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
-				Debug.Log("[InputManager.GetTapDown] Invalid Touch Index : "+index);
+				Debug.LogError("[InputManager.GetTapDown] Invalid Touch Index : "+index);
 			return false;
 		}
 		return Input.GetTouch(index).phase == TouchPhase.Began;
@@ -64,7 +65,7 @@ public class InputManager : Singlton<InputManager>
 #elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
-				Debug.Log("[InputManager.GetTap] Invalid Touch Index : "+index);
+				Debug.LogError("[InputManager.GetTap] Invalid Touch Index : "+index);
 			return false;
 		}
 		return Input.GetTouch(index).phase == TouchPhase.Moved || Input.GetTouch(index).phase == TouchPhase.Stationary;
@@ -82,7 +83,7 @@ public class InputManager : Singlton<InputManager>
 #elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
-				Debug.Log("[InputManager.GetTapUp] Invalid Touch Index : "+index);
+				Debug.LogError("[InputManager.GetTapUp] Invalid Touch Index : "+index);
 			return false;
 		}
 		return Input.GetTouch(index).phase == TouchPhase.Ended;
@@ -100,7 +101,7 @@ public class InputManager : Singlton<InputManager>
 #elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
-				Debug.Log("[InputManager.GetTapPos] Invalid Touch Index : "+index);
+				Debug.LogError("[InputManager.GetTapPos] Invalid Touch Index : "+index);
 			return Vector2.zero;
 		}
 		return new Vector2(Input.GetTouch(index).position.x/Screen.width, Input.GetTouch(index).position.y/Screen.height);;
@@ -186,7 +187,7 @@ public class InputManager : Singlton<InputManager>
 #elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
-				Debug.Log("[InputManager.GetTappedGameObject] Invalid Touch Index : "+index);
+				Debug.LogError("[InputManager.GetTappedGameObject] Invalid Touch Index : "+index);
 			return null;
 		}
 		ray = Camera.main.ScreenPointToRay(Input.GetTouch(index).position);
@@ -211,7 +212,7 @@ public class InputManager : Singlton<InputManager>
 #elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
-				Debug.Log("[InputManager.GetTappedGameObject] Invalid Touch Index : "+index);
+				Debug.LogError("[InputManager.GetTappedGameObject] Invalid Touch Index : "+index);
 			return null;
 		}
 		ray = Camera.main.ScreenPointToRay(Input.GetTouch(index).position);
@@ -235,7 +236,7 @@ public class InputManager : Singlton<InputManager>
 #elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
-				Debug.Log("[InputManager.GetSwipeDirction] Invalid Touch Index : "+index);
+				Debug.LogError("[InputManager.GetSwipeDirction] Invalid Touch Index : "+index);
 			return Vector2.zero;
 		}
 		touchPos = Input.GetTouch(index).position;
@@ -273,12 +274,41 @@ public class InputManager : Singlton<InputManager>
 #elif UNITY_IOS || UNITY_ANDROID
 		if(Input.touchCount <= index){
 			if(index != 0)
-				Debug.Log("[InputManager.GetSwipeDirction] Invalid Touch Index : "+index);
+				Debug.LogError("[InputManager.GetSwipeDirction] Invalid Touch Index : "+index);
 			return Vector2.zero;
 		}
-		return Input.GetTouch(index).deltaPosition;
+		return Input.GetTouch(index).deltaPosition/10;
 #else
 		return Input.mouseScrollDelta;
 #endif
+	}
+	
+	/// <summary>
+	/// 
+	/// </summary>
+	public Vector2 GetDistanceFromInitPos(int index = 0)
+	{
+		Vector2 touchPos;
+#if UNITY_EDITOR
+		touchPos = Input.mousePosition;
+#elif UNITY_IOS || UNITY_ANDROID
+		if(Input.touchCount <= index){
+			if(index != 0)
+				Debug.LogError("[InputManager.GetSwipeDirction] Invalid Touch Index : "+index);
+			return Vector2.zero;
+		}
+		touchPos = Input.GetTouch(index).position;
+#else
+		touchPos = Input.mousePosition;
+#endif
+		if(GetTapDown(index)){
+			initialTouchPos = touchPos;
+		}else if(GetTap(index)){
+			Vector2 res = touchPos - initialTouchPos;
+			res = new Vector2(res.x/Screen.width, res.y/Screen.height);
+			return res;
+		}
+				
+		return Vector2.zero;
 	}
 }

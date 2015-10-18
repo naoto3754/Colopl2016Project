@@ -57,7 +57,7 @@ public class CharacterController : Singlton<CharacterController>
     {
         get; set;
     }
-    void FixedUpdate()
+    void Update()
     {
         //アニメーション中はキャラクターを動かさない
         if (StageCreater.I.IsPlayingAnimation == false)
@@ -65,19 +65,18 @@ public class CharacterController : Singlton<CharacterController>
             //入力を取得
             float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal");
             float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical");
-            Vector2 touchPos = InputManager.I.GetTapPos();            
-            if(InputManager.I.GetAnyTap())
+            Vector2 touchPos = InputManager.I.GetTapPos(); 
+                       
+            if(InputManager.I.GetTapDown(0) || InputManager.I.GetTap(0))
             {
-                if(touchPos.x < 0.3f)
-                    deltaHol = Time.deltaTime * _Speed * -1f;
-                else if(touchPos.x > 0.7f)
-                    deltaHol = Time.deltaTime * _Speed * 1f;
-                if(touchPos.y < 0.3f)
-                    deltaVer = Time.deltaTime * _Speed * -1f;
-                else if(touchPos.y > 0.7f)
-                    deltaVer = Time.deltaTime * _Speed * 1f;
-                    
+                Vector2 inputDir = InputManager.I.GetDistanceFromInitPos(0);
+                inputDir.x = Mathf.Clamp(inputDir.x*2, -1, 1);
+                inputDir.y = Mathf.Clamp(inputDir.y*3, -1, 1);
+                
+                deltaHol = Time.deltaTime * _Speed * inputDir.x;
+                deltaVer = Time.deltaTime * _Speed * inputDir.y;
             } 
+            
             float deltaDrop = Time.deltaTime * _DropSpeed;
 
             if (!CanUseLadder)

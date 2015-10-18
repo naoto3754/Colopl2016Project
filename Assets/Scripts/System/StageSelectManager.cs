@@ -10,7 +10,7 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 	private readonly float ZOOM_TIME = 0.5f;
 	private readonly float LEAN_TIME = 0.2f;
 	private readonly float HIGHEST_HEIGHT = -50f;
-	private readonly float LOWEST_HEIGHT = 0f;
+	private readonly float LOWEST_HEIGHT = -0.5f;
 	private readonly Vector3 BOOK_POS = new Vector3(42.3f, -0.8f, -57.7f);
     private readonly Vector3 BOOK_SCALE = new Vector3(22f, 36f, 22f);
 
@@ -133,7 +133,6 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 	
 	void ZoomOut()
 	{
-		_IsZooming = false;
 		_Sequence = DOTween.Sequence();
 		
 		_Sequence.Append( Camera.main.DOOrthographicSize( _DefaultCameraScale, ZOOM_TIME) );
@@ -144,6 +143,7 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 			_Sequence.Join( _Shelf.transform.DOMoveY(HIGHEST_HEIGHT, ZOOM_TIME) );
 		if(_Shelf.transform.position.y > LOWEST_HEIGHT)
 			_Sequence.Join( _Shelf.transform.DOMoveY(LOWEST_HEIGHT, ZOOM_TIME) );
+		_Sequence.OnComplete(() => { _IsZooming = false; });
 		_Sequence.Play();
 	}
 	
