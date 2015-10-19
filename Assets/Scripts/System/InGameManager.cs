@@ -33,6 +33,18 @@ public class InGameManager : Singlton<InGameManager>
 		StageCreater.I.Reverse();
 	}
 	
+	//仮でキーボードの入力とる
+	void Update()
+	{
+		if(Input.GetKeyDown(KeyCode.Space)){
+			OnReverse();
+		}else if(Input.GetKeyDown(KeyCode.H)){
+			OnReturnHome();
+		}else if(Input.GetKeyDown(KeyCode.R)){
+			OnRestart();
+		}
+	}
+	
 	/// <summay>
 	/// 辞書表示
 	/// </summay>
