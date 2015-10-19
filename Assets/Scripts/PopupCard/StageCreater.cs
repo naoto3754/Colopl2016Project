@@ -64,8 +64,8 @@ public class StageCreater : Singlton<StageCreater>
         if(IsPlayingAnimation == false)
         {
             _Sequence = DOTween.Sequence();
-            //  ReOpenStageForReverse(0.5f, 0.5f, 1f);
-            ReOpenStage(45f, 0.5f, 0.5f, 0f, ReOpenType.REVERSE_GIMMICK);
+            ReOpenStageForReverse(0.5f, 0.5f, 1f);
+            //  ReOpenStage(45f, 0.5f, 0.5f, 0f, ReOpenType.REVERSE_GIMMICK);
             Vector3 pos = CharacterController.I.DummyCharacter.transform.position;
             pos.x *= -1;
             CharacterController.I.DummyCharacter.transform.position = pos; 
@@ -97,7 +97,6 @@ public class StageCreater : Singlton<StageCreater>
         _Root.transform.position = new Vector3(_XOffset, 0f, _ZOffset);
         
         InstantiatePaper();
-        InstantiateBackground();
         InstantiateDecoration();
         if(existCharacter)
         {
@@ -181,34 +180,7 @@ public class StageCreater : Singlton<StageCreater>
             child.gameObject.layer = 0;
         CharacterController.I.DestCharacterZ = character;
     }
-    /// <summary>
-    /// 背景を生成する
-    /// </summary>
-    private void InstantiateBackground()
-    {
-        //背景の生成
-        //x方向
-        GameObject background = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
-        background.GetComponent<Renderer>().material.mainTexture = StageManager.I.CurrentInfo.LiningTexture;
-        background.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(0f,0f);
-        background.GetComponent<Renderer>().material.mainTextureScale = new Vector2(0.5f, 1f);
-        background.transform.SetParent(_Root.transform);
-        background.transform.localScale = new Vector3(StageWidth/2, StageHeight, 0.01f);
-        background.transform.position = new Vector3(-StageWidth/4 + _XOffset, StageHeight/2, _ZOffset + 0.01f);
-        background.transform.eulerAngles += 180*Vector3.forward;
-        background.tag = X_TAG_NAME;
-        //z方向
-        background = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
-        background.GetComponent<Renderer>().material.mainTexture = StageManager.I.CurrentInfo.LiningTexture;
-        background.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(0.5f,0f);
-        background.GetComponent<Renderer>().material.mainTextureScale = new Vector2(0.5f, 1f);
-        background.transform.SetParent(_Root.transform);
-        background.transform.localScale = new Vector3(StageWidth/2, StageHeight, 0.01f);
-        background.transform.position = new Vector3(_XOffset + 0.01f, StageHeight/2, -StageWidth/4 + _ZOffset);
-        background.transform.forward = Vector3.right;
-        background.transform.eulerAngles += 180*Vector3.forward;
-        background.tag = Z_TAG_NAME;
-    }
+
     /// <summary>
     /// ステージのカード部分をを生成する
     /// </summary>
@@ -231,8 +203,12 @@ public class StageCreater : Singlton<StageCreater>
             IEnumerable<XCoord> xCoordList = StageManager.I.GetXCoordList((prevY + y) / 2, true);
             foreach (XCoord xCoord in xCoordList)
             {
+                
                 //折れ線の場合
                 if(duringHole == false){
+                    if(xOffset != 0 && ( (setX && zOffset != _ZOffset) || (!setX && zOffset - (xCoord.x-prevX) != _ZOffset) ))
+                        InstantiateBackground(xCoord.x, prevX, y, prevY, xOffset, yOffset, zOffset, thickness);
+                    
                     GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
                     paper.transform.SetParent(_Root.transform);
                     paper.GetComponent<Renderer>().material.mainTexture = StageManager.I.CurrentInfo.BackgroundTexture;
@@ -248,14 +224,11 @@ public class StageCreater : Singlton<StageCreater>
                     {
                         paper.transform.position = new Vector3(xOffset + _XOffset + thickness / 2, (y - prevY) / 2 + yOffset, -(xCoord.x - prevX) / 2 + zOffset);
                         paper.transform.forward = Vector3.right;
-                        paper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
                         zOffset -= xCoord.x - prevX;
                         paper.tag = Z_TAG_NAME;
                     }
                     paper.transform.eulerAngles += 180*Vector3.forward;
                     paper.transform.localScale = new Vector3(xCoord.x - prevX-0.001f, y - prevY, thickness);
-                    if (xCoord.x == xCoordList.First().x)
-                        paper.GetComponent<Renderer>().shadowCastingMode = ShadowCastingMode.Off;
                     
                     if(xCoord.fold)
                         setX = !setX;
@@ -266,6 +239,8 @@ public class StageCreater : Singlton<StageCreater>
                 //穴の場合
                 else 
                 {
+                    InstantiateBackground(xCoord.x, prevX, y, prevY, xOffset, yOffset, zOffset, thickness);
+                    
                     if (setX)
                         xOffset += xCoord.x - prevX;
                     else
@@ -281,6 +256,30 @@ public class StageCreater : Singlton<StageCreater>
             prevY = y;
         }
     }
+    
+    private void InstantiateBackground(float x, float prevX, float y, float prevY, float xOffset, float yOffset, float zOffset, float thickness)
+    {
+        GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
+        paper.transform.SetParent(_Root.transform);
+        paper.GetComponent<Renderer>().material.mainTexture = StageManager.I.CurrentInfo.LiningTexture;
+        paper.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight);
+        paper.GetComponent<Renderer>().material.mainTextureScale = new Vector2((x-prevX)/StageWidth, (y-prevY)/StageHeight);
+        
+        if(xOffset - (zOffset-_ZOffset) + (x - prevX)/2 < 0)
+        {
+            paper.transform.position = new Vector3(xOffset - (zOffset-_ZOffset) + (x - prevX)/2 + _XOffset, (y - prevY) / 2 + yOffset, _ZOffset + thickness / 2);
+            paper.tag = X_TAG_NAME;
+        }   
+        else
+        {
+            paper.transform.position = new Vector3(_XOffset + thickness / 2, (y - prevY) / 2 + yOffset, -( xOffset - (zOffset-_ZOffset) + (x - prevX)/2 ) + _ZOffset);
+            paper.transform.forward = Vector3.right;
+            paper.tag = Z_TAG_NAME;
+        }
+        paper.transform.eulerAngles += 180*Vector3.forward;
+        paper.transform.localScale = new Vector3(x - prevX-0.001f, y - prevY, thickness);
+    }
+    
     /// <summary>
     /// 見た目に必要なオブジェクトを生成する
     /// </summary>
@@ -445,23 +444,23 @@ public class StageCreater : Singlton<StageCreater>
     {
         //  _Sequence.Append( _Root.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
         
-        _Sequence.Join( _Book.transform.GetChild(0).DORotate(45*Vector3.up, closetime*1f/6f).SetEase(CLOSE_EASE) );
-        _Sequence.Join( _Book.transform.GetChild(1).DORotate(-135*Vector3.up, closetime*1f/6f).SetEase(CLOSE_EASE) );
-        _Sequence.Append( transform.DOMove(transform.position, 0f) );
-        _Sequence.Join( _Book.transform.GetChild(0).DORotate(-45*Vector3.up, closetime*5f/6f).SetEase(CLOSE_EASE) );
-        _Sequence.Join( _Book.transform.GetChild(1).DORotate(-45*Vector3.up, closetime*5f/6f).SetEase(CLOSE_EASE) );
-        //  PullCloseStage(closetime);
+        //  _Sequence.Join( _Book.transform.GetChild(0).DORotate(45*Vector3.up, closetime*1f/6f).SetEase(CLOSE_EASE) );
+        //  _Sequence.Join( _Book.transform.GetChild(1).DORotate(-135*Vector3.up, closetime*1f/6f).SetEase(CLOSE_EASE) );
+        //  _Sequence.Append( transform.DOMove(transform.position, 0f) );
+        _Sequence.Join( _Book.transform.GetChild(0).DORotate(-45*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+        _Sequence.Join( _Book.transform.GetChild(1).DORotate(-45*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+        PullCloseStage(closetime);
         //  _Sequence.Append( _Root.transform.DOBlendableRotateBy(-angle*Vector3.up, opentime).SetEase(OPEN_EASE).SetDelay(waittime));
         _Sequence.Append( transform.DOMove(transform.position, opentime).SetEase(OPEN_EASE).SetDelay(waittime));
         //はじめは本を開く処理もする
         
-        _Sequence.Join( _Book.transform.GetChild(0).DORotate(45*Vector3.up, opentime*5f/6f).SetEase(OPEN_EASE) );
-        _Sequence.Join( _Book.transform.GetChild(1).DORotate(-135*Vector3.up, opentime*5f/6f).SetEase(OPEN_EASE) );
-        _Sequence.Append( transform.DOMove(transform.position, 0f) );
-        _Sequence.Join( _Book.transform.GetChild(0).DORotate(0*Vector3.up, opentime*1f/6f).SetEase(OPEN_EASE) );
-        _Sequence.Join( _Book.transform.GetChild(1).DORotate(-90*Vector3.up, opentime*1f/6f).SetEase(OPEN_EASE) );
+        //  _Sequence.Join( _Book.transform.GetChild(0).DORotate(45*Vector3.up, opentime*5f/6f).SetEase(OPEN_EASE) );
+        //  _Sequence.Join( _Book.transform.GetChild(1).DORotate(-135*Vector3.up, opentime*5f/6f).SetEase(OPEN_EASE) );
+        //  _Sequence.Append( transform.DOMove(transform.position, 0f) );
+        _Sequence.Join( _Book.transform.GetChild(0).DORotate(0*Vector3.up, opentime).SetEase(OPEN_EASE) );
+        _Sequence.Join( _Book.transform.GetChild(1).DORotate(-90*Vector3.up, opentime).SetEase(OPEN_EASE) );
             
-        //  PullOpenStage(opentime);
+        PullOpenStage(opentime);
         _Sequence.Play();
     }
     /// <summary>
@@ -552,34 +551,18 @@ public class StageCreater : Singlton<StageCreater>
     /// </summary>
     public void PullOpenStage(float time)
     {
-        IsPlayingAnimation = true;        
-        foreach (Transform tmpAnchor in _Root.transform)
-        {
-            bool dirX = tmpAnchor.GetChild(0).tag != "ZSideComponent";
-            if(dirX)
-            {
-                _Sequence.Join( tmpAnchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(OPEN_EASE) );
-            }
-            else
-            {
-                Transform child = tmpAnchor.transform.GetChild(0); 
-                _Sequence.Join( tmpAnchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(OPEN_EASE)
-                .OnUpdate(() =>{
-                    Vector3 angle = child.eulerAngles;
-                    angle.y = _Root.transform.eulerAngles.y+90f;
-                    child.eulerAngles = angle;
-                }) );
-            }
-        }
+        foreach (Transform stageObj in _Root.transform)
+        {        
+            int childCnt = stageObj.childCount; 
+            Vector3 pos = stageObj.GetChild(childCnt-1).position;
+            Vector3 angle = stageObj.GetChild(childCnt-1).eulerAngles;
+            _Sequence.Join( stageObj.transform.DOMove(pos , time).SetEase(OPEN_EASE) );
+            _Sequence.Join( stageObj.transform.DORotate(angle , time).SetEase(OPEN_EASE) );
+            
+            Destroy(stageObj.GetChild(childCnt-1).gameObject);
+        }   
+        
         _Sequence.OnComplete(() => {
-            List<Transform> rootChildren = new List<Transform>(_Root.transform.childCount);
-            foreach (Transform child in _Root.transform)
-                rootChildren.Add(child);
-            foreach (Transform tmp in rootChildren)
-            {
-                tmp.GetChild(0).SetParent(_Root.transform);
-                Destroy(tmp.gameObject);
-            }
             IsPlayingAnimation = false;
         });
     }
@@ -591,55 +574,26 @@ public class StageCreater : Singlton<StageCreater>
     {
         IsPlayingAnimation = true;
         
-        Sequence targetSequence = previous ? _PrevSequence : _Sequence;
-        GameObject _AnimationRoot = previous ? _PreviousRoot : _Root;
-        List<Transform> rootChildren = new List<Transform>(_AnimationRoot.transform.childCount);
-        foreach (Transform child in _AnimationRoot.transform)
-            rootChildren.Add(child);
-        foreach (Transform stageObj in rootChildren)
-        {
-            Vector3 anchorPos;
-            bool dirX = stageObj.tag != "ZSideComponent";
+        foreach (Transform stageObj in _Root.transform)
+        {            
+            Vector3 pos = stageObj.transform.position;
+            Vector3 angle = stageObj.transform.eulerAngles;
+            float sign = Mathf.Sign( pos.x-(_XOffset-StageWidth/2) - (pos.z-_ZOffset) - StageWidth/2 );
+            float dist = -1 * Mathf.Abs( pos.x-(_XOffset-StageWidth/2) - (pos.z-_ZOffset) - StageWidth/2 );
+            _Sequence.Join( stageObj.transform.DOMove(new Vector3(dist/Mathf.Sqrt(2) +_XOffset, pos.y, dist/Mathf.Sqrt(2) +_ZOffset) , time).SetEase(CLOSE_EASE) );
+            if(sign < 0)
+            {
+                    _Sequence.Join( stageObj.transform.DORotate(new Vector3(angle.x, -45f, angle.z) , time).SetEase(CLOSE_EASE) );
+            }
+            else
+            {
+                    _Sequence.Join( stageObj.transform.DORotate(new Vector3(angle.x, 135f, angle.z) , time).SetEase(CLOSE_EASE) );
+            }
             
-            anchorPos = new Vector3(_XOffset, 0f, stageObj.position.z);
-                    
-            GameObject anchor = new GameObject("TmpAnchor");
-            anchor.transform.SetParent(_AnimationRoot.transform);
-            anchor.transform.position = anchorPos;
-            stageObj.SetParent(anchor.transform);
-            if(!dirX)
-            { 
-                targetSequence.Join( anchor.transform.DOBlendableRotateBy(90*Vector3.up, time/2).SetEase(CLOSE_EASE)
-                .OnUpdate(() => {
-                    Vector3 angle = anchor.transform.GetChild(0).eulerAngles;
-                    angle.y = _AnimationRoot.transform.eulerAngles.y+90f;
-                    anchor.transform.GetChild(0).eulerAngles = angle;
-                }) );
-            }
-            else
-            {
-                targetSequence.Join( anchor.transform.DOBlendableRotateBy(90*Vector3.up, time/2).SetEase(CLOSE_EASE) );
-            }
-        }
-        targetSequence.Append( transform.DOMove(transform.position, 0f) );
-        foreach (Transform tmpAnchor in _AnimationRoot.transform)
-        {
-            bool dirX = tmpAnchor.GetChild(0).tag != "ZSideComponent";
-                    
-            if(!dirX)
-            { 
-                Transform child = tmpAnchor.transform.GetChild(0); 
-                targetSequence.Join( tmpAnchor.transform.DOBlendableRotateBy(-180*Vector3.up, time).SetEase(CLOSE_EASE)
-                .OnUpdate(() =>{
-                    Vector3 angle = child.eulerAngles;
-                    angle.y = _AnimationRoot.transform.eulerAngles.y+90f;
-                    child.eulerAngles = angle;
-                }) );
-            }
-            else
-            {
-                targetSequence.Join( tmpAnchor.transform.DOBlendableRotateBy(-180*Vector3.up, time).SetEase(CLOSE_EASE) );
-            }
+            GameObject tmpChild = new GameObject();
+            tmpChild.transform.position = pos;
+            tmpChild.transform.eulerAngles = angle;
+            tmpChild.transform.SetParent(stageObj);            
         }
     }
     
