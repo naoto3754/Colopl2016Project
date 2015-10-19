@@ -70,8 +70,11 @@ public class CharacterController : Singlton<CharacterController>
             if(InputManager.I.GetTapDown(0) || InputManager.I.GetTap(0))
             {
                 Vector2 inputDir = InputManager.I.GetDistanceFromInitPos(0);
-                inputDir.x = Mathf.Clamp(inputDir.x*2, -1, 1);
-                inputDir.y = Mathf.Clamp(inputDir.y*3, -1, 1);
+                inputDir.x = Mathf.Clamp(inputDir.x*20, -1, 1);
+                inputDir.x = Mathf.Abs(inputDir.x) < 0.5f ? 0f : inputDir.x;  
+                inputDir.y = Mathf.Clamp(inputDir.y*30, -1, 1);
+                inputDir.y = Mathf.Abs(inputDir.y) < 0.5f ? 0f : inputDir.y;
+                
                 
                 deltaHol = Time.deltaTime * _Speed * inputDir.x;
                 deltaVer = Time.deltaTime * _Speed * inputDir.y;

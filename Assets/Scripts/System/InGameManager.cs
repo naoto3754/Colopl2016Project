@@ -12,32 +12,25 @@ public class InGameManager : Singlton<InGameManager>
 	
 	bool _NowDisplaying = false;
 	
-	void FixedUpdate ()
-	{
-		if(Input.GetKeyDown(KeyCode.R))
-		{
-			Restart();
-		}
-		else if(Input.GetKeyDown(KeyCode.H))
-		{
-			StageCreater.I.Clear();
-			ReturnHome();
-		}
-	}
-	
 	/// <summay>
 	/// リスタートする
 	/// </summay>
-	private void Restart()
+	public void OnRestart()
 	{
 		StageCreater.I.RestartStage();
 	}
 	/// <summay>
 	/// ホームに戻る
 	/// </summay>
-	private void ReturnHome()
+	public void OnReturnHome()
 	{
+		StageCreater.I.Clear();
 		StateManager.I.GoState(State.STAGE_SELECT);
+	}
+	
+	public void OnReverse()
+	{
+		StageCreater.I.Reverse();
 	}
 	
 	/// <summay>
@@ -52,7 +45,7 @@ public class InGameManager : Singlton<InGameManager>
 		
 		_NowDisplaying = true;
 		BlurOptimized blur = Camera.main.GetComponent<BlurOptimized>();
-		blur.customEnabled = true;
+		blur.enabled = true;
 		Sequence seq = DOTween.Sequence();
 		//フェードアウト
 		seq.Append( blur.DOBlurSize(3f, FADEOUT_DURATION).SetEase(Ease.OutSine).OnStart(() => {
@@ -66,12 +59,18 @@ public class InGameManager : Singlton<InGameManager>
 		}));
 		foreach(Text text in GetComponentsInChildren<Text>())
 		{
+			if(text.transform.parent.GetComponent<Button>() != null)
+				continue;
+			
 			Color c = text.color;
 			c.a = 0f;
 			seq.Join( text.DOColor(c, FADEIN_DURATION) );
 		}
 		foreach(Image image in GetComponentsInChildren<Image>())
 		{
+			if(image.GetComponent<Button>() != null)
+				continue;
+				
 			Color c = image.color;
 			c.a = 0f;
 			seq.Join( image.DOColor(c, FADEIN_DURATION) );
@@ -79,7 +78,7 @@ public class InGameManager : Singlton<InGameManager>
 		//終了処理
 		seq.OnComplete(() => 
 		{
-			blur.customEnabled = false;
+			blur.enabled = false;
 			StageCreater.I.IsPlayingAnimation = false;
 			_NowDisplaying = false;
 		});
@@ -94,6 +93,9 @@ public class InGameManager : Singlton<InGameManager>
 		Sequence seq = DOTween.Sequence();
 		foreach(Image image in GetComponentsInChildren<Image>())
 		{
+			if(image.GetComponent<Button>() != null)
+				continue;
+				
 			Color c = image.color;
 			c.a = 1f;
 			image.color = c;
@@ -105,6 +107,9 @@ public class InGameManager : Singlton<InGameManager>
 		seq.Append( transform.DOMove(transform.position, DISPLAY_DURATION/3) );
 		foreach(Text text in GetComponentsInChildren<Text>())
 		{
+			if(text.transform.parent.GetComponent<Button>() != null)
+				continue;
+				
 			Color c = text.color;
 			c.a = 1f;
 			seq.Join( text.DOColor(c, DISPLAY_DURATION/3) );

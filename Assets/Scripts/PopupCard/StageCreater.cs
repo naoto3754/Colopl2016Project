@@ -60,8 +60,8 @@ public class StageCreater : Singlton<StageCreater>
         set;
     }
 
-    void Update(){
-        if(Input.GetKey(KeyCode.Space) && IsPlayingAnimation == false)
+    public void Reverse(){
+        if(IsPlayingAnimation == false)
         {
             _Sequence = DOTween.Sequence();
             //  ReOpenStageForReverse(0.5f, 0.5f, 1f);
