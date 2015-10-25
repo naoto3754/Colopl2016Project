@@ -99,7 +99,7 @@ public class ShelfCreater : MonoBehaviour {
                     paper.transform.eulerAngles += 180*Vector3.forward;
                     paper.transform.localScale = new Vector3(xCoord.x - prevX-0.001f, y - prevY, thickness);
                     
-                    if(xCoord.fold)
+                    if(xCoord.type == XCoord.Type.FOLD)
                         setX = !setX;
                     else
                         duringHole = true;
@@ -112,7 +112,7 @@ public class ShelfCreater : MonoBehaviour {
                         xOffset += xCoord.x - prevX;
                     else
                         zOffset -= xCoord.x - prevX;
-                    if(xCoord.fold)
+                    if(xCoord.type == XCoord.Type.FOLD)
                         setX = !setX;
                     else
                         duringHole = false;
@@ -195,13 +195,13 @@ public class ShelfCreater : MonoBehaviour {
     IEnumerable<XCoord> GetXCoordList(float y)
     {
         List<XCoord> retList = new List<XCoord>();
-        retList.Add(new XCoord(_Width/2, true));
+        retList.Add(new XCoord(_Width/2, XCoord.Type.FOLD));
         foreach (Line line in _FoldLines)
         {
             if (((line.points[0].y - y) <= 0f && 0f < (line.points[1].y - y)) ||
                 ((line.points[0].y - y) >= 0f && 0f > (line.points[1].y - y)))
             {
-                retList.Add(new XCoord(line.points[0].x, true));
+                retList.Add(new XCoord(line.points[0].x, XCoord.Type.FOLD));
             }
         }
         foreach (Line line in _HoleLines)
@@ -209,7 +209,7 @@ public class ShelfCreater : MonoBehaviour {
             if (((line.points[0].y - y) <= 0f && 0f < (line.points[1].y - y)) ||
                 ((line.points[0].y - y) >= 0f && 0f > (line.points[1].y - y)))
             {
-                retList.Add(new XCoord(line.points[0].x, false));
+                retList.Add(new XCoord(line.points[0].x, XCoord.Type.HOLE));
             }
         }
 

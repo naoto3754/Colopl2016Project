@@ -1,7 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.Rendering;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
@@ -12,7 +9,6 @@ public class StageCreater : Singlton<StageCreater>
     {
         FIRST_OPEN,
         TO_NEXT,
-        REVERSE_GIMMICK,
         RESTART_STAGE,
     }
     
@@ -64,8 +60,7 @@ public class StageCreater : Singlton<StageCreater>
         if(IsPlayingAnimation == false)
         {
             _Sequence = DOTween.Sequence();
-            ReOpenStageForReverse(0.5f, 0.5f, 1f);
-            //  ReOpenStage(45f, 0.5f, 0.5f, 0f, ReOpenType.REVERSE_GIMMICK);
+            ReOpenStageForReverse(1f, 1f, 0f);
             Vector3 pos = CharacterController.I.DummyCharacter.transform.position;
             pos.x *= -1;
             CharacterController.I.DummyCharacter.transform.position = pos; 
@@ -230,10 +225,19 @@ public class StageCreater : Singlton<StageCreater>
                     paper.transform.eulerAngles += 180*Vector3.forward;
                     paper.transform.localScale = new Vector3(xCoord.x - prevX-0.001f, y - prevY, thickness);
                     
-                    if(xCoord.fold)
+                    switch(xCoord.type)
+                    {
+                    case XCoord.Type.FOLD:
                         setX = !setX;
-                    else
+                        break;
+                    case XCoord.Type.HOLE:
                         duringHole = true;
+                        break;
+                    case XCoord.Type.NONE:
+                        //Do Nothing 
+                        break;
+                    }
+                    
                     prevX = xCoord.x;
                 }
                 //穴の場合
@@ -245,10 +249,18 @@ public class StageCreater : Singlton<StageCreater>
                         xOffset += xCoord.x - prevX;
                     else
                         zOffset -= xCoord.x - prevX;
-                    if(xCoord.fold)
+                    switch(xCoord.type)
+                    {
+                    case XCoord.Type.FOLD:
                         setX = !setX;
-                    else
+                        break;
+                    case XCoord.Type.HOLE:
                         duringHole = false;
+                        break;
+                    case XCoord.Type.NONE:
+                        //Do Nothing 
+                        break;
+                    }
                     prevX = xCoord.x;
                 }
             }
@@ -259,25 +271,25 @@ public class StageCreater : Singlton<StageCreater>
     
     private void InstantiateBackground(float x, float prevX, float y, float prevY, float xOffset, float yOffset, float zOffset, float thickness)
     {
-        GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
-        paper.transform.SetParent(_Root.transform);
-        paper.GetComponent<Renderer>().material.mainTexture = StageManager.I.CurrentInfo.LiningTexture;
-        paper.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight);
-        paper.GetComponent<Renderer>().material.mainTextureScale = new Vector2((x-prevX)/StageWidth, (y-prevY)/StageHeight);
+        //  GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
+        //  paper.transform.SetParent(_Root.transform);
+        //  paper.GetComponent<Renderer>().material.mainTexture = StageManager.I.CurrentInfo.LiningTexture;
+        //  paper.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight);
+        //  paper.GetComponent<Renderer>().material.mainTextureScale = new Vector2((x-prevX)/StageWidth, (y-prevY)/StageHeight);
         
-        if(xOffset - (zOffset-_ZOffset) + (x - prevX)/2 < 0)
-        {
-            paper.transform.position = new Vector3(xOffset - (zOffset-_ZOffset) + (x - prevX)/2 + _XOffset, (y - prevY) / 2 + yOffset, _ZOffset + thickness / 2);
-            paper.tag = X_TAG_NAME;
-        }   
-        else
-        {
-            paper.transform.position = new Vector3(_XOffset + thickness / 2, (y - prevY) / 2 + yOffset, -( xOffset - (zOffset-_ZOffset) + (x - prevX)/2 ) + _ZOffset);
-            paper.transform.forward = Vector3.right;
-            paper.tag = Z_TAG_NAME;
-        }
-        paper.transform.eulerAngles += 180*Vector3.forward;
-        paper.transform.localScale = new Vector3(x - prevX-0.001f, y - prevY, thickness);
+        //  if(xOffset - (zOffset-_ZOffset) + (x - prevX)/2 < 0)
+        //  {
+        //      paper.transform.position = new Vector3(xOffset - (zOffset-_ZOffset) + (x - prevX)/2 + _XOffset, (y - prevY) / 2 + yOffset, _ZOffset + thickness / 2);
+        //      paper.tag = X_TAG_NAME;
+        //  }   
+        //  else
+        //  {
+        //      paper.transform.position = new Vector3(_XOffset + thickness / 2, (y - prevY) / 2 + yOffset, -( xOffset - (zOffset-_ZOffset) + (x - prevX)/2 ) + _ZOffset);
+        //      paper.transform.forward = Vector3.right;
+        //      paper.tag = Z_TAG_NAME;
+        //  }
+        //  paper.transform.eulerAngles += 180*Vector3.forward;
+        //  paper.transform.localScale = new Vector3(x - prevX-0.001f, y - prevY, thickness);
     }
     
     /// <summary>
@@ -386,6 +398,10 @@ public class StageCreater : Singlton<StageCreater>
     
     private Sequence _PrevSequence;
     private Sequence _Sequence;
+    private Sequence _Sequence_Step1;
+    private Sequence _Sequence_Step2;
+    private Sequence _Sequence_Step3;
+    private Sequence _Sequence_Step4;
     
     /// <summary>
     /// ステージを閉じて開く
@@ -416,7 +432,6 @@ public class StageCreater : Singlton<StageCreater>
         switch(type)
         {    
         case ReOpenType.FIRST_OPEN:
-        case ReOpenType.REVERSE_GIMMICK:
         case ReOpenType.RESTART_STAGE:
             _Sequence.Join( _Book.transform.GetChild(0).DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
             _Sequence.Join( _Book.transform.GetChild(1).DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
@@ -428,39 +443,12 @@ public class StageCreater : Singlton<StageCreater>
         switch(type)
         {    
         case ReOpenType.FIRST_OPEN:
-        case ReOpenType.REVERSE_GIMMICK:
         case ReOpenType.RESTART_STAGE:
             _Sequence.Join( _Book.transform.GetChild(0).DORotate(0*Vector3.up, opentime).SetEase(OPEN_EASE) );
             _Sequence.Join( _Book.transform.GetChild(1).DORotate(-90*Vector3.up, opentime).SetEase(OPEN_EASE) );
             break;
         }
         PushOpenStage(opentime, type);
-        _Sequence.Play();
-    }
-    /// <summary>
-    /// ステージを閉じて開く
-    /// </summary>
-    public void ReOpenStageForReverse(float opentime, float closetime, float waittime)
-    {
-        //  _Sequence.Append( _Root.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
-        
-        //  _Sequence.Join( _Book.transform.GetChild(0).DORotate(45*Vector3.up, closetime*1f/6f).SetEase(CLOSE_EASE) );
-        //  _Sequence.Join( _Book.transform.GetChild(1).DORotate(-135*Vector3.up, closetime*1f/6f).SetEase(CLOSE_EASE) );
-        //  _Sequence.Append( transform.DOMove(transform.position, 0f) );
-        _Sequence.Join( _Book.transform.GetChild(0).DORotate(-45*Vector3.up, closetime).SetEase(CLOSE_EASE) );
-        _Sequence.Join( _Book.transform.GetChild(1).DORotate(-45*Vector3.up, closetime).SetEase(CLOSE_EASE) );
-        PullCloseStage(closetime);
-        //  _Sequence.Append( _Root.transform.DOBlendableRotateBy(-angle*Vector3.up, opentime).SetEase(OPEN_EASE).SetDelay(waittime));
-        _Sequence.Append( transform.DOMove(transform.position, opentime).SetEase(OPEN_EASE).SetDelay(waittime));
-        //はじめは本を開く処理もする
-        
-        //  _Sequence.Join( _Book.transform.GetChild(0).DORotate(45*Vector3.up, opentime*5f/6f).SetEase(OPEN_EASE) );
-        //  _Sequence.Join( _Book.transform.GetChild(1).DORotate(-135*Vector3.up, opentime*5f/6f).SetEase(OPEN_EASE) );
-        //  _Sequence.Append( transform.DOMove(transform.position, 0f) );
-        _Sequence.Join( _Book.transform.GetChild(0).DORotate(0*Vector3.up, opentime).SetEase(OPEN_EASE) );
-        _Sequence.Join( _Book.transform.GetChild(1).DORotate(-90*Vector3.up, opentime).SetEase(OPEN_EASE) );
-            
-        PullOpenStage(opentime);
         _Sequence.Play();
     }
     /// <summary>
@@ -547,54 +535,152 @@ public class StageCreater : Singlton<StageCreater>
     }
     
     /// <summary>
-    /// 凹凸を引きながらステージを開く
+    /// ステージを閉じて開く
     /// </summary>
-    public void PullOpenStage(float time)
-    {
-        foreach (Transform stageObj in _Root.transform)
-        {        
-            int childCnt = stageObj.childCount; 
-            Vector3 pos = stageObj.GetChild(childCnt-1).position;
-            Vector3 angle = stageObj.GetChild(childCnt-1).eulerAngles;
-            _Sequence.Join( stageObj.transform.DOMove(pos , time).SetEase(OPEN_EASE) );
-            _Sequence.Join( stageObj.transform.DORotate(angle , time).SetEase(OPEN_EASE) );
-            
-            Destroy(stageObj.GetChild(childCnt-1).gameObject);
-        }   
-        
-        _Sequence.OnComplete(() => {
-            IsPlayingAnimation = false;
-        });
-    }
-
-    /// <summary>
-    /// 凹凸を引きながらステージを閉じる
-    /// </summary>
-    public void PullCloseStage(float time, bool previous = false)
+    public void ReOpenStageForReverse(float opentime, float closetime, float waittime)
     {
         IsPlayingAnimation = true;
+        //ステップ1(180度開く)
+        _Sequence_Step1 = DOTween.Sequence();
+        _Sequence_Step1.Append( _Root.transform.DOBlendableRotateBy(-45*Vector3.up, closetime*1/3).SetEase(CLOSE_EASE) );
+        _Sequence_Step1.Join( _Book.transform.GetChild(0).DORotate(45*Vector3.up, closetime*1/3).SetEase(CLOSE_EASE) );
+        _Sequence_Step1.Join( _Book.transform.GetChild(1).DORotate(-135*Vector3.up, closetime*1/3).SetEase(CLOSE_EASE) );
+        ReverseAnimationStep1(closetime*1/3);
+        _Sequence_Step1.OnComplete(() => {
+            _Sequence_Step2 = DOTween.Sequence();
+            _Sequence_Step2.Append( transform.DOMove(transform.position, 0f) );
+            _Sequence_Step2.Join( _Book.transform.GetChild(0).DORotate(-45*Vector3.up, closetime*2/3).SetEase(CLOSE_EASE) );
+            _Sequence_Step2.Join( _Book.transform.GetChild(1).DORotate(-45*Vector3.up, closetime*2/3).SetEase(CLOSE_EASE) );
+            ReverseAnimationStep2(closetime*2/3);
+            _Sequence_Step2.OnComplete(() => {
+                _Sequence_Step3 = DOTween.Sequence();
+                _Sequence_Step3.Append( transform.DOMove(transform.position, opentime*2/3).SetEase(OPEN_EASE).SetDelay(waittime));
+                _Sequence_Step3.Join( _Book.transform.GetChild(0).DORotate(45*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
+                _Sequence_Step3.Join( _Book.transform.GetChild(1).DORotate(-135*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
+                ReverseAnimationStep3(opentime*2/3);
+                _Sequence_Step3.OnComplete(() => {
+                    _Sequence_Step4 = DOTween.Sequence();
+                    _Sequence_Step4.Append( _Root.transform.DOBlendableRotateBy(0*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
+                    _Sequence_Step4.Join( _Book.transform.GetChild(0).DORotate(0*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
+                    _Sequence_Step4.Join( _Book.transform.GetChild(1).DORotate(-90*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
+                    ReverseAnimationStep4(opentime*1/3);
+                    _Sequence_Step4.Play();
+                });
+                _Sequence_Step3.Play();
+            });
+            _Sequence_Step2.Play();
+        });
+        _Sequence_Step1.Play();
+    }
+    public void ReverseAnimationStep1(float time)
+    {
         
-        foreach (Transform stageObj in _Root.transform)
-        {            
-            Vector3 pos = stageObj.transform.position;
-            Vector3 angle = stageObj.transform.eulerAngles;
-            float sign = Mathf.Sign( pos.x-(_XOffset-StageWidth/2) - (pos.z-_ZOffset) - StageWidth/2 );
-            float dist = -1 * Mathf.Abs( pos.x-(_XOffset-StageWidth/2) - (pos.z-_ZOffset) - StageWidth/2 );
-            _Sequence.Join( stageObj.transform.DOMove(new Vector3(dist/Mathf.Sqrt(2) +_XOffset, pos.y, dist/Mathf.Sqrt(2) +_ZOffset) , time).SetEase(CLOSE_EASE) );
-            if(sign < 0)
-            {
-                    _Sequence.Join( stageObj.transform.DORotate(new Vector3(angle.x, -45f, angle.z) , time).SetEase(CLOSE_EASE) );
+        List<Transform> rootChildren = new List<Transform>(_Root.transform.childCount);
+        foreach (Transform child in _Root.transform)
+            rootChildren.Add(child);
+        foreach (Transform stageObj in rootChildren)
+        {
+            Vector3 anchorPos;
+            bool dirX = stageObj.tag != "ZSideComponent";
+            
+            anchorPos = new Vector3(_XOffset+THICKNESS/2, 0f, stageObj.position.z);
+                    
+            GameObject anchor = new GameObject("TmpAnchor");
+            anchor.transform.SetParent(_Root.transform);
+            anchor.transform.position = anchorPos;
+            stageObj.SetParent(anchor.transform);
+            if(!dirX)
+            { 
+                _Sequence_Step1.Join( anchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(CLOSE_EASE)
+                .OnUpdate(() =>{
+                    Vector3 angle = anchor.transform.GetChild(0).eulerAngles;
+                    angle.y = _Root.transform.eulerAngles.y+90f;
+                    anchor.transform.GetChild(0).eulerAngles = angle;
+                }) );
             }
             else
             {
-                    _Sequence.Join( stageObj.transform.DORotate(new Vector3(angle.x, 135f, angle.z) , time).SetEase(CLOSE_EASE) );
+                _Sequence_Step1.Join( anchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(CLOSE_EASE) );
             }
-            
-            GameObject tmpChild = new GameObject();
-            tmpChild.transform.position = pos;
-            tmpChild.transform.eulerAngles = angle;
-            tmpChild.transform.SetParent(stageObj);            
         }
+    }
+    public void ReverseAnimationStep2(float time)
+    {
+        List<Transform> rootChildren = new List<Transform>(_Root.transform.childCount);
+        foreach (Transform child in _Root.transform)
+            rootChildren.Add(child);
+        foreach (Transform tmpAnchor in rootChildren)
+        {            
+            Transform stageObj = tmpAnchor.GetChild(0);
+            Vector3 pos = stageObj.transform.position;
+            float sign = Mathf.Sign( pos.x-(_XOffset-StageWidth/2) - (pos.z-_ZOffset) - StageWidth/2 );
+            
+            GameObject anchor = new GameObject("TmpAnchor");
+            anchor.transform.position = new Vector3(_XOffset, 0f, _ZOffset);
+            anchor.transform.SetParent(tmpAnchor);
+            stageObj.SetParent(anchor.transform);
+            if(sign < 0)
+            {
+                anchor.tag = X_TAG_NAME;
+                _Sequence_Step2.Join( anchor.transform.DOBlendableRotateBy(-90*Vector3.up, time).SetEase(CLOSE_EASE) );
+            }
+            else
+            {
+                anchor.tag = Z_TAG_NAME;
+                _Sequence_Step2.Join( anchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(CLOSE_EASE) );
+            }
+        }
+    }
+    public void ReverseAnimationStep3(float time)
+    {
+        foreach (Transform tmpAnchor in _Root.transform)
+        {         
+            Transform anchor = tmpAnchor.GetChild(0);
+            bool sign = anchor.tag != Z_TAG_NAME;  
+            
+            if(sign)
+            {
+                _Sequence_Step3.Join( anchor.transform.DOBlendableRotateBy(0*Vector3.up, time).SetEase(OPEN_EASE) );
+            }
+            else
+            {                
+                _Sequence_Step3.Join( anchor.transform.DOBlendableRotateBy(0*Vector3.up, time).SetEase(OPEN_EASE) );
+            }
+        }
+        
+    }
+    public void ReverseAnimationStep4(float time)
+    {
+        foreach (Transform tmpAnchor in _Root.transform)
+        {
+            bool dirX = tmpAnchor.GetChild(0).GetChild(0).tag != "ZSideComponent";
+            if(dirX)
+            {
+                _Sequence_Step4.Join( tmpAnchor.transform.DOBlendableRotateBy(-45*Vector3.up, time).SetEase(OPEN_EASE) );
+            }
+            else
+            {
+                Transform child = tmpAnchor.transform.GetChild(0).GetChild(0); 
+                _Sequence_Step4.Join( tmpAnchor.transform.DOBlendableRotateBy(-45*Vector3.up, time).SetEase(OPEN_EASE)
+                .OnUpdate(() =>{
+                    Vector3 angle = child.eulerAngles;
+                    angle.y = _Root.transform.eulerAngles.y+90f;
+                    child.eulerAngles = angle;
+                }) );
+            }
+        }
+        _Sequence_Step4.OnComplete(() => {
+            List<Transform> tmpAnchors = new List<Transform>(_Root.transform.childCount);
+            foreach (Transform tmpAnchor in _Root.transform)
+                tmpAnchors.Add(tmpAnchor);
+            foreach (Transform tmpAnchor in tmpAnchors)
+            {
+                Transform stageObj = tmpAnchor.GetChild(0).GetChild(0);
+                stageObj.SetParent(_Root.transform);
+                Destroy(tmpAnchor.gameObject);
+            }
+            IsPlayingAnimation = false;
+        });
     }
     
     public void Clear()
@@ -610,14 +696,21 @@ public class StageCreater : Singlton<StageCreater>
 }
 
 //折れ線と穴開け用の線のどちらの線かを判断するために実装。
-public struct XCoord
+public class XCoord
 {
     public float x;
-    public bool fold;
+    public Type type;
     
-    public XCoord(float x, bool fold)
+    public XCoord(float x, Type type)
     {
         this.x = x;
-        this.fold = fold;
+        this.type = type;
+    }
+    
+    public enum Type
+    {
+        FOLD,
+        HOLE,
+        NONE, 
     }
 }

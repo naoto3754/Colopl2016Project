@@ -341,13 +341,13 @@ public class StageManager : Singlton<StageManager>
                y -= 0.05f;
         }
         List<XCoord> retList = new List<XCoord>();
-        retList.Add(new XCoord(StageCreater.I.StageWidth/2, true));
+        retList.Add(new XCoord(StageCreater.I.StageWidth/2, XCoord.Type.FOLD));
         foreach (Line line in _CurrentInfo.FoldLine)
         {
             if (((line.points[0].y - y) <= 0f && 0f < (line.points[1].y - y)) ||
                 ((line.points[0].y - y) >= 0f && 0f > (line.points[1].y - y)))
             {
-                retList.Add(new XCoord(line.points[0].x, true));
+                retList.Add(new XCoord(line.points[0].x, XCoord.Type.FOLD));
             }
         }
         foreach (Line line in _CurrentInfo.HoleLine)
@@ -355,8 +355,12 @@ public class StageManager : Singlton<StageManager>
             if (((line.points[0].y - y) <= 0f && 0f < (line.points[1].y - y)) ||
                 ((line.points[0].y - y) >= 0f && 0f > (line.points[1].y - y)))
             {
-                retList.Add(new XCoord(line.points[0].x, false));
+                retList.Add(new XCoord(line.points[0].x, XCoord.Type.HOLE));
             }
+        }
+        if(retList.Select(xcoord => xcoord.x).Contains(0f) == false)
+        {
+            retList.Add(new XCoord(0f, XCoord.Type.NONE));
         }
 
         return retList.OrderBy(xcoord => xcoord.x);
