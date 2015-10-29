@@ -23,6 +23,8 @@ public class StageInfomation : MonoBehaviour
     [SerializeField]
     private Texture _BackgroundTexture;
     [SerializeField]
+    private Texture _BackgroundNoShadowTexture;
+    [SerializeField]
     private Texture _LiningTexture;
     
     //Property
@@ -45,6 +47,10 @@ public class StageInfomation : MonoBehaviour
     public Texture BackgroundTexture
     {
         get { return _BackgroundTexture; }
+    }
+    public Texture BackgroundNoShadowTexture
+    {
+        get { return _BackgroundNoShadowTexture; }
     }
     public Texture LiningTexture
     {

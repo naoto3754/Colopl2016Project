@@ -28,4 +28,10 @@ public static class DoTweenExtension
 	{
 		return DOTween.To(()=>target.orthographicSize , x=>target.orthographicSize=x, endValue, duration );
 	}
+	
+	//Material
+	public static Tween DoShadowWeight(this Material target, float endValue, float duration)
+	{
+		return DOTween.To(()=>target.GetFloat("_ShadowWeight") , x=>target.SetFloat("_ShadowWeight", x), endValue, duration );
+	}
 }

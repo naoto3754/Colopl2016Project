@@ -52,7 +52,7 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 		_Sequence = DOTween.Sequence();		
 		
 		_Shelf.SetActive(true);
-		_Sequence.Append( _Shelf.transform.DOMoveY(HIGHEST_HEIGHT, 1.5f) );
+		_Sequence.Append( _Shelf.transform.DOMoveY(HIGHEST_HEIGHT, 1f).SetEase(Ease.OutCubic) );
 		
 		_Sequence.OnComplete(() => { _FinishTitle = true; });
 		_Sequence.Play();

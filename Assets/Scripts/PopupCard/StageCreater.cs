@@ -15,6 +15,7 @@ public class StageCreater : Singlton<StageCreater>
     public readonly string X_TAG_NAME = "XSideComponent";
     public readonly string Z_TAG_NAME = "ZSideComponent";
     public readonly float START_ANGLE = 45f;
+    public readonly float SHADOW_WEIGHT = 0.8f;
     
     private Ease OPEN_EASE = Ease.Linear;
     private Ease CLOSE_EASE = Ease.Linear;
@@ -60,7 +61,7 @@ public class StageCreater : Singlton<StageCreater>
         if(IsPlayingAnimation == false)
         {
             _Sequence = DOTween.Sequence();
-            ReOpenStageForReverse(1f, 1f, 0f);
+            ReOpenStageForReverse(1f, 1f, 0.3f);
             Vector3 pos = CharacterController.I.DummyCharacter.transform.position;
             pos.x *= -1;
             CharacterController.I.DummyCharacter.transform.position = pos; 
@@ -206,9 +207,13 @@ public class StageCreater : Singlton<StageCreater>
                     
                     GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
                     paper.transform.SetParent(_Root.transform);
-                    paper.GetComponent<Renderer>().material.mainTexture = StageManager.I.CurrentInfo.BackgroundTexture;
-                    paper.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight);
-                    paper.GetComponent<Renderer>().material.mainTextureScale = new Vector2((xCoord.x-prevX)/StageWidth, (y-prevY)/StageHeight);
+                    paper.GetComponent<Renderer>().material.SetTexture("_ShadowTexture", StageManager.I.CurrentInfo.BackgroundTexture);
+                    paper.GetComponent<Renderer>().material.SetTextureOffset("_ShadowTexture", new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight));
+                    paper.GetComponent<Renderer>().material.SetTextureScale("_ShadowTexture", new Vector2((xCoord.x-prevX)/StageWidth, (y-prevY)/StageHeight));
+                    paper.GetComponent<Renderer>().material.SetTexture("_Texture", StageManager.I.CurrentInfo.BackgroundNoShadowTexture);
+                    paper.GetComponent<Renderer>().material.SetTextureOffset("_Texture", new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight));
+                    paper.GetComponent<Renderer>().material.SetTextureScale("_Texture", new Vector2((xCoord.x-prevX)/StageWidth, (y-prevY)/StageHeight));
+                    
                     if (setX)
                     {
                         paper.transform.position = new Vector3((xCoord.x - prevX) / 2 + xOffset + _XOffset, (y - prevY) / 2 + yOffset, zOffset + thickness / 2);
@@ -602,6 +607,11 @@ public class StageCreater : Singlton<StageCreater>
             {
                 _Sequence_Step1.Join( anchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(CLOSE_EASE) );
             }
+            if(stageObj.GetComponent<Renderer>() != null && stageObj.GetComponent<Renderer>().material.name == "ThickPaper (Instance)")
+            {
+                Material mat = stageObj.GetComponent<Renderer>().material;
+                _Sequence_Step1.Join( mat.DoShadowWeight(0f, time) );
+            }
         }
     }
     public void ReverseAnimationStep2(float time)
@@ -623,6 +633,11 @@ public class StageCreater : Singlton<StageCreater>
             {
                 anchor.tag = X_TAG_NAME;
                 _Sequence_Step2.Join( anchor.transform.DOBlendableRotateBy(-90*Vector3.up, time).SetEase(CLOSE_EASE) );
+                if(stageObj.GetComponent<Renderer>() != null && stageObj.GetComponent<Renderer>().material.name == "ThickPaper (Instance)")
+                {
+                    Material mat = stageObj.GetComponent<Renderer>().material;
+                    _Sequence_Step2.Join( mat.DOColor(mat.color*SHADOW_WEIGHT, time) );
+                }
             }
             else
             {
@@ -635,17 +650,23 @@ public class StageCreater : Singlton<StageCreater>
     {
         foreach (Transform tmpAnchor in _Root.transform)
         {         
+            Transform stageObj = tmpAnchor.GetChild(0).GetChild(0);
             Transform anchor = tmpAnchor.GetChild(0);
             bool sign = anchor.tag != Z_TAG_NAME;  
             
             if(sign)
             {
                 _Sequence_Step3.Join( anchor.transform.DOBlendableRotateBy(0*Vector3.up, time).SetEase(OPEN_EASE) );
+                if(stageObj.GetComponent<Renderer>() != null && stageObj.GetComponent<Renderer>().material.name == "ThickPaper (Instance)")
+                {
+                    Material mat = stageObj.GetComponent<Renderer>().material;
+                    _Sequence_Step3.Join( mat.DOColor(mat.color/SHADOW_WEIGHT, time) );
+                }
             }
             else
             {                
                 _Sequence_Step3.Join( anchor.transform.DOBlendableRotateBy(0*Vector3.up, time).SetEase(OPEN_EASE) );
-            }
+            }            
         }
         
     }
@@ -653,21 +674,26 @@ public class StageCreater : Singlton<StageCreater>
     {
         foreach (Transform tmpAnchor in _Root.transform)
         {
-            bool dirX = tmpAnchor.GetChild(0).GetChild(0).tag != "ZSideComponent";
+            Transform stageObj = tmpAnchor.GetChild(0).GetChild(0); 
+            bool dirX = stageObj.tag != "ZSideComponent";
             if(dirX)
             {
                 _Sequence_Step4.Join( tmpAnchor.transform.DOBlendableRotateBy(-45*Vector3.up, time).SetEase(OPEN_EASE) );
             }
             else
-            {
-                Transform child = tmpAnchor.transform.GetChild(0).GetChild(0); 
+            { 
                 _Sequence_Step4.Join( tmpAnchor.transform.DOBlendableRotateBy(-45*Vector3.up, time).SetEase(OPEN_EASE)
                 .OnUpdate(() =>{
-                    Vector3 angle = child.eulerAngles;
+                    Vector3 angle = stageObj.eulerAngles;
                     angle.y = _Root.transform.eulerAngles.y+90f;
-                    child.eulerAngles = angle;
+                    stageObj.eulerAngles = angle;
                 }) );
             }
+            if(stageObj.GetComponent<Renderer>() != null && stageObj.GetComponent<Renderer>().material.name == "ThickPaper (Instance)")
+            {
+                Material mat = stageObj.GetComponent<Renderer>().material;
+                _Sequence_Step4.Join( mat.DoShadowWeight(1f, time) );
+            }   
         }
         _Sequence_Step4.OnComplete(() => {
             List<Transform> tmpAnchors = new List<Transform>(_Root.transform.childCount);
