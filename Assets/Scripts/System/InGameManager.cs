@@ -1,16 +1,26 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 using UnityStandardAssets.ImageEffects;
 using DG.Tweening;
 
 public class InGameManager : Singlton<InGameManager> 
 {
+	
 	readonly float FADEIN_DURATION = 1f;
 	readonly float DISPLAY_DURATION = 1.5f;
 	readonly float FADEOUT_DURATION = 1f;
 	
 	bool _NowDisplaying = false;
+	bool _MenuIsOpened = false;
+	
+	[SerializeField]
+	List<Image> _DictionaryLines; 
+	[SerializeField]
+	List<Text> _DictionaryLabels;
+	[SerializeField]
+	GameObject _MenuButton;
 	
 	/// <summay>
 	/// リスタートする
@@ -31,6 +41,31 @@ public class InGameManager : Singlton<InGameManager>
 	public void OnReverse()
 	{
 		StageCreater.I.Reverse();
+	}
+	
+	public void OnPressMenu()
+	{
+		_MenuIsOpened = !_MenuIsOpened;
+		if(_MenuIsOpened)
+			OpenMenu();
+		else
+			CloseMenu();
+	}
+	
+	private void OpenMenu()
+	{
+		foreach(Transform button in _MenuButton.transform)
+		{
+			button.gameObject.SetActive(true);
+		}
+	}
+	
+	private void CloseMenu()
+	{
+		foreach(Transform button in _MenuButton.transform)
+		{
+			button.gameObject.SetActive(false);
+		}
 	}
 	
 	//仮でキーボードの入力とる
@@ -69,20 +104,14 @@ public class InGameManager : Singlton<InGameManager>
 		seq.Append( blur.DOBlurSize(0f, FADEIN_DURATION).SetEase(Ease.InSine).OnStart(() => {
 			FadeManager.I.FadeIn(FADEIN_DURATION);
 		}));
-		foreach(Text text in GetComponentsInChildren<Text>())
+		foreach(Text text in _DictionaryLabels)
 		{
-			if(text.transform.parent.GetComponent<Button>() != null)
-				continue;
-			
 			Color c = text.color;
 			c.a = 0f;
 			seq.Join( text.DOColor(c, FADEIN_DURATION) );
 		}
-		foreach(Image image in GetComponentsInChildren<Image>())
+		foreach(Image image in _DictionaryLines)
 		{
-			if(image.GetComponent<Button>() != null)
-				continue;
-				
 			Color c = image.color;
 			c.a = 0f;
 			seq.Join( image.DOColor(c, FADEIN_DURATION) );
@@ -103,11 +132,8 @@ public class InGameManager : Singlton<InGameManager>
 	private void DisplayText()
 	{
 		Sequence seq = DOTween.Sequence();
-		foreach(Image image in GetComponentsInChildren<Image>())
+		foreach(Image image in _DictionaryLines)
 		{
-			if(image.GetComponent<Button>() != null)
-				continue;
-				
 			Color c = image.color;
 			c.a = 1f;
 			image.color = c;
@@ -117,16 +143,12 @@ public class InGameManager : Singlton<InGameManager>
 			seq.Join( image.transform.DOScaleX(200, DISPLAY_DURATION/3) );
 		}
 		seq.Append( transform.DOMove(transform.position, DISPLAY_DURATION/3) );
-		foreach(Text text in GetComponentsInChildren<Text>())
-		{
-			if(text.transform.parent.GetComponent<Button>() != null)
-				continue;
-				
+		foreach(Text text in _DictionaryLabels)
+		{		
 			Color c = text.color;
 			c.a = 1f;
 			seq.Join( text.DOColor(c, DISPLAY_DURATION/3) );
 		}
 		seq.Play();
 	} 
-	
 }

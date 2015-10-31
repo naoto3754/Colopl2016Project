@@ -749,12 +749,20 @@ public class StageCreater : Singlton<StageCreater>
     public void Clear()
     {
         _Sequence.Complete();
-        if(_Book != null)
-            Destroy( _Book );
-        if(_PreviousRoot != null)
-            Destroy( _PreviousRoot );
-        if(_Root != null)
-            Destroy( _Root );
+        DestroyObject( _Book );
+        DestroyObject( _Root );
+        DestroyObject( _PreviousRoot );
+        DestroyObject( _BackgroundLeft );
+        DestroyObject( _PreviousBackgroundLeft );
+        DestroyObject( _BackgroundRight );
+        DestroyObject( _PreviousBackgroundRight );
+        
+    }
+    
+    private void DestroyObject(GameObject obj)
+    {
+        if(obj != null)
+            Destroy(obj);
     }
 }
 
