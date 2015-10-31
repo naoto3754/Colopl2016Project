@@ -16,16 +16,42 @@ public class StageInfomation : MonoBehaviour
     private GameObject Holes;
     [SerializeField]
     private GameObject StageComponent;
+	[SerializeField]
+	private Goal _Goal;
+	public Goal GoalObj
+	{
+		get{ return _Goal; }
+	}
     [SerializeField]
     private ColorData _InitialCharacterColor;
+	public ColorData InitialCharacterColor
+	{
+		get { return _InitialCharacterColor; }
+	}
     [SerializeField]
     private Color _BackgroundColor;
+	public Color BackgroundColor
+	{
+		get { return _BackgroundColor; }
+	}
     [SerializeField]
     private Texture _BackgroundTexture;
+	public Texture BackgroundTexture
+	{
+		get { return _BackgroundTexture; }
+	}
     [SerializeField]
     private Texture _BackgroundNoShadowTexture;
+	public Texture BackgroundNoShadowTexture
+	{
+		get { return _BackgroundNoShadowTexture; }
+	}
     [SerializeField]
     private Texture _LiningTexture;
+	public Texture LiningTexture
+	{
+		get { return _LiningTexture; }
+	}
     
     //Property
     public float StageWidth
@@ -36,26 +62,7 @@ public class StageInfomation : MonoBehaviour
     {
         get { return _StageSize.lossyScale.y; }
     }
-    public ColorData InitialCharacterColor
-    {
-        get { return _InitialCharacterColor; }
-    }
-    public Color BackgroundColor
-    {
-        get { return _BackgroundColor; }
-    }
-    public Texture BackgroundTexture
-    {
-        get { return _BackgroundTexture; }
-    }
-    public Texture BackgroundNoShadowTexture
-    {
-        get { return _BackgroundNoShadowTexture; }
-    }
-    public Texture LiningTexture
-    {
-        get { return _LiningTexture; }
-    }
+    
     //ステージオブジェクトリスト
     private List<Line> _FoldLine;
     public List<Line> FoldLine

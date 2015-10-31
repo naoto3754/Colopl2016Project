@@ -54,16 +54,25 @@ public class InGameManager : Singlton<InGameManager>
 	
 	private void OpenMenu()
 	{
+		Sequence sequence = DOTween.Sequence();
 		foreach(Transform button in _MenuButton.transform)
 		{
+			Vector3 defaultPos = button.position;
+			Vector3 defaultScale = button.localScale;
+			button.position = _MenuButton.transform.position; 
+			button.localScale = Vector3.zero;
+			sequence.Join( button.DOMove(defaultPos, 0.1f).SetDelay(0.05f) );
+			sequence.Join( button.DOScale(defaultScale, 0.1f) );
+			
 			button.gameObject.SetActive(true);
 		}
+		sequence.Play();
+		
 	}
 	
 	private void CloseMenu()
 	{
-		foreach(Transform button in _MenuButton.transform)
-		{
+		foreach(Transform button in _MenuButton.transform){
 			button.gameObject.SetActive(false);
 		}
 	}

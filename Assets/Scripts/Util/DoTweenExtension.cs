@@ -34,4 +34,10 @@ public static class DoTweenExtension
 	{
 		return DOTween.To(()=>target.GetFloat("_ShadowWeight") , x=>target.SetFloat("_ShadowWeight", x), endValue, duration );
 	}
+
+	//Material
+	public static Tween DOMainColor(this Material target, Color endValue, float duration)
+	{
+		return DOTween.To(()=>target.GetColor("_MainColor") , x=>target.SetColor("_MainColor", x), endValue, duration );
+	}
 }

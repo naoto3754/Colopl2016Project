@@ -2,9 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 
 public class CharacterController : Singlton<CharacterController>
-{ 
+{
     private GameObject _CharacterX;
     public GameObject CharacterX
     {
@@ -31,11 +32,15 @@ public class CharacterController : Singlton<CharacterController>
         get { return _DummyCharacter; }
         set { _DummyCharacter = value; }
     }
-    
+
     public Vector2 InitPosition
     {
         get; set;
     }
+	public Vector3 GoalPos
+	{
+		get; set;
+	}
 
     [SerializeField]
     private float _Speed;
@@ -53,62 +58,68 @@ public class CharacterController : Singlton<CharacterController>
     {
         get; set;
     }
-    public bool ClearStage
-    {
-        get; set;
-    }
+	public bool ClearStage {
+		get;
+		set;
+	}
+
     void Update()
     {
         //アニメーション中はキャラクターを動かさない
-        if (StageCreater.I.IsPlayingAnimation == false)
+        if (StageCreater.I.IsPlayingAnimation)
+			return;
+
+		if (ClearStage)
+			return;
+
+		if (StageManager.I.CurrentInfo.GoalObj.Rect.Contains(_DummyCharacter.transform.position) || Input.GetKeyDown (KeyCode.C))
+			ClearAction ();
+
+        //入力を取得
+        float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal");
+        float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical");
+        Vector2 touchPos = InputManager.I.GetTapPos();
+
+        if (InputManager.I.GetTapDown(0) || InputManager.I.GetTap(0))
         {
-            //入力を取得
-            float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal");
-            float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical");
-            Vector2 touchPos = InputManager.I.GetTapPos(); 
-                       
-            if(InputManager.I.GetTapDown(0) || InputManager.I.GetTap(0))
-            {
-                Vector2 inputDir = InputManager.I.GetDistanceFromInitPos(0);
-                inputDir.x = Mathf.Clamp(inputDir.x*20, -1, 1);
-                inputDir.x = Mathf.Abs(inputDir.x) < 0.5f ? 0f : inputDir.x;  
-                inputDir.y = Mathf.Clamp(inputDir.y*30, -1, 1);
-                inputDir.y = Mathf.Abs(inputDir.y) < 0.5f ? 0f : inputDir.y;
-                
-                
-                deltaHol = Time.deltaTime * _Speed * inputDir.x;
-                deltaVer = Time.deltaTime * _Speed * inputDir.y;
-            } 
-            
-            float deltaDrop = Time.deltaTime * _DropSpeed;
+            Vector2 inputDir = InputManager.I.GetDistanceFromInitPos(0);
+            inputDir.x = Mathf.Clamp(inputDir.x * 10, -1, 1);
+            inputDir.x = Mathf.Abs(inputDir.x) < 0.5f ? 0f : inputDir.x;
+            inputDir.y = Mathf.Clamp(inputDir.y * 15, -1, 1);
+            inputDir.y = Mathf.Abs(inputDir.y) < 0.5f ? 0f : inputDir.y;
 
-            if (!CanUseLadder)
-            {
-                deltaVer = -deltaDrop;
-            }else if(deltaVer > Ladder.MovementLimit)
-            {
-                deltaVer = Ladder.MovementLimit+0.01f;
-            }
 
-            Vector2 moveDir = StageManager.I.CalcAmountOfMovement(new Vector2(deltaHol, deltaVer));
+            deltaHol = Time.deltaTime * _Speed * inputDir.x;
+            deltaVer = Time.deltaTime * _Speed * inputDir.y;
+        }
 
-            UpdateDummyCharacterPosition(moveDir);
+        float deltaDrop = Time.deltaTime * _DropSpeed;
+
+        if (!CanUseLadder)
+        {
+            deltaVer = -deltaDrop;
+        }
+        else if (deltaVer > Ladder.MovementLimit)
+        {
+            deltaVer = Ladder.MovementLimit + 0.01f;
+        }
+
+        Vector2 moveDir = StageManager.I.CalcAmountOfMovement(new Vector2(deltaHol, deltaVer));
+
+        UpdateDummyCharacterPosition(moveDir);
+        if (InputManager.I.GetTapDown(0) || InputManager.I.GetTap(0))
+        {
+            Vector2 inputDir = InputManager.I.GetDistanceFromInitPos(0);
+            inputDir.y = Mathf.Clamp(inputDir.y * 15, -1, 1);
+            inputDir.y = Mathf.Abs(inputDir.y) < 0.5f ? 0f : inputDir.y;
             if (Input.GetKeyDown(KeyCode.DownArrow) && IsTopOfWall ||
-                touchPos.y > 0.1f && touchPos.y < 0.3f && IsTopOfWall)
+                inputDir.y < -0.8f && IsTopOfWall)
             {
                 _DummyCharacter.transform.position -= 0.05f * Vector3.up;
             }
-            UpdateCharacterState(moveDir);
-            //ゴール判定
-            if(ClearStage)
-            {
-                int chapter = StageManager.I.CurrentChapter;
-                int bookID = StageManager.I.CurrentBookID;
-                int index = StageManager.I.CurrentStageIndex;
-                int[] indexInfo = StageManager.CalcStageIndexInfo( StageManager.CalcStageListIndex(chapter, bookID, index) + 1 );
-                StageManager.I.InstantiateStage(indexInfo[0], indexInfo[1], indexInfo[2]);
-            }
         }
+        UpdateCharacterState(moveDir);
+        //ゴール判定
     }
     /// <summary>
     /// 移動量を計算し、キャラの位置を更新
@@ -120,22 +131,22 @@ public class CharacterController : Singlton<CharacterController>
         //飛び出ている部分の上に乗っているか判定
         if (IsTopOfWall)
             IsTopOfWall = StageManager.I.OnTopOfWall();
-            
+
         Vector3 destPos = _DummyCharacter.transform.position;
         destPos.x *= -1;
         // ダミーキャラの位置を実際のキャラ反映させる
-        UpdateXZCharacterPosition(_DummyCharacter.transform.position, _DummyCharacter.transform.lossyScale.x, 
-                                  _CharacterX.transform, _CharacterZ.transform, 
-                                  moveDir, foldXList);        
-        UpdateXZCharacterPosition(destPos, _DummyCharacter.transform.lossyScale.x, 
-                                  _DestCharacterX.transform, _DestCharacterZ.transform, 
+        UpdateXZCharacterPosition(_DummyCharacter.transform.position, _DummyCharacter.transform.lossyScale.x,
+                                  _CharacterX.transform, _CharacterZ.transform,
                                   moveDir, foldXList);
-                
+          UpdateXZCharacterPosition(destPos, _DummyCharacter.transform.lossyScale.x,
+                                    _DestCharacterX.transform, _DestCharacterZ.transform,
+                                    moveDir, foldXList);
+
         //キャラクター部分透過
-        UpdateSubTransparent(_DummyCharacter.transform.position, _DummyCharacter.transform.lossyScale.x, 
+        UpdateSubTransparent(_DummyCharacter.transform.position, _DummyCharacter.transform.lossyScale.x,
                              _CharacterX, _CharacterZ, moveDir, foldXList);
-        UpdateSubTransparent(destPos, _DummyCharacter.transform.lossyScale.x, 
-                             _DestCharacterX, _DestCharacterZ, moveDir, foldXList);
+          UpdateSubTransparent(destPos, _DummyCharacter.transform.lossyScale.x,
+                               _DestCharacterX, _DestCharacterZ, moveDir, foldXList);
     }
     /// <summary>
     /// ダミーキャラの位置を実際のキャラ反映させる
@@ -144,10 +155,10 @@ public class CharacterController : Singlton<CharacterController>
     {
         int r = 0;
         float foldlineDist = StageManager.I.CalcFoldLineDistance(charaPos - delta / 2 * Vector3.right, delta);
-        float prevX = -StageCreater.I.StageWidth/2;
-        float xOffset = StageCreater.I.XOffset-StageCreater.I.StageWidth/2;
+        float prevX = -StageCreater.I.StageWidth / 2;
+        float xOffset = StageCreater.I.XOffset - StageCreater.I.StageWidth / 2;
         float zOffset = StageCreater.I.ZOffset;
-        float charaAnchor = charaPos.x - delta / 2;   
+        float charaAnchor = charaPos.x - delta / 2;
         foreach (float x in foldXList)
         {
             if (prevX < charaAnchor && charaAnchor < x)
@@ -156,13 +167,13 @@ public class CharacterController : Singlton<CharacterController>
                 {
                     if (foldlineDist == delta + 1f)
                     {
-                        xTrans.position = new Vector3(xOffset+charaPos.x-prevX-0.01f, charaPos.y, zOffset-0.01f);
+                        xTrans.position = new Vector3(xOffset + charaPos.x - prevX - 0.01f, charaPos.y, zOffset - 0.01f);
                         return;
                     }
                     else
                     {
-                        xTrans.position = new Vector3(xOffset+charaPos.x-prevX-0.01f, charaPos.y, zOffset-0.01f);
-                        zTrans.position = new Vector3(xOffset+x-prevX-0.01f, charaPos.y, zOffset-delta/2+foldlineDist-0.01f);
+                        xTrans.position = new Vector3(xOffset + charaPos.x - prevX - 0.01f, charaPos.y, zOffset - 0.01f);
+                        zTrans.position = new Vector3(xOffset + x - prevX - 0.01f, charaPos.y, zOffset - delta / 2 + foldlineDist - 0.01f);
                         return;
                     }
                 }
@@ -170,20 +181,20 @@ public class CharacterController : Singlton<CharacterController>
                 {
                     if (foldlineDist == delta + 1f)
                     {
-                        zTrans.position = new Vector3(xOffset-0.01f, charaPos.y, zOffset-charaPos.x+prevX-0.01f);
+                        zTrans.position = new Vector3(xOffset - 0.01f, charaPos.y, zOffset - charaPos.x + prevX - 0.01f);
                         return;
                     }
                     else
                     {
-                        xTrans.position = new Vector3(xOffset+delta/2-foldlineDist-0.01f, charaPos.y, zOffset-x+prevX-0.01f);
-                        zTrans.position = new Vector3(xOffset-0.01f, charaPos.y, zOffset-charaPos.x+prevX-0.01f);
+                        xTrans.position = new Vector3(xOffset + delta / 2 - foldlineDist - 0.01f, charaPos.y, zOffset - x + prevX - 0.01f);
+                        zTrans.position = new Vector3(xOffset - 0.01f, charaPos.y, zOffset - charaPos.x + prevX - 0.01f);
                         return;
                     }
                 }
             }
             else
             {
-                if(r == 0)
+                if (r == 0)
                     xOffset += x - prevX;
                 else
                     zOffset -= x - prevX;
@@ -311,11 +322,36 @@ public class CharacterController : Singlton<CharacterController>
             _DestCharacterZ.transform.forward = Vector3.left;
         }
     }
-    
+
     public void SetInitPos()
     {
         _DummyCharacter.transform.position = new Vector3(InitPosition.x, InitPosition.y, _DummyCharacter.transform.position.z);
     }
+
+	private void ClearAction()
+	{
+		ClearStage = true;
+		Sequence sequence = DOTween.Sequence ();
+		sequence.Join ( _CharacterX.transform.DOMove(GoalPos-Vector3.up, 1f) );
+		sequence.Join ( _CharacterZ.transform.DOMove(GoalPos-Vector3.up, 1f) );
+		foreach (Material mat in _CharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material))
+			sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
+		foreach (Material mat in _CharacterZ.GetComponentsInChildren<Renderer>().Select(x => x.material))
+			sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
+		foreach (Material mat in _DestCharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material))
+			sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
+		foreach (Material mat in _DestCharacterZ.GetComponentsInChildren<Renderer>().Select(x => x.material))
+			sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
+
+		sequence.OnComplete (() => {
+			int chapter = StageManager.I.CurrentChapter;
+			int bookID = StageManager.I.CurrentBookID;
+			int index = StageManager.I.CurrentStageIndex;
+			int[] indexInfo = StageManager.CalcStageIndexInfo (StageManager.CalcStageListIndex (chapter, bookID, index) + 1);
+			StageManager.I.InstantiateStage (indexInfo [0], indexInfo [1], indexInfo [2]);
+		});
+		sequence.Play ();
+	}
 
     //キャラクターの位置パラメータ
     public class CharaParam

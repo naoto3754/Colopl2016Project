@@ -254,7 +254,7 @@ public class StageManager : Singlton<StageManager>
         if(createStage == false)
         {
             if (CharacterController.I.IsTopOfWall)
-                pos -= 0.02f * Vector2.up;
+                pos -= 0.05f * Vector2.up;
         }
         float ret = delta + Mathf.Sign(delta) * 1f;
         foreach (Line foldline in _CurrentInfo.FoldLine)
@@ -388,12 +388,15 @@ public class Line
     /// </summary>
     public bool ThroughLine(Vector2 startpos, Vector2 endpos)
     {
-        if (param == null || CharacterController.I.color == param.color || param.color == ColorData.NONE)
-            if (param == null || param.EnableCase == StageObjectParameter.EnableFlag.ALWAYS ||
-                (param.EnableCase == StageObjectParameter.EnableFlag.IS_TOP && CharacterController.I.IsTopOfWall) ||
-                (param.EnableCase == StageObjectParameter.EnableFlag.ISNOT_TOP && !CharacterController.I.IsTopOfWall))
-                return Cross(points[1] - points[0], startpos - points[0]) * Cross(points[1] - points[0], endpos - points[0]) <= 0 &&
-                       Cross(endpos - startpos, points[0] - startpos) * Cross(endpos - startpos, points[1] - startpos) <= 0;
+        if (param == null || CharacterController.I.color == param.color || param.color == ColorData.NONE) {
+			if (param == null || param.EnableCase == StageObjectParameter.EnableFlag.ALWAYS ||
+				(param.EnableCase == StageObjectParameter.EnableFlag.IS_TOP && CharacterController.I.IsTopOfWall) ||
+				(param.EnableCase == StageObjectParameter.EnableFlag.ISNOT_TOP && CharacterController.I.IsTopOfWall == false))
+			{
+				return Cross (points [1] - points [0], startpos - points [0]) * Cross (points [1] - points [0], endpos - points [0]) <= 0 &&
+					Cross (endpos - startpos, points [0] - startpos) * Cross (endpos - startpos, points [1] - startpos) <= 0;
+			}
+		}
         return false;
     }
     /// <summary>

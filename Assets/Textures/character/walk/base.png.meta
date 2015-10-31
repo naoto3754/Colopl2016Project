@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 3a5342da6f6e649cdaaf3bd600d6ec98
-timeCreated: 1441896454
+timeCreated: 1446296071
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -73,7 +73,7 @@ TextureImporter:
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: base_1
       rect:
@@ -83,17 +83,17 @@ TextureImporter:
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: base_2
       rect:
         serializedVersion: 2
-        x: 325
+        x: 327
         y: 246
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: base_3
       rect:
@@ -103,7 +103,7 @@ TextureImporter:
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: base_4
       rect:
@@ -113,7 +113,7 @@ TextureImporter:
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: base_5
       rect:
@@ -123,7 +123,7 @@ TextureImporter:
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: base_6
       rect:
@@ -133,7 +133,7 @@ TextureImporter:
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: base_7
       rect:
@@ -143,7 +143,7 @@ TextureImporter:
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: base_8
       rect:
@@ -153,7 +153,7 @@ TextureImporter:
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: base_9
       rect:
@@ -163,7 +163,7 @@ TextureImporter:
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: base_10
       rect:
@@ -173,7 +173,7 @@ TextureImporter:
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: base_11
       rect:
@@ -183,7 +183,7 @@ TextureImporter:
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: base_12
       rect:
@@ -193,7 +193,7 @@ TextureImporter:
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: base_13
       rect:
@@ -203,7 +203,7 @@ TextureImporter:
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: base_14
       rect:
@@ -213,7 +213,7 @@ TextureImporter:
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: base_15
       rect:
@@ -223,7 +223,7 @@ TextureImporter:
         width: 125
         height: 201
       alignment: 7
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 

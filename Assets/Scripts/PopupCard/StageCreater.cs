@@ -367,6 +367,9 @@ public class StageCreater : Singlton<StageCreater>
             decoSetPos.z -= decoPos.x - prevX;
         GameObject newDeco = Instantiate(deco, decoSetPos, deco.transform.rotation) as GameObject;
         newDeco.transform.SetParent(_Root.transform);
+		if (newDeco.GetComponent<Goal> () != null) {
+			CharacterController.I.GoalPos = decoSetPos;
+		}
         if (facingX)
         {
             ColorManager.MultiplyShadowColor(newDeco);
