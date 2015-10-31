@@ -43,6 +43,10 @@ public class StageCreater : Singlton<StageCreater>
     }
     private GameObject _PreviousRoot;
     private GameObject _Root;
+    private GameObject _BackgroundLeft;
+    private GameObject _BackgroundRight;
+    private GameObject _PreviousBackgroundLeft;
+    private GameObject _PreviousBackgroundRight;
     public float StageWidth
     {
         get { return StageManager.I.CurrentInfo.StageWidth; }
@@ -86,17 +90,24 @@ public class StageCreater : Singlton<StageCreater>
         
         bool existStage = _Root != null;
         if(existStage)
-            _PreviousRoot = _Root;    
+        {
+            _PreviousRoot = _Root;
+            _PreviousBackgroundLeft = _BackgroundLeft;
+            _PreviousBackgroundRight = _BackgroundRight;
+        }
         _Root = new GameObject("StageRoot");
+        _BackgroundLeft = new GameObject("BackgroundLeft");
+        _BackgroundRight = new GameObject("BackgroundRight");        
         _XOffset = xOffset;
         _ZOffset = zOffset;
         _Root.transform.position = new Vector3(_XOffset, 0f, _ZOffset);
+        _BackgroundLeft.transform.position = new Vector3(_XOffset+THICKNESS*3/2, 0f, _ZOffset);
+        _BackgroundRight.transform.position = new Vector3(_XOffset, 0f, _ZOffset+THICKNESS*3/2);
         
         InstantiatePaper();
         InstantiateDecoration();
         if(existCharacter)
         {
-            
             InstantiateCharacter();
             //HACK:キャラの向きや透過処理をさせたい
             CharacterController.I.UpdateCharacterState(Vector2.right);
@@ -108,17 +119,21 @@ public class StageCreater : Singlton<StageCreater>
                 renderer.gameObject.SetActive(false);
             renderer.enabled = false;
         }
+        foreach(Renderer renderer in _BackgroundLeft.GetComponentsInChildren<Renderer>())
+            renderer.enabled = false;
+        foreach(Renderer renderer in _BackgroundRight.GetComponentsInChildren<Renderer>())
+            renderer.enabled = false;
 
         _Sequence = DOTween.Sequence();
         _PrevSequence = DOTween.Sequence();
         if(existStage)
         {
             ClosePrevStage(90f, ANIMATION_TIME);
-            ReOpenStage(0f, ANIMATION_TIME, 0f, 0f, ReOpenType.TO_NEXT);
+            ReOpenStage(0f, ANIMATION_TIME, 0.001f, 0f, ReOpenType.TO_NEXT);
         }
         else
         {
-            ReOpenStage(START_ANGLE, ANIMATION_TIME, 0f, 0f, ReOpenType.FIRST_OPEN);
+            ReOpenStage(START_ANGLE, ANIMATION_TIME, 0.001f, 0f, ReOpenType.FIRST_OPEN);
         }
     }
     
@@ -276,25 +291,24 @@ public class StageCreater : Singlton<StageCreater>
     
     private void InstantiateBackground(float x, float prevX, float y, float prevY, float xOffset, float yOffset, float zOffset, float thickness)
     {
-        //  GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
-        //  paper.transform.SetParent(_Root.transform);
-        //  paper.GetComponent<Renderer>().material.mainTexture = StageManager.I.CurrentInfo.LiningTexture;
-        //  paper.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight);
-        //  paper.GetComponent<Renderer>().material.mainTextureScale = new Vector2((x-prevX)/StageWidth, (y-prevY)/StageHeight);
+        GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
+        paper.GetComponent<Renderer>().material.mainTexture = StageManager.I.CurrentInfo.LiningTexture;
+        paper.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight);
+        paper.GetComponent<Renderer>().material.mainTextureScale = new Vector2((x-prevX)/StageWidth, (y-prevY)/StageHeight);
         
-        //  if(xOffset - (zOffset-_ZOffset) + (x - prevX)/2 < 0)
-        //  {
-        //      paper.transform.position = new Vector3(xOffset - (zOffset-_ZOffset) + (x - prevX)/2 + _XOffset, (y - prevY) / 2 + yOffset, _ZOffset + thickness / 2);
-        //      paper.tag = X_TAG_NAME;
-        //  }   
-        //  else
-        //  {
-        //      paper.transform.position = new Vector3(_XOffset + thickness / 2, (y - prevY) / 2 + yOffset, -( xOffset - (zOffset-_ZOffset) + (x - prevX)/2 ) + _ZOffset);
-        //      paper.transform.forward = Vector3.right;
-        //      paper.tag = Z_TAG_NAME;
-        //  }
-        //  paper.transform.eulerAngles += 180*Vector3.forward;
-        //  paper.transform.localScale = new Vector3(x - prevX-0.001f, y - prevY, thickness);
+        if(xOffset - (zOffset-_ZOffset) + (x - prevX)/2 < 0)
+        {
+            paper.transform.SetParent(_BackgroundLeft.transform);
+            paper.transform.position = new Vector3(xOffset - (zOffset-_ZOffset) + (x - prevX)/2 + _XOffset+thickness/2, (y - prevY) / 2 + yOffset, _ZOffset + thickness*3/2);
+        }   
+        else
+        {
+            paper.transform.SetParent(_BackgroundRight.transform);
+            paper.transform.position = new Vector3(_XOffset + thickness*3/2, (y - prevY) / 2 + yOffset, -( xOffset - (zOffset-_ZOffset) + (x - prevX)/2 ) + _ZOffset+thickness/2);
+            paper.transform.forward = Vector3.right;
+        }
+        paper.transform.eulerAngles += 180*Vector3.forward;
+        paper.transform.localScale = new Vector3(x - prevX + thickness - 0.001f, y - prevY, thickness);
     }
     
     /// <summary>
@@ -414,10 +428,18 @@ public class StageCreater : Singlton<StageCreater>
     public void ClosePrevStage(float angle, float closetime)
     {
         _PreviousRoot.transform.position += new Vector3(-THICKNESS, 0, THICKNESS);
+        _PreviousBackgroundLeft.transform.position += new Vector3(-THICKNESS, 0, THICKNESS);
+        _PreviousBackgroundRight.transform.position += new Vector3(-THICKNESS, 0, THICKNESS);
+        _PreviousRoot.transform.position += new Vector3(-THICKNESS, 0, THICKNESS);
         _PrevSequence.Append( _PreviousRoot.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+        _PrevSequence.Join( _PreviousBackgroundLeft.transform.DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+        _PrevSequence.Join( _PreviousBackgroundRight.transform.DORotate(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+        
         PushCloseStage(closetime, true);
         _PrevSequence.OnComplete(() => { 
             Destroy(_PreviousRoot);
+            Destroy(_PreviousBackgroundLeft);
+            Destroy(_PreviousBackgroundRight);
             IsPlayingAnimation = false; 
         });
         _PrevSequence.Play();
@@ -429,11 +451,15 @@ public class StageCreater : Singlton<StageCreater>
     {
         _Sequence.OnStart(() => {
              foreach(Renderer renderer in _Root.GetComponentsInChildren<Renderer>())
-             {
                 renderer.enabled = true;
-             } 
+            foreach(Renderer renderer in _BackgroundLeft.GetComponentsInChildren<Renderer>())
+                renderer.enabled = true;
+            foreach(Renderer renderer in _BackgroundRight.GetComponentsInChildren<Renderer>())
+                renderer.enabled = true;
         });
         _Sequence.Append( _Root.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+        _Sequence.Join( _BackgroundLeft.transform.DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+        _Sequence.Join( _BackgroundRight.transform.DORotate(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
         switch(type)
         {    
         case ReOpenType.FIRST_OPEN:
@@ -444,6 +470,8 @@ public class StageCreater : Singlton<StageCreater>
         }
         PushCloseStage(closetime);
         _Sequence.Append( _Root.transform.DOBlendableRotateBy(-angle*Vector3.up, opentime).SetEase(OPEN_EASE).SetDelay(waittime));
+        _Sequence.Join( _BackgroundLeft.transform.DORotate(0*Vector3.up, opentime).SetEase(OPEN_EASE) );
+        _Sequence.Join( _BackgroundRight.transform.DORotate(0*Vector3.up, opentime).SetEase(OPEN_EASE) );
         //はじめは本を開く処理もする
         switch(type)
         {    
@@ -461,7 +489,7 @@ public class StageCreater : Singlton<StageCreater>
     /// </summary>
     public void PushOpenStage(float time, ReOpenType type)
     {
-        IsPlayingAnimation = true;        
+        IsPlayingAnimation = true;
         foreach (Transform tmpAnchor in _Root.transform)
         {
             bool dirX = tmpAnchor.GetChild(0).tag != "ZSideComponent";
@@ -509,6 +537,7 @@ public class StageCreater : Singlton<StageCreater>
         
         Sequence targetSequence = previous ? _PrevSequence : _Sequence;
         GameObject _AnimationRoot = previous ? _PreviousRoot : _Root;
+        
         List<Transform> rootChildren = new List<Transform>(_AnimationRoot.transform.childCount);
         foreach (Transform child in _AnimationRoot.transform)
             rootChildren.Add(child);
@@ -548,24 +577,32 @@ public class StageCreater : Singlton<StageCreater>
         //ステップ1(180度開く)
         _Sequence_Step1 = DOTween.Sequence();
         _Sequence_Step1.Append( _Root.transform.DOBlendableRotateBy(-45*Vector3.up, closetime*1/3).SetEase(CLOSE_EASE) );
+        _Sequence_Step1.Join( _BackgroundLeft.transform.DORotate(45*Vector3.up, closetime*1/3).SetEase(CLOSE_EASE) );
+        _Sequence_Step1.Join( _BackgroundRight.transform.DORotate(-45*Vector3.up, closetime*1/3).SetEase(CLOSE_EASE) );
         _Sequence_Step1.Join( _Book.transform.GetChild(0).DORotate(45*Vector3.up, closetime*1/3).SetEase(CLOSE_EASE) );
         _Sequence_Step1.Join( _Book.transform.GetChild(1).DORotate(-135*Vector3.up, closetime*1/3).SetEase(CLOSE_EASE) );
         ReverseAnimationStep1(closetime*1/3);
         _Sequence_Step1.OnComplete(() => {
             _Sequence_Step2 = DOTween.Sequence();
             _Sequence_Step2.Append( transform.DOMove(transform.position, 0f) );
+            _Sequence_Step2.Join( _BackgroundLeft.transform.DORotate(-45*Vector3.up, closetime*2/3).SetEase(CLOSE_EASE) );
+            _Sequence_Step2.Join( _BackgroundRight.transform.DORotate(45*Vector3.up, closetime*2/3).SetEase(CLOSE_EASE) );
             _Sequence_Step2.Join( _Book.transform.GetChild(0).DORotate(-45*Vector3.up, closetime*2/3).SetEase(CLOSE_EASE) );
             _Sequence_Step2.Join( _Book.transform.GetChild(1).DORotate(-45*Vector3.up, closetime*2/3).SetEase(CLOSE_EASE) );
             ReverseAnimationStep2(closetime*2/3);
             _Sequence_Step2.OnComplete(() => {
                 _Sequence_Step3 = DOTween.Sequence();
                 _Sequence_Step3.Append( transform.DOMove(transform.position, opentime*2/3).SetEase(OPEN_EASE).SetDelay(waittime));
+                _Sequence_Step3.Join( _BackgroundLeft.transform.DORotate(45*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
+                _Sequence_Step3.Join( _BackgroundRight.transform.DORotate(-45*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
                 _Sequence_Step3.Join( _Book.transform.GetChild(0).DORotate(45*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
                 _Sequence_Step3.Join( _Book.transform.GetChild(1).DORotate(-135*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
                 ReverseAnimationStep3(opentime*2/3);
                 _Sequence_Step3.OnComplete(() => {
                     _Sequence_Step4 = DOTween.Sequence();
                     _Sequence_Step4.Append( _Root.transform.DOBlendableRotateBy(0*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
+                    _Sequence_Step4.Join( _BackgroundLeft.transform.DORotate(0*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
+                    _Sequence_Step4.Join( _BackgroundRight.transform.DORotate(0*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
                     _Sequence_Step4.Join( _Book.transform.GetChild(0).DORotate(0*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
                     _Sequence_Step4.Join( _Book.transform.GetChild(1).DORotate(-90*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
                     ReverseAnimationStep4(opentime*1/3);
