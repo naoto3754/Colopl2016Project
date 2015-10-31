@@ -72,7 +72,8 @@ public class CharacterController : Singlton<CharacterController>
 		if (ClearStage)
 			return;
 
-		if (StageManager.I.CurrentInfo.GoalObj.Rect.Contains(_DummyCharacter.transform.position) || Input.GetKeyDown (KeyCode.C))
+		if (Input.GetKeyDown (KeyCode.C) || ( StageManager.I.CurrentInfo.GoalObj != null &&
+			StageManager.I.CurrentInfo.GoalObj.Rect.Contains(_DummyCharacter.transform.position) ))
 			ClearAction ();
 
         //入力を取得
