@@ -11,7 +11,7 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 	private readonly float LEAN_TIME = 0.2f;
 	private readonly float HIGHEST_HEIGHT = -50f;
 	private readonly float LOWEST_HEIGHT = -0.5f;
-	private readonly Vector3 BOOK_POS = new Vector3(42.4f, -0.8f, -57.6f);
+	private readonly Vector3 BOOK_POS = new Vector3(42.5f, -0.8f, -57.5f);
     private readonly Vector3 BOOK_SCALE = new Vector3(22f, 36f, 22f);
 
 	private Vector3 _DefaultCameraPos;

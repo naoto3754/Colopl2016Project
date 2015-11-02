@@ -16,7 +16,7 @@ public static class DoTweenExtension
 	{
 		return DOTween.To(()=>target.color , x=>target.color=x, endValue, duration );
 	}
-	
+
 	//Text
 	public static Tween DOColor(this Text target, Color endValue, float duration)
 	{

@@ -94,6 +94,8 @@ public class InGameManager : Singlton<InGameManager>
 	/// </summay>
 	public void DisplayDictionary()
 	{
+		if (StageManager.I.CurrentStageIndex != 0)
+			return; 
 		if(gameObject.activeSelf == false)
 			return;
 		if(_NowDisplaying)

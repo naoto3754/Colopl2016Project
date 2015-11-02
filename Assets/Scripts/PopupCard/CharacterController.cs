@@ -79,7 +79,6 @@ public class CharacterController : Singlton<CharacterController>
         //入力を取得
         float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal");
         float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical");
-        Vector2 touchPos = InputManager.I.GetTapPos();
 
         if (InputManager.I.GetTapDown(0) || InputManager.I.GetTap(0))
         {

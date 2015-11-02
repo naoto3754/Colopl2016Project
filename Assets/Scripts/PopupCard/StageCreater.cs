@@ -321,6 +321,12 @@ public class StageCreater : Singlton<StageCreater>
             SetDecoration(decos);
             foreach (Transform child in decos.transform)
             {
+				//表示物がないオブジェクトなら処理をしない
+				if (child.GetComponent<Renderer> () == null &&
+				    child.GetComponent<SpriteRenderer> () == null &&
+				    child.GetComponent<LineRenderer> () == null)
+					continue;
+				
                 SetDecoration(child.gameObject);
             }
         }
@@ -330,13 +336,7 @@ public class StageCreater : Singlton<StageCreater>
     /// 表示物をセット
     /// </summary>
     private void SetDecoration(GameObject deco)
-    {
-        //表示物がないオブジェクトなら処理をしない
-        if (deco.GetComponent<Renderer>() == null &&
-           deco.GetComponent<SpriteRenderer>() == null &&
-           deco.GetComponent<LineRenderer>() == null)
-            return;
-
+	{
         //装飾オブジェククトの表示
         Vector3 decoPos = deco.transform.position;
         Vector3 decoScale = deco.transform.lossyScale;
