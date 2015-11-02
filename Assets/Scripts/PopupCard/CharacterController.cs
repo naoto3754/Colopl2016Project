@@ -9,21 +9,25 @@ public class CharacterController : Singlton<CharacterController>
     private GameObject _CharacterX;
     public GameObject CharacterX
     {
+		get { return _CharacterX; }
         set { _CharacterX = value; }
     }
     private GameObject _CharacterZ;
     public GameObject CharacterZ
     {
+		get { return _CharacterZ; }
         set { _CharacterZ = value; }
     }
     private GameObject _DestCharacterX;
     public GameObject DestCharacterX
     {
+		get { return _DestCharacterX; }
         set { _DestCharacterX = value; }
     }
     private GameObject _DestCharacterZ;
     public GameObject DestCharacterZ
     {
+		get { return _DestCharacterZ; }
         set { _DestCharacterZ = value; }
     }
     private GameObject _DummyCharacter;
@@ -124,7 +128,7 @@ public class CharacterController : Singlton<CharacterController>
     /// <summary>
     /// 移動量を計算し、キャラの位置を更新
     /// </summary>
-    private void UpdateDummyCharacterPosition(Vector2 moveDir)
+    public void UpdateDummyCharacterPosition(Vector2 moveDir)
     {
         _DummyCharacter.transform.position += new Vector3(moveDir.x, moveDir.y, 0f);
         IEnumerable foldXList = StageManager.I.GetFoldXCoordList(_DummyCharacter.transform.position.y);
@@ -138,15 +142,15 @@ public class CharacterController : Singlton<CharacterController>
         UpdateXZCharacterPosition(_DummyCharacter.transform.position, _DummyCharacter.transform.lossyScale.x,
                                   _CharacterX.transform, _CharacterZ.transform,
                                   moveDir, foldXList);
-          UpdateXZCharacterPosition(destPos, _DummyCharacter.transform.lossyScale.x,
-                                    _DestCharacterX.transform, _DestCharacterZ.transform,
-                                    moveDir, foldXList);
+        UpdateXZCharacterPosition(destPos, _DummyCharacter.transform.lossyScale.x,
+                                  _DestCharacterX.transform, _DestCharacterZ.transform,
+                                  moveDir, foldXList);
 
         //キャラクター部分透過
         UpdateSubTransparent(_DummyCharacter.transform.position, _DummyCharacter.transform.lossyScale.x,
                              _CharacterX, _CharacterZ, moveDir, foldXList);
-          UpdateSubTransparent(destPos, _DummyCharacter.transform.lossyScale.x,
-                               _DestCharacterX, _DestCharacterZ, moveDir, foldXList);
+        UpdateSubTransparent(destPos, _DummyCharacter.transform.lossyScale.x,
+                             _DestCharacterX, _DestCharacterZ, moveDir, foldXList);
     }
     /// <summary>
     /// ダミーキャラの位置を実際のキャラ反映させる

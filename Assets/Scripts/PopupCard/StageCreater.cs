@@ -110,7 +110,7 @@ public class StageCreater : Singlton<StageCreater>
         {
             InstantiateCharacter();
             //HACK:キャラの向きや透過処理をさせたい
-            CharacterController.I.UpdateCharacterState(Vector2.right);
+			CharacterController.I.UpdateDummyCharacterPosition(0.01f*Vector2.right);
         }
 
         foreach(Renderer renderer in _Root.GetComponentsInChildren<Renderer>())
@@ -144,53 +144,29 @@ public class StageCreater : Singlton<StageCreater>
     {   
         CharacterController.I.color = StageManager.I.CurrentInfo.InitialCharacterColor;
         CharacterController.I.InitPosition = CharacterController.I.DummyCharacter.transform.position;
-        //X方向に動くキャラクター
-        GameObject character = Instantiate(CharacterController.I.DummyCharacter,
-                                           CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET * 2, 0f, _ZOffset - OFFSET * 2),
-                                           Quaternion.identity) as GameObject;
-        character.transform.SetParent(_Root.transform);
-        character.layer = 0;
-        foreach (Transform child in character.transform)
-            child.gameObject.layer = 0;
-        //TODO:色を決める
-        character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor", ColorManager.GetColorWithColorData(StageManager.I.CurrentInfo.InitialCharacterColor));
-        ColorManager.MultiplyShadowColor(character.transform.GetChild(1).gameObject);
-        CharacterController.I.CharacterX = character;
-        //Z方向に動くキャラクター
-        character = Instantiate(CharacterController.I.DummyCharacter,
-                                CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET * 2, 0f, _ZOffset - OFFSET * 2),
-                                Quaternion.identity) as GameObject;
-        character.transform.Rotate(0f, 90f, 0f);
-        character.transform.SetParent(_Root.transform);
-        character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor", ColorManager.GetColorWithColorData(StageManager.I.CurrentInfo.InitialCharacterColor));
-        character.layer = 0;
-        foreach (Transform child in character.transform)
-            child.gameObject.layer = 0;
-        CharacterController.I.CharacterZ = character;
-        //X方向に動くキャラクター
-        character = Instantiate(CharacterController.I.DummyCharacter,
-                                CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET * 2, 0f, _ZOffset - OFFSET * 2),
-                                Quaternion.identity) as GameObject;
-        character.transform.SetParent(_Root.transform);
-        character.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_MainColor", new Color(0,0,0,0));
-        character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor", new Color(0,0,0,0.5f));
-        character.layer = 0;
-        foreach (Transform child in character.transform)
-            child.gameObject.layer = 0;
-        CharacterController.I.DestCharacterX = character;
-        //Z方向に動くキャラクター
-        character = Instantiate(CharacterController.I.DummyCharacter,
-                                CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET * 2, 0f, _ZOffset - OFFSET * 2),
-                                Quaternion.identity) as GameObject;
-        character.transform.Rotate(0f, 90f, 0f);
-        character.transform.SetParent(_Root.transform);
-        character.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_MainColor", new Color(0,0,0,0));
-        character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor", new Color(0,0,0,0.5f));
-        character.layer = 0;
-        foreach (Transform child in character.transform)
-            child.gameObject.layer = 0;
-        CharacterController.I.DestCharacterZ = character;
+        
+		CharacterController.I.CharacterX = CreateCharacter (ColorManager.GetColorWithColorData(StageManager.I.CurrentInfo.InitialCharacterColor), true);
+		CharacterController.I.CharacterZ = CreateCharacter (ColorManager.GetColorWithColorData(StageManager.I.CurrentInfo.InitialCharacterColor), false);
+		CharacterController.I.DestCharacterX = CreateCharacter (new Color(0,0,0,0.5f), true);
+		CharacterController.I.DestCharacterZ = CreateCharacter (new Color(0,0,0,0.5f), false);
+        
     }
+
+	private GameObject CreateCharacter(Color initColor,bool xDir)
+	{
+		GameObject character = Instantiate(CharacterController.I.DummyCharacter,
+										   CharacterController.I.DummyCharacter.transform.position + new Vector3(_XOffset - OFFSET * 2, 0f, _ZOffset - OFFSET * 2),
+										   Quaternion.identity) as GameObject;
+		if(xDir == false)
+			character.transform.Rotate(0f, 90f, 0f);
+		character.transform.SetParent(_Root.transform);
+		character.tag = xDir ? X_TAG_NAME : Z_TAG_NAME;
+		//TODO:色を決める
+		character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor", initColor);
+		if(xDir)
+			ColorManager.MultiplyShadowColor(character.transform.GetChild(1).gameObject);
+		return character;
+	}
 
     /// <summary>
     /// ステージのカード部分をを生成する
