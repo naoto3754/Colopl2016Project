@@ -7,11 +7,11 @@ public class InputManager : Singlton<InputManager>
 	public const bool SWIPEMODE_TIME_LIMIT = true;
 	public const bool SWIPEMODE_NO_LIMIT = false;
 	private const int COUNT_MOUSE_BUTTON_TYPE = 3;
-	
+
 	//seriarize field
 	[SerializeField]
-	private float SwipeValidTime = 1.0f;
-	
+	private float _SwipeValidTime = 1.0f;
+
 	//構造体
 	struct SwipeInitalInfo{
 		public bool validSwipe;
@@ -34,8 +34,8 @@ public class InputManager : Singlton<InputManager>
 	}
 	
 	//tmp
-	SwipeInitalInfo swipeInfo = new SwipeInitalInfo();
-	Vector2 initialTouchPos;
+	SwipeInitalInfo _SwipeInfo = new SwipeInitalInfo();
+	Vector2 _InitialTouchPos;
 	
 	/// <summary>
 	/// 対応するインデックスにおけるタップ開始を取得
@@ -175,6 +175,34 @@ public class InputManager : Singlton<InputManager>
 		return false;
 #endif
 	}
+
+	///
+	/// 
+	[SerializeField]
+	private float _DoubleTapVaildTime = 0.2f;
+	private float _DoubleTapElapsedTime;
+	private bool _OneTap;
+	/// <summary>
+	/// ダブルタップを取ります
+	/// </summary>
+	public bool GetDoubleTap(int index = 0)
+	{
+		if (GetTapDown(index)) {
+			if (_OneTap) {
+				_OneTap = false;
+				return true;
+			}else{
+				_OneTap = true;
+				_DoubleTapElapsedTime = 0f;
+			}
+		}
+		_DoubleTapElapsedTime += Time.deltaTime;
+		if (_DoubleTapElapsedTime > _DoubleTapVaildTime) {
+			_OneTap = false;
+		}	
+
+		return false;
+	}
 	/// <summary>
 	/// 対応するインデックスにおけるタップ情報が指すGameObjectを取得
 	/// </summary>
@@ -244,20 +272,20 @@ public class InputManager : Singlton<InputManager>
 		touchPos = Input.mousePosition;
 #endif
 		if(GetTapDown(index)){
-			swipeInfo.Start(touchPos);
+			_SwipeInfo.Start(touchPos);
 		}else if(GetTapUp(index)){
-			if(swipeInfo.validSwipe == false)
+			if(_SwipeInfo.validSwipe == false)
 				return Vector2.zero;
-			Vector2 res = touchPos - swipeInfo.touchPos;
+			Vector2 res = touchPos - _SwipeInfo.touchPos;
 			res = new Vector2(res.x/Screen.width, res.y/Screen.height);
 			return res;
 		}
 		
 		if(swipeMode == SWIPEMODE_TIME_LIMIT){
-			if(swipeInfo.swipeTime > SwipeValidTime){
-				swipeInfo.SetInvalid();
-			}else if(swipeInfo.validSwipe){
-				swipeInfo.swipeTime += Time.deltaTime;
+			if(_SwipeInfo.swipeTime > _SwipeValidTime){
+				_SwipeInfo.SetInvalid();
+			}else if(_SwipeInfo.validSwipe){
+				_SwipeInfo.swipeTime += Time.deltaTime;
 			}
 		}
 				
@@ -284,7 +312,7 @@ public class InputManager : Singlton<InputManager>
 	}
 	
 	/// <summary>
-	/// 
+	/// 最初に触った位置からの距離をとります
 	/// </summary>
 	public Vector2 GetDistanceFromInitPos(int index = 0)
 	{
@@ -302,9 +330,9 @@ public class InputManager : Singlton<InputManager>
 		touchPos = Input.mousePosition;
 #endif
 		if(GetTapDown(index)){
-			initialTouchPos = touchPos;
+			_InitialTouchPos = touchPos;
 		}else if(GetTap(index)){
-			Vector2 res = touchPos - initialTouchPos;
+			Vector2 res = touchPos - _InitialTouchPos;
 			res = new Vector2(res.x/Screen.width, res.y/Screen.height);
 			return res;
 		}

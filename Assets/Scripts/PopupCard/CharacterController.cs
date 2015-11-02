@@ -80,6 +80,10 @@ public class CharacterController : Singlton<CharacterController>
 			StageManager.I.CurrentInfo.GoalObj.Rect.Contains(_DummyCharacter.transform.position) ))
 			ClearAction ();
 
+		if (InputManager.I.GetDoubleTap ()) {
+			StageCreater.I.Reverse ();
+		}
+
         //入力を取得
         float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal");
         float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical");
