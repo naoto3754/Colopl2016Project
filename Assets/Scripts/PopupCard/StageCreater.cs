@@ -162,6 +162,7 @@ public class StageCreater : Singlton<StageCreater>
 		character.transform.SetParent(_Root.transform);
 		character.tag = xDir ? X_TAG_NAME : Z_TAG_NAME;
 		//TODO:色を決める
+		character.transform.GetChild(0).GetComponent<Renderer>().material.SetColor("_MainColor", Color.white);
 		character.transform.GetChild(1).GetComponent<Renderer>().material.SetColor("_MainColor", initColor);
 		if(xDir)
 			ColorManager.MultiplyShadowColor(character.transform.GetChild(1).gameObject);
