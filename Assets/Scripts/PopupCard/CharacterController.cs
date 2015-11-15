@@ -155,6 +155,18 @@ public class CharacterController : Singlton<CharacterController>
                              _CharacterX, _CharacterZ, moveDir, foldXList);
         UpdateSubTransparent(destPos, _DummyCharacter.transform.lossyScale.x,
                              _DestCharacterX, _DestCharacterZ, moveDir, foldXList);
+		if (StageManager.I.IsOnObstacle (destPos)) {
+			foreach (Material material in _DestCharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material))
+			{
+				material.SetFloat("_ForwardThreshold", 0);
+				material.SetFloat("_BackThreshold", 0);
+			}
+			foreach (Material material in _DestCharacterZ.GetComponentsInChildren<Renderer>().Select(x => x.material))
+			{
+				material.SetFloat("_ForwardThreshold", 0);
+				material.SetFloat("_BackThreshold", 0);
+			}
+		}
     }
     /// <summary>
     /// ダミーキャラの位置を実際のキャラ反映させる

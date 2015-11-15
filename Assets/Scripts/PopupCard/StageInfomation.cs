@@ -83,6 +83,11 @@ public class StageInfomation : MonoBehaviour
     {
         get { return _Wall; }
     }
+	private List<Polygon> _Obstacle;
+	public List<Polygon> Obstacle
+	{
+		get { return _Obstacle; }
+	}
     private List<GameObject> _Decoration;
     public List<GameObject> Decoration
     {
@@ -105,19 +110,24 @@ public class StageInfomation : MonoBehaviour
         _Slope = new List<Line>();
         _Wall = new List<Line>();
         _Decoration = new List<GameObject>();
+		_Obstacle = new List<Polygon>();
 		foreach (var param in GetComponentsInChildren<StageObjectParameter>()) {
+			Vector3 pos = param.transform.position;
+			Vector3 scale = param.transform.lossyScale;
+
 			switch (param.Type) {
 			case StageObjectType.LINE:
-				Vector3 linePos = param.transform.position;
-				Vector3 lineScale = param.transform.lossyScale;
 				var targetLineList = GetLineList (param.LineType);
-				targetLineList.Add(new Line(linePos, linePos + lineScale, param));
+				targetLineList.Add(new Line(pos, pos + scale, param));
 				break;
 			case StageObjectType.GOAL:
 				_Goal = param.GetComponent<Goal>();
 				break;
 			case StageObjectType.RECTANGLE:
+				_Obstacle.Add (new Rectangle (pos, scale.x, scale.y, param.Color));
+				break;
 			case StageObjectType.TRIANGLE:
+				_Obstacle.Add (new Triangle(pos+new Vector3(scale.x, scale.y,0), pos+new Vector3(scale.x, -scale.y, 0), pos+new Vector3(-scale.x, -scale.y, 0), param.Color));
 				break;
 			case StageObjectType.HOLE:
 				foreach (LineRenderer line in param.GetComponentsInChildren<LineRenderer>()) {

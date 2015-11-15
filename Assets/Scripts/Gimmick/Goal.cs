@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Goal : MonoBehaviour
 {
-    public CardRect Rect {
+    public Rectangle Rect {
 		get;
 		private set;
 	}
@@ -11,6 +11,6 @@ public class Goal : MonoBehaviour
     void Awake()
     {
         //当たり判定作成
-        Rect = new CardRect(transform.position, transform.lossyScale.x, transform.localScale.y);
+        Rect = new Rectangle(transform.position, transform.lossyScale.x, transform.localScale.y);
     }
 }

@@ -8,14 +8,14 @@ public class Ladder : MonoBehaviour
     
 //    [SerializeField]
 //    private GameObject _LadderSprite;
-    private CardRect _Rect;
+    private Rectangle _Rect;
     private bool _PreviousBool;
 
     void Awake()
     {
         //当たり判定作成
         var param = GetComponent<StageObjectParameter>();
-        _Rect = new CardRect(transform.position, transform.lossyScale.x, transform.localScale.y, param.Color);
+        _Rect = new Rectangle(transform.position, transform.lossyScale.x, transform.localScale.y, param.Color);
         //はしごのサイズに合わせてスプライトを生成        
 //        Vector3 anchorPos = transform.position - new Vector3(0f, transform.localScale.y / 2, 0f);
 //        for (int tilingY = 0; tilingY < transform.localScale.y; tilingY++)
