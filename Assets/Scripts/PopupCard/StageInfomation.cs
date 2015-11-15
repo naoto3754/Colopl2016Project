@@ -10,18 +10,7 @@ public class StageInfomation : MonoBehaviour
     private GameObject _Character;
     [SerializeField]
     private Transform _StageSize;
-    [SerializeField]
-    private GameObject FoldLines;
-    [SerializeField]
-    private GameObject Holes;
-    [SerializeField]
-    private GameObject StageComponent;
-	[SerializeField]
-	private Goal _Goal;
-	public Goal GoalObj
-	{
-		get{ return _Goal; }
-	}
+
     [SerializeField]
     private ColorData _InitialCharacterColor;
 	public ColorData InitialCharacterColor
@@ -64,6 +53,11 @@ public class StageInfomation : MonoBehaviour
     }
     
     //ステージオブジェクトリスト
+	private Goal _Goal;
+	public Goal GoalObj
+	{
+		get{ return _Goal; }
+	}
     private List<Line> _FoldLine;
     public List<Line> FoldLine
     {
@@ -111,41 +105,54 @@ public class StageInfomation : MonoBehaviour
         _Slope = new List<Line>();
         _Wall = new List<Line>();
         _Decoration = new List<GameObject>();
-        //折れ線リスト作成
-        foreach (LineRenderer line in FoldLines.GetComponentsInChildren<LineRenderer>())
-            _FoldLine.Add(new Line(line.transform.position, line.transform.position + line.transform.lossyScale, null));
-        foreach (LineRenderer line in Holes.GetComponentsInChildren<LineRenderer>())
-        {
-            if (line.transform.lossyScale.x == 0f)
-                _HoleLine.Add(new Line(line.transform.position, line.transform.position + line.transform.lossyScale, null));
-        }
-        //その他の線のリスト（地面　＿、坂　/、壁　｜）
-        foreach (LineRenderer renderer in StageComponent.GetComponentsInChildren<LineRenderer>())
-        {
-            Vector3 linePos = renderer.transform.position;
-            Vector3 lineScale = renderer.transform.lossyScale;
-            
-            StageObjectParameter param = null;
-            if (renderer.GetComponent<StageObjectParameter>() != null)
-            {
-                param = renderer.GetComponent<StageObjectParameter>();
-                if(renderer.GetComponent<StageObjectParameter>().UseAsDecoration)
-                    _Decoration.Add(renderer.gameObject);
-            }
-            
-            if (lineScale.y == 0f)
-                _GroundLine.Add(new Line(linePos, linePos + lineScale, param));
-            else if (lineScale.x == 0f)
-                _Wall.Add(new Line(linePos, linePos + lineScale, param));
-            else
-                _Slope.Add(new Line(linePos, linePos + lineScale, param));
-        }
-        //ステージ表示物
-        foreach (SpriteRenderer renderer in StageComponent.GetComponentsInChildren<SpriteRenderer>())
-        {            
-            _Decoration.Add(renderer.gameObject);
-        }
+		foreach (var param in GetComponentsInChildren<StageObjectParameter>()) {
+			switch (param.Type) {
+			case StageObjectType.LINE:
+				Vector3 linePos = param.transform.position;
+				Vector3 lineScale = param.transform.lossyScale;
+				var targetLineList = GetLineList (param.LineType);
+				targetLineList.Add(new Line(linePos, linePos + lineScale, param));
+				break;
+			case StageObjectType.GOAL:
+				_Goal = param.GetComponent<Goal>();
+				break;
+			case StageObjectType.RECTANGLE:
+			case StageObjectType.TRIANGLE:
+				break;
+			case StageObjectType.HOLE:
+				foreach (LineRenderer line in param.GetComponentsInChildren<LineRenderer>()) {
+					if (line.transform.lossyScale.x == 0f)
+						_HoleLine.Add (new Line (line.transform.position, line.transform.position + line.transform.lossyScale, null));
+				}
+				break;
+			case StageObjectType.LADDER:
+				//Do nothing
+				break;
+			}
+
+			if (param.UseAsDecoration) {
+				_Decoration.Add (param.gameObject);
+			}
+		}
     }
+
+	private List<Line> GetLineList(StageLineType linetype)
+	{
+		switch (linetype) {
+		case StageLineType.FOLD:
+			return _FoldLine;
+		case StageLineType.GROUND:
+			return _GroundLine;
+		case StageLineType.SLOPE:
+			return _Slope;
+		case StageLineType.WALL:
+			return _Wall;
+		default:
+			return null;
+		}
+	}
+
+
     /// <summary>
     /// ステージを始める上で初期化しておくべき情報をセットする
     /// </summary>

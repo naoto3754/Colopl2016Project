@@ -388,7 +388,7 @@ public class Line
     /// </summary>
     public bool ThroughLine(Vector2 startpos, Vector2 endpos)
     {
-        if (param == null || CharacterController.I.color == param.color || param.color == ColorData.NONE) {
+        if (param == null || CharacterController.I.color == param.Color || param.Color == ColorData.NONE) {
 			if (param == null || param.EnableCase == StageObjectParameter.EnableFlag.ALWAYS ||
 				(param.EnableCase == StageObjectParameter.EnableFlag.IS_TOP && CharacterController.I.IsTopOfWall) ||
 				(param.EnableCase == StageObjectParameter.EnableFlag.ISNOT_TOP && CharacterController.I.IsTopOfWall == false))

@@ -6,8 +6,8 @@ public class Ladder : MonoBehaviour
 {
     public static float MovementLimit;
     
-    [SerializeField]
-    private GameObject _LadderSprite;
+//    [SerializeField]
+//    private GameObject _LadderSprite;
     private CardRect _Rect;
     private bool _PreviousBool;
 
@@ -15,17 +15,17 @@ public class Ladder : MonoBehaviour
     {
         //当たり判定作成
         var param = GetComponent<StageObjectParameter>();
-        _Rect = new CardRect(transform.position, transform.lossyScale.x, transform.localScale.y, param.color);
+        _Rect = new CardRect(transform.position, transform.lossyScale.x, transform.localScale.y, param.Color);
         //はしごのサイズに合わせてスプライトを生成        
-        Vector3 anchorPos = transform.position - new Vector3(0f, transform.localScale.y / 2, 0f);
-        for (int tilingY = 0; tilingY < transform.localScale.y; tilingY++)
-        {
-            GameObject sprite = Instantiate(_LadderSprite, anchorPos + new Vector3(0, tilingY, 0), Quaternion.identity) as GameObject;
-            sprite.transform.SetParent(transform);
-            sprite.transform.localScale = new Vector3(transform.localScale.x, 1f, 1f);
-            //TODO:色決める
-            sprite.GetComponent<SpriteRenderer>().color = Color.black;
-        }
+//        Vector3 anchorPos = transform.position - new Vector3(0f, transform.localScale.y / 2, 0f);
+//        for (int tilingY = 0; tilingY < transform.localScale.y; tilingY++)
+//        {
+//            GameObject sprite = Instantiate(_LadderSprite, anchorPos + new Vector3(0, tilingY, 0), Quaternion.identity) as GameObject;
+//            sprite.transform.SetParent(transform);
+//            sprite.transform.localScale = new Vector3(transform.localScale.x, 1f, 1f);
+//            //TODO:色決める
+//            sprite.GetComponent<SpriteRenderer>().color = Color.black;
+//        }
     }
     
     void FixedUpdate()

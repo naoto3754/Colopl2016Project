@@ -199,12 +199,10 @@ public class StageCreater : Singlton<StageCreater>
                     
                     GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
                     paper.transform.SetParent(_Root.transform);
-                    paper.GetComponent<Renderer>().material.SetTexture("_ShadowTexture", StageManager.I.CurrentInfo.BackgroundTexture);
-                    paper.GetComponent<Renderer>().material.SetTextureOffset("_ShadowTexture", new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight));
-                    paper.GetComponent<Renderer>().material.SetTextureScale("_ShadowTexture", new Vector2((xCoord.x-prevX)/StageWidth, (y-prevY)/StageHeight));
-                    paper.GetComponent<Renderer>().material.SetTexture("_Texture", StageManager.I.CurrentInfo.BackgroundNoShadowTexture);
-                    paper.GetComponent<Renderer>().material.SetTextureOffset("_Texture", new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight));
-                    paper.GetComponent<Renderer>().material.SetTextureScale("_Texture", new Vector2((xCoord.x-prevX)/StageWidth, (y-prevY)/StageHeight));
+					var mat = paper.GetComponent<Renderer> ().material;
+					SetTexture (mat, StageManager.I.CurrentInfo.BackgroundTexture, 
+								new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight), 
+								new Vector2((xCoord.x-prevX)/StageWidth, (y-prevY)/StageHeight));
                     
                     if (setX)
                     {
@@ -269,10 +267,11 @@ public class StageCreater : Singlton<StageCreater>
     private void InstantiateBackground(float x, float prevX, float y, float prevY, float xOffset, float yOffset, float zOffset, float thickness)
     {
         GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
-        paper.GetComponent<Renderer>().material.mainTexture = StageManager.I.CurrentInfo.LiningTexture;
-        paper.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight);
-        paper.GetComponent<Renderer>().material.mainTextureScale = new Vector2((x-prevX)/StageWidth, (y-prevY)/StageHeight);
-        
+		var mat = paper.GetComponent<Renderer> ().material;
+		SetTexture (mat, StageManager.I.CurrentInfo.LiningTexture, 
+			new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight), 
+			new Vector2((x-prevX)/StageWidth, (y-prevY)/StageHeight) );
+
         if(xOffset - (zOffset-_ZOffset) + (x - prevX)/2 < 0)
         {
             paper.transform.SetParent(_BackgroundLeft.transform);
@@ -309,6 +308,19 @@ public class StageCreater : Singlton<StageCreater>
         }
     }
 
+	private void SetTexture(Material target, Texture texture, Vector2 offset, Vector2 scale)
+	{
+		target.mainTexture = texture;
+		target.mainTextureOffset = offset;
+		target.mainTextureScale = scale;
+		target.SetTexture("_ShadowTexture", texture);
+		target.SetTextureOffset("_ShadowTexture", offset);
+		target.SetTextureScale("_ShadowTexture", scale);
+		target.SetTexture("_Texture", texture);
+		target.SetTextureOffset("_Texture", offset);
+		target.SetTextureScale("_Texture", scale);
+	}
+
     /// <summary>
     /// 表示物をセット
     /// </summary>
@@ -320,8 +332,8 @@ public class StageCreater : Singlton<StageCreater>
         Vector3 decoSetPos = new Vector3(-StageWidth / 2 - OFFSET * 2 + _XOffset, decoPos.y, _ZOffset - OFFSET * 2);
 
         float anchorHeightScale = 0f;
-        if (deco.GetComponent<DecorationObjectParameter>() != null)
-            anchorHeightScale = deco.GetComponent<DecorationObjectParameter>().leftHeightWithMaxWidth;
+		if (deco.GetComponent<StageObjectParameter>() != null)
+            anchorHeightScale = deco.GetComponent<StageObjectParameter>().HeightWithMaxWidth;
 
         bool facingX = true;
         float prevX = -StageWidth / 2;
