@@ -95,7 +95,10 @@ public class AudioManager : MonoBehaviour {
 [Serializable]
 public class AudioContents{
 	public enum AudioTitle{
-		TEST
+		TEST,
+		CLOSE,
+		TURN_OVER,
+		WALK
 	}
 	public AudioClip Clip;
 	public AudioTitle Title;
