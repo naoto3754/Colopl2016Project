@@ -24,24 +24,30 @@ public class StageInfomation : MonoBehaviour
 		get { return _BackgroundColor; }
 	}
     [SerializeField]
-    private Texture _BackgroundTexture;
-	public Texture BackgroundTexture
+    private Sprite _BackgroundTexture;
+	public Sprite BackgroundTexture
 	{
 		get { return _BackgroundTexture; }
 	}
     [SerializeField]
-    private Texture _BackgroundNoShadowTexture;
-	public Texture BackgroundNoShadowTexture
+    private Sprite _BackgroundNoShadowTexture;
+	public Sprite BackgroundNoShadowTexture
 	{
 		get { return _BackgroundNoShadowTexture; }
 	}
     [SerializeField]
-    private Texture _LiningTexture;
-	public Texture LiningTexture
+    private Sprite _LiningTexture;
+	public Sprite LiningTexture
 	{
 		get { return _LiningTexture; }
 	}
-    
+	[SerializeField]
+	private RuntimeAnimatorController[] _Animations;
+	public RuntimeAnimatorController[] Animations
+	{
+		get { return _Animations; }
+	}
+
     //Property
     public float StageWidth
     {
@@ -127,7 +133,7 @@ public class StageInfomation : MonoBehaviour
 				_Obstacle.Add (new Rectangle (pos, scale.x, scale.y, param.Color));
 				break;
 			case StageObjectType.TRIANGLE:
-				_Obstacle.Add (new Triangle(pos+new Vector3(scale.x, scale.y,0), pos+new Vector3(scale.x, -scale.y, 0), pos+new Vector3(-scale.x, -scale.y, 0), param.Color));
+				_Obstacle.Add (new Triangle(pos+new Vector3(-scale.x/2,scale.y/2,0), pos+new Vector3(scale.x/2, -scale.y/2, 0), pos+new Vector3(-scale.x/2, -scale.y/2, 0), param.Color));
 				break;
 			case StageObjectType.HOLE:
 				foreach (LineRenderer line in param.GetComponentsInChildren<LineRenderer>()) {

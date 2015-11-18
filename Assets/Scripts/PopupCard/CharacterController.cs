@@ -185,31 +185,21 @@ public class CharacterController : Singlton<CharacterController>
             {
                 if (r == 0) //x方向移動
                 {
-                    if (foldlineDist == delta + 1f)
+					xTrans.position = new Vector3(xOffset + charaPos.x - prevX - 0.01f, charaPos.y, zOffset - 0.01f);
+                    if (foldlineDist <= delta + 1f)
                     {
-                        xTrans.position = new Vector3(xOffset + charaPos.x - prevX - 0.01f, charaPos.y, zOffset - 0.01f);
-                        return;
-                    }
-                    else
-                    {
-                        xTrans.position = new Vector3(xOffset + charaPos.x - prevX - 0.01f, charaPos.y, zOffset - 0.01f);
                         zTrans.position = new Vector3(xOffset + x - prevX - 0.01f, charaPos.y, zOffset - delta / 2 + foldlineDist - 0.01f);
-                        return;
                     }
+					return;
                 }
                 else //z方向移動
                 {
-                    if (foldlineDist == delta + 1f)
-                    {
-                        zTrans.position = new Vector3(xOffset - 0.01f, charaPos.y, zOffset - charaPos.x + prevX - 0.01f);
-                        return;
-                    }
-                    else
+                    if (foldlineDist <= delta + 1f)
                     {
                         xTrans.position = new Vector3(xOffset + delta / 2 - foldlineDist - 0.01f, charaPos.y, zOffset - x + prevX - 0.01f);
-                        zTrans.position = new Vector3(xOffset - 0.01f, charaPos.y, zOffset - charaPos.x + prevX - 0.01f);
-                        return;
                     }
+					zTrans.position = new Vector3(xOffset - 0.01f, charaPos.y, zOffset - charaPos.x + prevX - 0.01f);
+					return;
                 }
             }
             else

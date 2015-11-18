@@ -199,11 +199,20 @@ public class StageCreater : Singlton<StageCreater>
                     
                     GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
                     paper.transform.SetParent(_Root.transform);
-					var mat = paper.GetComponent<Renderer> ().material;
-					SetTexture (mat, StageManager.I.CurrentInfo.BackgroundTexture, 
+					var sprite = paper.transform.GetChild (0);
+					SetTexture (sprite.GetComponent<SpriteRenderer>(), 
+								StageManager.I.CurrentInfo.BackgroundTexture, 
 								new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight), 
 								new Vector2((xCoord.x-prevX)/StageWidth, (y-prevY)/StageHeight));
-                    
+					foreach(var amim in StageManager.I.CurrentInfo.Animations)
+					{
+						GameObject layer = Instantiate (sprite.gameObject, sprite.position, sprite.rotation) as GameObject;
+						layer.transform.SetParent (paper.transform);
+						SetTexture (layer.GetComponent<SpriteRenderer>(), amim, 
+									new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight), 
+									new Vector2((xCoord.x-prevX)/StageWidth, (y-prevY)/StageHeight));
+					}
+					
                     if (setX)
                     {
                         paper.transform.position = new Vector3((xCoord.x - prevX) / 2 + xOffset + _XOffset, (y - prevY) / 2 + yOffset, zOffset + thickness / 2);
@@ -267,10 +276,10 @@ public class StageCreater : Singlton<StageCreater>
     private void InstantiateBackground(float x, float prevX, float y, float prevY, float xOffset, float yOffset, float zOffset, float thickness)
     {
         GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
-		var mat = paper.GetComponent<Renderer> ().material;
-		SetTexture (mat, StageManager.I.CurrentInfo.LiningTexture, 
-			new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight), 
-			new Vector2((x-prevX)/StageWidth, (y-prevY)/StageHeight) );
+		SetTexture (paper.transform.GetChild(0).GetComponent<SpriteRenderer>(), 
+					StageManager.I.CurrentInfo.LiningTexture, 
+					new Vector2(prevX/StageWidth+0.5f, prevY/StageHeight), 
+					new Vector2((x-prevX)/StageWidth, (y-prevY)/StageHeight) );
 
         if(xOffset - (zOffset-_ZOffset) + (x - prevX)/2 < 0)
         {
@@ -308,17 +317,23 @@ public class StageCreater : Singlton<StageCreater>
         }
     }
 
-	private void SetTexture(Material target, Texture texture, Vector2 offset, Vector2 scale)
+	private void SetTexture(SpriteRenderer target, Sprite sprite, Vector2 offset, Vector2 scale)
 	{
-		target.mainTexture = texture;
-		target.mainTextureOffset = offset;
-		target.mainTextureScale = scale;
-		target.SetTexture("_ShadowTexture", texture);
-		target.SetTextureOffset("_ShadowTexture", offset);
-		target.SetTextureScale("_ShadowTexture", scale);
-		target.SetTexture("_Texture", texture);
-		target.SetTextureOffset("_Texture", offset);
-		target.SetTextureScale("_Texture", scale);
+		target.sprite = sprite;
+		target.material.SetFloat ("_OffsetX", offset.x);
+		target.material.SetFloat ("_OffsetY", offset.y);
+		target.material.SetFloat ("_TilingX", scale.x);
+		target.material.SetFloat ("_TilingY", scale.y);
+	}
+	private void SetTexture(SpriteRenderer target, RuntimeAnimatorController anim, Vector2 offset, Vector2 scale)
+	{
+		Animator animator = target.gameObject.AddComponent<Animator> ();
+		animator.runtimeAnimatorController = anim;
+		target.sortingOrder = 0;
+		target.material.SetFloat ("_OffsetX", offset.x);
+		target.material.SetFloat ("_OffsetY", offset.y);
+		target.material.SetFloat ("_TilingX", scale.x);
+		target.material.SetFloat ("_TilingY", scale.y);
 	}
 
     /// <summary>

@@ -84,7 +84,7 @@ public class Triangle : Polygon
 		float z3 = (points[1].x-points[0].x)*(point.y-points[0].y)-(points[1].y-points[0].y)*(point.x-points[0].x);
 
 		if (CharacterController.I.color == color || color == ColorData.NONE)
-			return (z1>0 && z2>0 && z3>0) && (z1<0 && z2<0 && z3<0);
+			return (z1>=0 && z2>=0 && z3>=0) || (z1<=0 && z2<=0 && z3<=0);
 		else
 			return false;
 	}
