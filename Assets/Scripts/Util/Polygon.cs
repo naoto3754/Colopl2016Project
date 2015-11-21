@@ -107,6 +107,7 @@ public class Rectangle : Polygon
 		this.height = height;
 		color = c;
 	}
+		
 	/// <summary>
 	/// 点が矩形に含まれているかを判定
 	/// </summary>
@@ -118,5 +119,17 @@ public class Rectangle : Polygon
 		else
 			return false;
 
+	}
+
+	public bool IsOverlaped(Rectangle rect)
+	{
+		return rect.Contains (new Vector2 (left, up)) ||
+		rect.Contains (new Vector2 (right, up)) ||
+		rect.Contains (new Vector2 (left, bottom)) ||
+		rect.Contains (new Vector2 (right, bottom)) ||
+		this.Contains (new Vector2 (rect.left, rect.up)) ||
+		this.Contains (new Vector2 (rect.right, rect.up)) ||
+		this.Contains (new Vector2 (rect.left, rect.bottom)) ||
+		this.Contains (new Vector2 (rect.right, rect.bottom));
 	}
 }

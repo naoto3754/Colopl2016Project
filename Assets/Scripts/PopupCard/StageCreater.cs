@@ -25,6 +25,8 @@ public class StageCreater : Singlton<StageCreater>
     
     [SerializeField]
     private GameObject _Paper;
+	[SerializeField]
+	private Sprite _Fallback;
     private GameObject _Book;
     public GameObject Book
     {
@@ -319,7 +321,8 @@ public class StageCreater : Singlton<StageCreater>
 
 	private void SetTexture(SpriteRenderer target, Sprite sprite, Vector2 offset, Vector2 scale)
 	{
-		target.sprite = sprite;
+		target.sprite = sprite==null ? _Fallback : sprite;
+		target.sortingOrder = 0;
 		target.material.SetFloat ("_OffsetX", offset.x);
 		target.material.SetFloat ("_OffsetY", offset.y);
 		target.material.SetFloat ("_TilingX", scale.x);
