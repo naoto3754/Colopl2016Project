@@ -80,7 +80,7 @@ public class StageCreater : Singlton<StageCreater>
         {
             CharacterController.I.SetInitPos();
             _Sequence = DOTween.Sequence();
-            ReOpenStage(45f, 0.5f, 0.5f, 0f, ReOpenType.RESTART_STAGE); 
+            ReOpenStage(45f, 0.5f, 0.5f, 0.3f, ReOpenType.RESTART_STAGE); 
         }
     }
 
@@ -453,6 +453,7 @@ public class StageCreater : Singlton<StageCreater>
             IsPlayingAnimation = false; 
         });
         _PrevSequence.Play();
+		AudioManager.Instance.PlaySE (AudioContents.AudioTitle.TURN_OVER);
     }
     /// <summary>
     /// ステージを閉じて開く
@@ -479,7 +480,11 @@ public class StageCreater : Singlton<StageCreater>
             break;
         }
         PushCloseStage(closetime);
-        _Sequence.Append( _Root.transform.DOBlendableRotateBy(-angle*Vector3.up, opentime).SetEase(OPEN_EASE).SetDelay(waittime));
+		_Sequence.Append (transform.DOMove (transform.position, 0f).OnStart (() => {
+			if (type == ReOpenType.RESTART_STAGE)
+				AudioManager.Instance.PlaySE (AudioContents.AudioTitle.CLOSE);
+		}));
+		_Sequence.Append( _Root.transform.DOBlendableRotateBy(-angle*Vector3.up, opentime).SetEase(OPEN_EASE).SetDelay(waittime));
         _Sequence.Join( _BackgroundLeft.transform.DORotate(0*Vector3.up, opentime).SetEase(OPEN_EASE) );
         _Sequence.Join( _BackgroundRight.transform.DORotate(0*Vector3.up, opentime).SetEase(OPEN_EASE) );
         //はじめは本を開く処理もする
@@ -608,6 +613,7 @@ public class StageCreater : Singlton<StageCreater>
                 _Sequence_Step3.Join( _Book.transform.GetChild(0).DORotate(45*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
                 _Sequence_Step3.Join( _Book.transform.GetChild(1).DORotate(-135*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
                 ReverseAnimationStep3(opentime*2/3);
+				AudioManager.Instance.PlaySE (AudioContents.AudioTitle.CLOSE);
                 _Sequence_Step3.OnComplete(() => {
                     _Sequence_Step4 = DOTween.Sequence();
                     _Sequence_Step4.Append( _Root.transform.DOBlendableRotateBy(0*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );

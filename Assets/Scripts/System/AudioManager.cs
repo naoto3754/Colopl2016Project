@@ -72,6 +72,9 @@ public class AudioManager : MonoBehaviour {
 	public void PlaySE(AudioContents.AudioTitle Title){
 		foreach (AudioContents contents in SEList) {
 			if (contents.Title == Title) {
+				if (SESources [0].isPlaying && SESources [0].clip == contents.Clip)
+					return;
+				
 				SESources[0].Stop ();
 				SESources[0].clip = contents.Clip;
 				SESources[0].volume = contents.Volume;

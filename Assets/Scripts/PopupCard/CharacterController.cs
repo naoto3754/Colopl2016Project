@@ -308,6 +308,7 @@ public class CharacterController : Singlton<CharacterController>
             _CharacterZ.GetComponent<Animator>().Play("walk");
             _DestCharacterX.GetComponent<Animator>().Play("walk");
             _DestCharacterZ.GetComponent<Animator>().Play("walk");
+			AudioManager.Instance.PlaySE (AudioContents.AudioTitle.WALK);
         }
         else
         {
@@ -315,6 +316,7 @@ public class CharacterController : Singlton<CharacterController>
             _CharacterZ.GetComponent<Animator>().Play("idle");
             _DestCharacterX.GetComponent<Animator>().Play("idle");
             _DestCharacterZ.GetComponent<Animator>().Play("idle");
+			AudioManager.Instance.StopSE ();
         }
         //キャラクター向き
         if (moveDir.x > 0f)
