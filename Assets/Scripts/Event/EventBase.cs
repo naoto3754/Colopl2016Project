@@ -18,10 +18,7 @@ public class EventBase : MonoBehaviour {
 	void Update()
 	{
 		if (_EnableOnCharacter) {
-			if (CharacterController.I == null)
-				return;
-			
-			if (_Rect.Contains (CharacterController.CharaParam.Bottom))
+			if (_Rect.Contains (StageManager.I.CurrentController.Bottom))
 				Enter ();
 			else
 				Exit ();

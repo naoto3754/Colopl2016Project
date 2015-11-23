@@ -27,20 +27,20 @@ public class InGameManager : Singlton<InGameManager>
 	/// </summay>
 	public void OnRestart()
 	{
-		StageCreater.I.RestartStage();
+		StageAnimator.I.RestartStage();
 	}
 	/// <summay>
 	/// ホームに戻る
 	/// </summay>
 	public void OnReturnHome()
 	{
-		StageCreater.I.Clear();
+		StageManager.I.Clear();
 		StateManager.I.GoState(State.STAGE_SELECT);
 	}
 	
 	public void OnReverse()
 	{
-		StageCreater.I.Reverse();
+		StageAnimator.I.Reverse();
 	}
 	
 	public void OnPressMenu()
@@ -131,7 +131,6 @@ public class InGameManager : Singlton<InGameManager>
 		seq.OnComplete(() => 
 		{
 			blur.enabled = false;
-			StageCreater.I.IsPlayingAnimation = false;
 			_NowDisplaying = false;
 		});
 		seq.Play();

@@ -29,10 +29,10 @@ public class Line
 	/// </summary>
 	public bool ThroughLine(Vector2 startpos, Vector2 endpos)
 	{
-		if (param == null || CharacterController.I.color == param.Color || param.Color == ColorData.NONE) {
+		if (param == null || StageManager.I.CurrentController == null || StageManager.I.CurrentController.color == param.Color || param.Color == ColorData.NONE) {
 			if (param == null || param.EnableCase == StageObjectParameter.EnableFlag.ALWAYS ||
-				(param.EnableCase == StageObjectParameter.EnableFlag.IS_TOP && CharacterController.I.IsTopOfWall) ||
-				(param.EnableCase == StageObjectParameter.EnableFlag.ISNOT_TOP && CharacterController.I.IsTopOfWall == false))
+				(param.EnableCase == StageObjectParameter.EnableFlag.IS_TOP && StageManager.I.CurrentController.IsTopOfWall) ||
+				(param.EnableCase == StageObjectParameter.EnableFlag.ISNOT_TOP && StageManager.I.CurrentController.IsTopOfWall == false))
 			{
 				return Cross (points [1] - points [0], startpos - points [0]) * Cross (points [1] - points [0], endpos - points [0]) <= 0 &&
 					Cross (endpos - startpos, points [0] - startpos) * Cross (endpos - startpos, points [1] - startpos) <= 0;
@@ -83,7 +83,7 @@ public class Triangle : Polygon
 		float z2 = (points[0].x-points[2].x)*(point.y-points[2].y)-(points[0].y-points[2].y)*(point.x-points[2].x);
 		float z3 = (points[1].x-points[0].x)*(point.y-points[0].y)-(points[1].y-points[0].y)*(point.x-points[0].x);
 
-		if (CharacterController.I.color == color || color == ColorData.NONE)
+		if (StageManager.I.CurrentController.color == color || color == ColorData.NONE)
 			return (z1>=0 && z2>=0 && z3>=0) || (z1<=0 && z2<=0 && z3<=0);
 		else
 			return false;
@@ -114,7 +114,7 @@ public class Rectangle : Polygon
 	public override bool Contains(Vector2 point)
 	{
 		Vector2 diff = center - point;
-		if (CharacterController.I.color == color || color == ColorData.NONE)
+		if (StageManager.I.CurrentController.color == color || color == ColorData.NONE)
 			return Mathf.Abs(diff.x) <= width / 2 && Mathf.Abs(diff.y) <= height / 2;
 		else
 			return false;

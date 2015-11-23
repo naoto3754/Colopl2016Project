@@ -7,8 +7,6 @@ public class StageInfomation : MonoBehaviour
 {
     //Inspector上で決定する項目
     [SerializeField]
-    private GameObject _Character;
-    [SerializeField]
     private Transform _StageSize;
 
     [SerializeField]
@@ -126,9 +124,6 @@ public class StageInfomation : MonoBehaviour
 				var targetLineList = GetLineList (param.LineType);
 				targetLineList.Add(new Line(pos, pos + scale, param));
 				break;
-			case StageObjectType.GOAL:
-				_Goal = param.GetComponent<Goal>();
-				break;
 			case StageObjectType.RECTANGLE:
 				_Obstacle.Add (new Rectangle (pos, scale.x, scale.y, param.Color));
 				break;
@@ -141,8 +136,12 @@ public class StageInfomation : MonoBehaviour
 						_HoleLine.Add (new Line (line.transform.position, line.transform.position + line.transform.lossyScale, null));
 				}
 				break;
+			case StageObjectType.GOAL:
+				_Goal = param.GetComponent<Goal>()==null ? param.gameObject.AddComponent<Goal>() : param.GetComponent<Goal>();
+				break;
 			case StageObjectType.LADDER:
-				//Do nothing
+				if (param.GetComponent<Ladder> () == null)
+					param.gameObject.AddComponent<Ladder> ();
 				break;
 			}
 
@@ -176,12 +175,9 @@ public class StageInfomation : MonoBehaviour
     {
         if(StageManager.I.CurrentInfo != null)
             Destroy(StageManager.I.CurrentInfo.gameObject);
-        if(_Character != null)
-        {
-            CharacterController.I.ClearStage = false;
-            CharacterController.I.DummyCharacter = _Character;
-        }
         StageManager.I.CurrentInfo = this;
-        StageCreater.I.CreateNewStage(_Character != null);
+        StageCreater.I.CreateNewStage();
+		GetComponentInChildren<CustomCharaController> ().Init ();
+		StageAnimator.I.OpenStage ();
     }
 }

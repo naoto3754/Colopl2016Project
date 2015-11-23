@@ -4,54 +4,25 @@ using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 
-public class CharacterController : Singlton<CharacterController>
+public class CustomCharaController : MonoBehaviour
 {
     private GameObject _CharacterX;
-    public GameObject CharacterX
-    {
-		get { return _CharacterX; }
-        set { _CharacterX = value; }
-    }
     private GameObject _CharacterZ;
-    public GameObject CharacterZ
-    {
-		get { return _CharacterZ; }
-        set { _CharacterZ = value; }
-    }
     private GameObject _DestCharacterX;
-    public GameObject DestCharacterX
-    {
-		get { return _DestCharacterX; }
-        set { _DestCharacterX = value; }
-    }
     private GameObject _DestCharacterZ;
-    public GameObject DestCharacterZ
-    {
-		get { return _DestCharacterZ; }
-        set { _DestCharacterZ = value; }
-    }
     private GameObject _DummyCharacter;
-    public GameObject DummyCharacter
-    {
-        get { return _DummyCharacter; }
-        set { _DummyCharacter = value; }
-    }
 
     public Vector2 InitPosition
     {
         get; set;
     }
-	public Vector3 GoalPos
-	{
-		get; set;
-	}
 
-    [SerializeField]
-    private float _Speed;
-    [SerializeField]
-    private float _DropSpeed;
-    [SerializeField]
-    public ColorData color;
+    private float _Speed = 6;
+    private float _DropSpeed = 4;
+	public ColorData color {
+		get;
+		set;
+	}
 
     //キャラクターの状態を表すプロパティ
     public bool IsTopOfWall
@@ -67,10 +38,44 @@ public class CharacterController : Singlton<CharacterController>
 		set;
 	}
 
+	public void Init()
+	{
+		StageManager.I.CurrentController = this;
+		_DummyCharacter = this.gameObject;
+		color = StageManager.I.CurrentInfo.InitialCharacterColor;
+		InitPosition = _DummyCharacter.transform.position;
+
+		_CharacterX = CreateCharacter (ColorManager.GetColorWithColorData(StageManager.I.CurrentInfo.InitialCharacterColor), true);
+		_CharacterZ = CreateCharacter (ColorManager.GetColorWithColorData(StageManager.I.CurrentInfo.InitialCharacterColor), false);
+		_DestCharacterX = CreateCharacter (new Color(0,0,0,0.5f), true);
+		_DestCharacterZ = CreateCharacter (new Color(0,0,0,0.5f), false);
+
+		UpdateDummyCharacterPosition(0.01f*Vector2.right);
+	}
+	private GameObject CreateCharacter(Color initColor,bool xDir)
+	{
+		GameObject character = Instantiate(_DummyCharacter, Vector3.zero, Quaternion.identity) as GameObject;
+		if(xDir == false)
+			character.transform.Rotate(0f, 90f, 0f);
+		character.transform.SetParent(StageManager.I.Root.transform);
+		character.tag = xDir ? StageCreater.X_TAG_NAME : StageCreater.Z_TAG_NAME;
+		//TODO:色を決める
+		var face = character.transform.GetChild (0).GetComponent<SpriteRenderer> ();
+		var body = character.transform.GetChild (1).GetComponent<SpriteRenderer> ();
+		face.material.SetColor("_MainColor", Color.white);
+		face.sortingOrder = 101;
+		body.material.SetColor("_MainColor", initColor);
+		body.sortingOrder = 100;
+		if(xDir)
+			ColorManager.MultiplyShadowColor(character.transform.GetChild(1).gameObject);
+		Destroy (character.GetComponent<CustomCharaController> ());
+		return character;
+	}
+
     void Update()
     {
         //アニメーション中はキャラクターを動かさない
-        if (StageCreater.I.IsPlayingAnimation)
+        if (StageAnimator.I.IsPlayingAnimation)
 			return;
 
 		if (ClearStage)
@@ -81,7 +86,7 @@ public class CharacterController : Singlton<CharacterController>
 			ClearAction ();
 
 		if (InputManager.I.GetDoubleTap ()) {
-			StageCreater.I.Reverse ();
+			StageAnimator.I.Reverse ();
 		}
 
         //入力を取得
@@ -175,9 +180,9 @@ public class CharacterController : Singlton<CharacterController>
     {
         int r = 0;
         float foldlineDist = StageManager.I.CalcFoldLineDistance(charaPos - delta / 2 * Vector3.right, delta);
-        float prevX = -StageCreater.I.StageWidth / 2;
-        float xOffset = StageCreater.I.XOffset - StageCreater.I.StageWidth / 2;
-        float zOffset = StageCreater.I.ZOffset;
+        float prevX = -StageManager.I.CurrentInfo.StageWidth / 2;
+		float xOffset = StageManager.I.Offset.x - StageManager.I.CurrentInfo.StageWidth / 2;
+		float zOffset = StageManager.I.Offset.z;
         float charaAnchor = charaPos.x - delta / 2;
         foreach (float x in foldXList)
         {
@@ -344,8 +349,8 @@ public class CharacterController : Singlton<CharacterController>
 	{
 		ClearStage = true;
 		Sequence sequence = DOTween.Sequence ();
-		sequence.Join ( _CharacterX.transform.DOMove(GoalPos-Vector3.up, 1f) );
-		sequence.Join ( _CharacterZ.transform.DOMove(GoalPos-Vector3.up, 1f) );
+		sequence.Join ( _CharacterX.transform.DOMove(StageManager.I.GoalPos-Vector3.up, 1f) );
+		sequence.Join ( _CharacterZ.transform.DOMove(StageManager.I.GoalPos-Vector3.up, 1f) );
 		foreach (Material mat in _CharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material))
 			sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
 		foreach (Material mat in _CharacterZ.GetComponentsInChildren<Renderer>().Select(x => x.material))
@@ -364,94 +369,79 @@ public class CharacterController : Singlton<CharacterController>
 		});
 		sequence.Play ();
 	}
+		
+	public void SetPosition(Vector3 pos)
+	{
+		_DummyCharacter.transform.position = pos;
+	}
 
-    //キャラクターの位置パラメータ
-    public class CharaParam
+    private readonly float ASPECT_RATE = 682f / 423f;
+    public  Vector3 Bottom
     {
-        private static readonly float ASPECT_RATE = 682f / 423f;
-        public static Vector3 Bottom
+        get { return _DummyCharacter.transform.position; }
+    }
+    public  Vector3 BottomLeft
+    {
+        get
         {
-            get { return CharacterController.I.DummyCharacter.transform.position; }
+            return _DummyCharacter.transform.position
+                   + new Vector3(-_DummyCharacter.transform.lossyScale.x / 2, 0f, 0f);
         }
-        public static Vector3 BottomLeft
+    }
+    public Vector3 BottomRight
+    {
+        get
         {
-            get
-            {
-                return CharacterController.I.DummyCharacter.transform.position
-                       + new Vector3(-CharacterController.I.DummyCharacter.transform.lossyScale.x / 2,
-                                     0f,
-                                     0f);
-            }
+            return _DummyCharacter.transform.position
+                   + new Vector3(_DummyCharacter.transform.lossyScale.x / 2, 0f, 0f);
         }
-        public static Vector3 BottomRight
+    }
+    public Vector3 Center
+    {
+        get
         {
-            get
-            {
-                return CharacterController.I.DummyCharacter.transform.position
-                       + new Vector3(CharacterController.I.DummyCharacter.transform.lossyScale.x / 2,
-                                      0f,
-                                      0f);
-            }
+            return _DummyCharacter.transform.position
+                   + new Vector3(0f, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE / 2, 0f);
         }
-        public static Vector3 Center
+    }
+    public Vector3 Left
+    {
+        get
         {
-            get
-            {
-                return CharacterController.I.DummyCharacter.transform.position
-                       + new Vector3(0f,
-                                     CharacterController.I.DummyCharacter.transform.lossyScale.y * ASPECT_RATE / 2,
-                                     0f);
-            }
+            return _DummyCharacter.transform.position
+                   + new Vector3(-_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE / 2, 0f);
         }
-        public static Vector3 Left
+    }
+    public Vector3 Right
+    {
+        get
         {
-            get
-            {
-                return CharacterController.I.DummyCharacter.transform.position
-                       + new Vector3(-CharacterController.I.DummyCharacter.transform.lossyScale.x / 2,
-                                     CharacterController.I.DummyCharacter.transform.lossyScale.y * ASPECT_RATE / 2,
-                                     0f);
-            }
+            return _DummyCharacter.transform.position
+                   + new Vector3(_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE / 2, 0f);
         }
-        public static Vector3 Right
+    }
+    public Vector3 Top
+    {
+        get
         {
-            get
-            {
-                return CharacterController.I.DummyCharacter.transform.position
-                       + new Vector3(CharacterController.I.DummyCharacter.transform.lossyScale.x / 2,
-                                     CharacterController.I.DummyCharacter.transform.lossyScale.y * ASPECT_RATE / 2,
-                                     0f);
-            }
+            return _DummyCharacter.transform.position
+                   + new Vector3(0f, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE, 0f);
         }
-        public static Vector3 Top
+    }
+    public Vector3 TopLeft
+    {
+        get
         {
-            get
-            {
-                return CharacterController.I.DummyCharacter.transform.position
-                       + new Vector3(0f,
-                                     CharacterController.I.DummyCharacter.transform.lossyScale.y * ASPECT_RATE,
-                                     0f);
-            }
+            return _DummyCharacter.transform.position
+                   + new Vector3(-_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE, 0f);
         }
-        public static Vector3 TopLeft
+    }
+    public Vector3 TopRight
+    {
+        get
         {
-            get
-            {
-                return CharacterController.I.DummyCharacter.transform.position
-                       + new Vector3(-CharacterController.I.DummyCharacter.transform.lossyScale.x / 2,
-                                     CharacterController.I.DummyCharacter.transform.lossyScale.y * ASPECT_RATE,
-                                     0f);
-            }
-        }
-        public static Vector3 TopRight
-        {
-            get
-            {
-                return CharacterController.I.DummyCharacter.transform.position
-                       + new Vector3(CharacterController.I.DummyCharacter.transform.lossyScale.x / 2,
-                                     CharacterController.I.DummyCharacter.transform.lossyScale.y * ASPECT_RATE,
-                                     0f);
-            }
+            return _DummyCharacter.transform.position
+                   + new Vector3(_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE, 0f);
         }
     }
 }

@@ -177,14 +177,14 @@ public class StageSelectManager : Singlton<StageSelectManager> {
 		
 		GameObject selectedBook = Instantiate(tappedObj, tappedObj.transform.position, tappedObj.transform.rotation) as GameObject;
 		_Shelf.SetActive(false);		
-		StageCreater.I.Book = selectedBook;
+		StageManager.I.Book = selectedBook;
 		SelectedChapter = tappedObj.GetComponent<Book>().chapter;
 		SelectedBookID = tappedObj.GetComponent<Book>().bookID;
 		SelectedStageIdx = 0;
 		
 		_Sequence = DOTween.Sequence();
 		_Sequence.Append( selectedBook.transform.DOMove(BOOK_POS, ANIMATION_TIME) );
-		_Sequence.Join( selectedBook.transform.DORotate((StageCreater.I.START_ANGLE-90)*Vector3.up, ANIMATION_TIME) );
+		_Sequence.Join( selectedBook.transform.DORotate((StageAnimator.I.START_ANGLE-90)*Vector3.up, ANIMATION_TIME) );
 		_Sequence.Join( selectedBook.transform.DOScale(BOOK_SCALE, ANIMATION_TIME) );
 		_Sequence.OnComplete( () => {
 			StateManager.I.GoState(State.INGAME);
