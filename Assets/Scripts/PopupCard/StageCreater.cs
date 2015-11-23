@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 
-public class StageCreater : Singlton<StageCreater>
+public class StageCreater : Singleton<StageCreater>
 {
     public enum ReOpenType
     {

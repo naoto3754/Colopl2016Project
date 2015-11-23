@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using DG.Tweening;
 
-public class FadeManager : Singlton<FadeManager> { 
+public class FadeManager : Singleton<FadeManager> { 
 	readonly Color INIT_COLOR = new Color(0,0,0,0);
 	
 	Image _FadeImage;

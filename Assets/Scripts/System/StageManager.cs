@@ -3,12 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class StageManager : Singlton<StageManager>
+public class StageManager : Singleton<StageManager>
 {
 
     [SerializeField]
     private List<GameObject> _Stages;
-    
+	public int StageCount
+	{
+		get { return _Stages.Count; }
+	}
+
     private int _CurrentChapter;
     public int CurrentChapter
     {

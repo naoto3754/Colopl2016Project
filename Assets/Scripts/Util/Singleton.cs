@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Singlton<T> : MonoBehaviour where T : Singlton<T> {
+public class Singleton<T> : MonoBehaviour where T : Singleton<T> {
 	static T instance = null;
 	 public static T I
 	 {

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class InputManager : Singlton<InputManager>
+public class InputManager : Singleton<InputManager>
 {
 	//定数
 	public const bool SWIPEMODE_TIME_LIMIT = true;

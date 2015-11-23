@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityStandardAssets.ImageEffects;
 using DG.Tweening;
 
-public class InGameManager : Singlton<InGameManager> 
+public class InGameManager : Singleton<InGameManager> 
 {
 	
 	readonly float FADEIN_DURATION = 1f;

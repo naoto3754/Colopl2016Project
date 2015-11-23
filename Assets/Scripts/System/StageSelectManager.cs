@@ -5,7 +5,7 @@ using DG.Tweening;
 /*
  * ステージセレクト画面時の挙動を制御
  */
-public class StageSelectManager : Singlton<StageSelectManager> {
+public class StageSelectManager : Singleton<StageSelectManager> {
 	private readonly float ANIMATION_TIME = 2f;
 	private readonly float ZOOM_TIME = 0.5f;
 	private readonly float LEAN_TIME = 0.2f;

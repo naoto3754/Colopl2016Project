@@ -5,7 +5,7 @@ using System.Collections;
 /*
  * ゲームの進行を管理する
  */
-public class StateManager : Singlton<StateManager> {
+public class StateManager : Singleton<StateManager> {
 
 	[SerializeField]
 	private GameObject _Title;
