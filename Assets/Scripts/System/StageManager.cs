@@ -41,9 +41,6 @@ public class StageManager : Singleton<StageManager>
 	public CustomCharaController CurrentController {
 		get; set;
 	}
-	public Vector3 GoalPos{ 
-		get; set;
-	}
 	public GameObject PreviousRoot {
 		get; set;
 	}

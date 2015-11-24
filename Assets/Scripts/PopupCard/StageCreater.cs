@@ -256,10 +256,10 @@ public class StageCreater : Singleton<StageCreater>
         else
             decoSetPos.z -= decoPos.x - prevX;
         GameObject newDeco = Instantiate(deco, decoSetPos, deco.transform.rotation) as GameObject;
+		Destroy (newDeco.GetComponent<StageObjectParameter> ());
+		param.ObjectsOnStage.Add (newDeco);
         newDeco.transform.SetParent(StageManager.I.Root.transform);
-		if (newDeco.GetComponent<Goal> () != null) {
-			StageManager.I.GoalPos = decoSetPos;
-		}
+
         if (facingX)
         {
             ColorManager.MultiplyShadowColor(newDeco);
@@ -286,6 +286,8 @@ public class StageCreater : Singleton<StageCreater>
                 newDecoPos.y = newDeco.transform.position.y;
                 newDecoPos.z = newDeco.transform.position.z - decoScale.x / 2 + foldlineDist;
                 GameObject newDeco2 = Instantiate(deco, newDecoPos, deco.transform.rotation) as GameObject;
+				Destroy (newDeco2.GetComponent<StageObjectParameter> ());
+				param.ObjectsOnStage.Add (newDeco2);
                 newDeco2.transform.SetParent(StageManager.I.Root.transform);
                 newDeco2.transform.eulerAngles += new Vector3(0f, 90f, 0f);
                 newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist / delta);

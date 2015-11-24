@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class StageObjectParameter : MonoBehaviour {
 	public StageObjectType Type;
@@ -12,15 +13,17 @@ public class StageObjectParameter : MonoBehaviour {
 	public EnableFlag EnableCase = EnableFlag.ALWAYS;
 	public float HeightWithMaxWidth = 0f;
 
-	
+	public List<GameObject> _ObjectOnStage = new List<GameObject>();
+	public List<GameObject> ObjectsOnStage {
+		get { return _ObjectOnStage; }
+	}
+
 	public enum EnableFlag
 	{
 		ALWAYS,
 		ISNOT_TOP,
 		IS_TOP,
 	}
-
-
 }
 	
 public enum StageObjectType

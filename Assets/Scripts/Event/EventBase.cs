@@ -3,7 +3,7 @@ using System.Collections;
 
 public class EventBase : MonoBehaviour {
 	[SerializeField]
-	protected bool _EnableOnCharacter;
+	protected bool _EnableOnCharacter = true;
 //	[SerializeField]
 //	protected bool _EnableOnTouch;
 

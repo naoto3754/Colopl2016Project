@@ -347,10 +347,11 @@ public class CustomCharaController : MonoBehaviour
 
 	private void ClearAction()
 	{
+		Vector3 goalPos = StageManager.I.CurrentInfo.GoalObj.GetComponent<StageObjectParameter> ().ObjectsOnStage [0].transform.position;
 		ClearStage = true;
 		Sequence sequence = DOTween.Sequence ();
-		sequence.Join ( _CharacterX.transform.DOMove(StageManager.I.GoalPos-Vector3.up, 1f) );
-		sequence.Join ( _CharacterZ.transform.DOMove(StageManager.I.GoalPos-Vector3.up, 1f) );
+		sequence.Join ( _CharacterX.transform.DOMove(goalPos-Vector3.up, 1f) );
+		sequence.Join ( _CharacterZ.transform.DOMove(goalPos-Vector3.up, 1f) );
 		foreach (Material mat in _CharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material))
 			sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
 		foreach (Material mat in _CharacterZ.GetComponentsInChildren<Renderer>().Select(x => x.material))
