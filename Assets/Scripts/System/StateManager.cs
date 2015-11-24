@@ -53,9 +53,10 @@ public class StateManager : Singleton<StateManager> {
 				child.gameObject.SetActive(true);
 			break;
 		case State.STAGE_SELECT:
-			foreach(Transform child in _StageSelect.transform)
-				child.gameObject.SetActive(true);
-			StageSelectManager.I.Init();
+			foreach (Transform child in _StageSelect.transform)
+				child.gameObject.SetActive (true);
+			StageSelectManager.I.Init ();
+			CollectionManager.I.ActivateSprite ();
 			break;
 		case State.INGAME:
 			foreach(Transform child in _InGame.transform)

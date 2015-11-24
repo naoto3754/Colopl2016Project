@@ -403,8 +403,9 @@ public class StageManager : Singleton<StageManager>
 
 	public void Clear()
 	{
-		CurrentInfo = null;
 		CurrentController = null;
+		DestroyObject (CurrentInfo.gameObject);
+		CurrentInfo = null;
 		DestroyObject (Book);
 		DestroyObject (Root);
 		DestroyObject (PreviousRoot);
@@ -418,10 +419,4 @@ public class StageManager : Singleton<StageManager>
 		if(obj != null)
 			Destroy(obj);
 	}
-
-//	void Update()
-//	{
-//		Debug.Log(CurrentInfo);
-//		Debug.Log(CurrentController);
-//	}
 }
