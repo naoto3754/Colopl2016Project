@@ -178,7 +178,7 @@ public class StageCreater : Singleton<StageCreater>
 		if (sprite == null) {
 			target.sprite = _Fallback;
 			if (isBackground)
-				target.color = new Color(1f, 165f/255f, 200f/255f, 1f);
+				target.color = StageManager.I.CurrentInfo.BackgroundColor;
 			if (setX)
 				ColorManager.MultiplyShadowColor (target.gameObject);
 		} else {
