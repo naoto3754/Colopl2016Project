@@ -73,21 +73,21 @@ public class CustomCharaController : MonoBehaviour
 	}
 
     void Update()
-    {
-        //アニメーション中はキャラクターを動かさない
-        if (StageAnimator.I.IsPlayingAnimation)
-			return;
-
+	{
 		if (ClearStage)
+			return;
+		
+		if (InputManager.I.GetDoubleTap ()) {
+			StageAnimator.I.Reverse ();
+		}
+
+        //アニメーション中はキャラクターを動かさない
+		if (StageAnimator.I.IsPlayingAnimation)
 			return;
 
 		if (Input.GetKeyDown (KeyCode.C) || ( StageManager.I.CurrentInfo.GoalObj != null &&
 			StageManager.I.CurrentInfo.GoalObj.Rect.Contains(_DummyCharacter.transform.position) ))
 			ClearAction ();
-
-		if (InputManager.I.GetDoubleTap ()) {
-			StageAnimator.I.Reverse ();
-		}
 
         //入力を取得
         float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal");

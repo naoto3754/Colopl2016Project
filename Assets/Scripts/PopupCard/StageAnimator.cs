@@ -64,7 +64,7 @@ public class StageAnimator : Singleton<StageAnimator>
 		ReOpenStageForReverse(1f, 1f, 0.3f);
 		Vector3 pos = StageManager.I.CurrentController.Bottom;
 		pos.x *= -1;
-		StageManager.I.CurrentController.SetPosition(pos); 
+		StageManager.I.CurrentController.SetPosition(pos);
 	}
 
 	public void RestartStage()
@@ -178,7 +178,7 @@ public class StageAnimator : Singleton<StageAnimator>
 			foreach (Transform tmp in rootChildren)
 			{
 				tmp.GetChild(0).SetParent(StageManager.I.Root.transform);
-				Destroy(tmp.gameObject);
+				DestroyImmediate(tmp.gameObject);
 			}
 			switch(type)
 			{    
@@ -280,7 +280,6 @@ public class StageAnimator : Singleton<StageAnimator>
 	}
 	public void ReverseAnimationStep1(float time)
 	{
-
 		List<Transform> rootChildren = new List<Transform>(StageManager.I.Root.transform.childCount);
 		foreach (Transform child in StageManager.I.Root.transform)
 			rootChildren.Add(child);
@@ -291,7 +290,7 @@ public class StageAnimator : Singleton<StageAnimator>
 
 			anchorPos = new Vector3(StageManager.I.Offset.x+StageCreater.THICKNESS/2, 0f, stageObj.position.z);
 
-			GameObject anchor = new GameObject("TmpAnchor");
+			GameObject anchor = new GameObject("TmpAnchor1");
 			anchor.transform.SetParent(StageManager.I.Root.transform);
 			anchor.transform.position = anchorPos;
 			stageObj.SetParent(anchor.transform);
@@ -326,7 +325,7 @@ public class StageAnimator : Singleton<StageAnimator>
 			Vector3 pos = stageObj.transform.position;
 			float sign = Mathf.Sign( pos.x-(StageManager.I.Offset.x-StageManager.I.CurrentInfo.StageWidth/2) - (pos.z-StageManager.I.Offset.z) - StageManager.I.CurrentInfo.StageWidth/2 );
 
-			GameObject anchor = new GameObject("TmpAnchor");
+			GameObject anchor = new GameObject("TmpAnchor2");
 			anchor.transform.position = new Vector3(StageManager.I.Offset.x, 0f, StageManager.I.Offset.z);
 			anchor.transform.SetParent(tmpAnchor);
 			stageObj.SetParent(anchor.transform);
@@ -404,7 +403,7 @@ public class StageAnimator : Singleton<StageAnimator>
 			{
 				Transform stageObj = tmpAnchor.GetChild(0).GetChild(0);
 				stageObj.SetParent(StageManager.I.Root.transform);
-				Destroy(tmpAnchor.gameObject);
+				DestroyImmediate(tmpAnchor.gameObject);
 			}
 			IsPlayingAnimation = false;
 		});
