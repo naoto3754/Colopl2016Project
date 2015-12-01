@@ -190,8 +190,10 @@ public class StageSelectManager : Singleton<StageSelectManager> {
 		_Sequence.Kill();
 		
 		_IsGoingIngame = true;
-		Camera.main.orthographicSize = _DefaultCameraScale;
-		Camera.main.transform.position = _DefaultCameraPos;
+		_IsZooming = false;
+		Camera.main.DOOrthographicSize(_DefaultCameraScale, ZOOM_TIME);
+		Camera.main.transform.DOMove(_DefaultCameraPos, ZOOM_TIME);
+		ResetBook (tappedObj);
 
 		_SelectedBook = tappedObj;
 		GameObject selectedBook = Instantiate(tappedObj, tappedObj.transform.position, tappedObj.transform.rotation) as GameObject;
