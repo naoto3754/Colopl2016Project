@@ -3,7 +3,7 @@ using UnityEditor;
 
 [CustomEditor(typeof(StageObjectParameter))]
 [CanEditMultipleObjects]
-public class CustomStageObjectParameter : Editor 
+public class StageObjectParameterEditor : Editor 
 {
 	SerializedProperty typeProp;
 	SerializedProperty lineProp;
@@ -94,6 +94,7 @@ public class CustomStageObjectParameter : Editor
 		case StageObjectType.GOAL:
 		case StageObjectType.LADDER:
 		case StageObjectType.RECTANGLE:
+		case StageObjectType.DECORATION:
 			AssignFlag (false, false, true, false, false, false, false, false);
 			break;
 		case StageObjectType.TRIANGLE:

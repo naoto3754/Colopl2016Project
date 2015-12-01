@@ -53,6 +53,7 @@ public class StageAnimator : Singleton<StageAnimator>
 		else
 		{
 			ReOpenStage(START_ANGLE, ANIMATION_TIME, 0.001f, 0f, ReOpenType.FIRST_OPEN);
+//			ReOpenStage(START_ANGLE, ANIMATION_TIME, ANIMATION_TIME, 0f, ReOpenType.FIRST_OPEN);
 		}
 	}
 
@@ -62,9 +63,6 @@ public class StageAnimator : Singleton<StageAnimator>
 
 		_Sequence = DOTween.Sequence();
 		ReOpenStageForReverse(1f, 1f, 0.3f);
-		Vector3 pos = StageManager.I.CurrentController.Bottom;
-		pos.x *= -1;
-		StageManager.I.CurrentController.SetPosition(pos);
 	}
 
 	public void RestartStage()
@@ -72,11 +70,31 @@ public class StageAnimator : Singleton<StageAnimator>
 		if (IsPlayingAnimation)
 			return;
 
-		StageManager.I.CurrentController.SetInitPos();
 		_Sequence = DOTween.Sequence();
 		ReOpenStage(45f, 0.5f, 0.5f, 0.3f, ReOpenType.RESTART_STAGE);
 	}
 
+	/// <summary>
+	/// ステージを閉じる
+	/// </summary>
+	public void CloseStage(float angle, float closetime)
+	{
+		_Sequence = DOTween.Sequence ();
+		_Sequence.Append( StageManager.I.Root.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+		_Sequence.Join( StageManager.I.BackgroundLeft.transform.DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+		_Sequence.Join( StageManager.I.BackgroundRight.transform.DORotate(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+		_Sequence.Join( StageManager.I.Book.transform.GetChild(0).DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+		_Sequence.Join( StageManager.I.Book.transform.GetChild(1).DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+
+		PushCloseStage(closetime);
+		_Sequence.OnComplete(() => { 
+			StageManager.I.Clear();
+			IsPlayingAnimation = false; 
+			StateManager.I.GoState(State.STAGE_SELECT);
+		});
+		_Sequence.Play();
+		AudioManager.Instance.PlaySE (AudioContents.AudioTitle.TURN_OVER);
+	}
 	/// <summary>
 	/// ステージを閉じて開く
 	/// </summary>
@@ -130,7 +148,11 @@ public class StageAnimator : Singleton<StageAnimator>
 		PushCloseStage(closetime);
 		_Sequence.Append (transform.DOMove (transform.position, 0f).OnStart (() => {
 			if (type == ReOpenType.RESTART_STAGE)
+			{
+				StageManager.I.CurrentController.SetInitPos();
+//				StageManager.I.CurrentController.UpdateDummyCharacterPosition(0.01f*Vector2.right);
 				AudioManager.Instance.PlaySE (AudioContents.AudioTitle.CLOSE);
+			}
 		}));
 		_Sequence.Append( StageManager.I.Root.transform.DOBlendableRotateBy(-angle*Vector3.up, opentime).SetEase(OPEN_EASE).SetDelay(waittime));
 		_Sequence.Join( StageManager.I.BackgroundLeft.transform.DORotate(0*Vector3.up, opentime).SetEase(OPEN_EASE) );
@@ -180,13 +202,13 @@ public class StageAnimator : Singleton<StageAnimator>
 				tmp.GetChild(0).SetParent(StageManager.I.Root.transform);
 				DestroyImmediate(tmp.gameObject);
 			}
-			switch(type)
-			{    
-			case ReOpenType.FIRST_OPEN:
-			case ReOpenType.TO_NEXT:
-				InGameManager.I.DisplayDictionary();
-				break;
-			}
+//			switch(type)
+//			{    
+//			case ReOpenType.FIRST_OPEN:
+//			case ReOpenType.TO_NEXT:
+//				InGameManager.I.DisplayDictionary();
+//				break;
+//			}
 			IsPlayingAnimation = false;
 		});
 	}
@@ -231,6 +253,13 @@ public class StageAnimator : Singleton<StageAnimator>
 		}
 	}
 
+	private void SwapCharacter()
+	{
+		StageManager.I.CurrentController.SwapCharacter();
+		Vector3 pos = StageManager.I.CurrentController.Bottom;
+		pos.x *= -1;
+		StageManager.I.CurrentController.SetPosition(pos);
+	}
 	/// <summary>
 	/// ステージを閉じて開く
 	/// </summary>
@@ -254,6 +283,7 @@ public class StageAnimator : Singleton<StageAnimator>
 			_Sequence_Step2.Join( StageManager.I.Book.transform.GetChild(1).DORotate(-45*Vector3.up, closetime*2/3).SetEase(CLOSE_EASE) );
 			ReverseAnimationStep2(closetime*2/3);
 			_Sequence_Step2.OnComplete(() => {
+				SwapCharacter();
 				_Sequence_Step3 = DOTween.Sequence();
 				_Sequence_Step3.Append( transform.DOMove(transform.position, opentime*2/3).SetEase(OPEN_EASE).SetDelay(waittime));
 				_Sequence_Step3.Join( StageManager.I.BackgroundLeft.transform.DORotate(45*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );

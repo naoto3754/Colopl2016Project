@@ -29,16 +29,17 @@ public class StateManager : Singleton<StateManager> {
 	public override void OnInitialize()
 	{
 		_CurrentState = State.TITLE;
-		SwitchActiveManager(_CurrentState);
+		SwitchActiveManager(_CurrentState, State.TITLE);
 	}
 	
 	public void GoState(State state)
 	{
+		State prev = _CurrentState;
 		_CurrentState = state;
-		SwitchActiveManager(_CurrentState);
+		SwitchActiveManager(_CurrentState, prev);
 	}
 	
-	private void SwitchActiveManager(State current)
+	private void SwitchActiveManager(State current, State previous)
 	{
 		foreach(Transform child in _Title.transform)
 			child.gameObject.SetActive(false);
@@ -55,7 +56,10 @@ public class StateManager : Singleton<StateManager> {
 		case State.STAGE_SELECT:
 			foreach (Transform child in _StageSelect.transform)
 				child.gameObject.SetActive (true);
-			StageSelectManager.I.Init ();
+			if(previous == State.TITLE)
+				StageSelectManager.I.InitFromTitle ();
+			if(previous == State.INGAME)
+				StageSelectManager.I.InitFromInGame ();
 			CollectionManager.I.ActivateSprite ();
 			break;
 		case State.INGAME:

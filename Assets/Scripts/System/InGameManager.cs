@@ -34,8 +34,7 @@ public class InGameManager : Singleton<InGameManager>
 	/// </summay>
 	public void OnReturnHome()
 	{
-		StageManager.I.Clear();
-		StateManager.I.GoState(State.STAGE_SELECT);
+		StageAnimator.I.CloseStage (45, 1f);
 	}
 	
 	public void OnReverse()
@@ -107,13 +106,13 @@ public class InGameManager : Singleton<InGameManager>
 		Sequence seq = DOTween.Sequence();
 		//フェードアウト
 		seq.Append( blur.DOBlurSize(3f, FADEOUT_DURATION).SetEase(Ease.OutSine).OnStart(() => {
-			FadeManager.I.FadeOut(FADEOUT_DURATION);
+			FadeManager.I.AllFadeOut(FADEOUT_DURATION);
 		}));
 		//UI表示
 		seq.Append( transform.DOMove(transform.position, DISPLAY_DURATION).OnStart( DisplayText ) );
 		//フェードイン
 		seq.Append( blur.DOBlurSize(0f, FADEIN_DURATION).SetEase(Ease.InSine).OnStart(() => {
-			FadeManager.I.FadeIn(FADEIN_DURATION);
+			FadeManager.I.AllFadeIn(FADEIN_DURATION);
 		}));
 		foreach(Text text in _DictionaryLabels)
 		{

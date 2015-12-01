@@ -6,6 +6,8 @@ using DG.Tweening;
 
 public class CustomCharaController : MonoBehaviour
 {
+	private GameObject _InitAnchor;
+	private GameObject _InitDestAnchor;
     private GameObject _CharacterX;
     private GameObject _CharacterZ;
     private GameObject _DestCharacterX;
@@ -51,6 +53,7 @@ public class CustomCharaController : MonoBehaviour
 		_DestCharacterZ = CreateCharacter (new Color(0,0,0,0.5f), false);
 
 		UpdateDummyCharacterPosition(0.01f*Vector2.right);
+		SetInitPosAnchor ();
 	}
 	private GameObject CreateCharacter(Color initColor,bool xDir)
 	{
@@ -340,10 +343,33 @@ public class CustomCharaController : MonoBehaviour
         }
     }
 
+	public void SwapCharacter()
+	{
+		UnityUtility.SwapGameObject(_CharacterX, _DestCharacterX);
+		UnityUtility.SwapGameObject(_CharacterZ, _DestCharacterZ);
+	}
+
     public void SetInitPos()
     {
         _DummyCharacter.transform.position = new Vector3(InitPosition.x, InitPosition.y, _DummyCharacter.transform.position.z);
+		_CharacterX.transform.position = _InitAnchor.transform.position;
+		_CharacterZ.transform.position = _InitAnchor.transform.position;
+		_DestCharacterX.transform.position = _InitDestAnchor.transform.position;
+		_DestCharacterZ.transform.position = _InitDestAnchor.transform.position;
     }
+
+	private void SetInitPosAnchor ()
+	{
+		_InitAnchor = new GameObject ("initAnchor");
+		_InitAnchor.transform.SetParent(StageManager.I.Root.transform);
+		_InitAnchor.transform.position = _CharacterX.transform.position;
+		_InitAnchor.tag = StageCreater.X_TAG_NAME;
+
+		_InitDestAnchor = new GameObject ("initDestAnchor");
+		_InitDestAnchor.transform.SetParent(StageManager.I.Root.transform);
+		_InitDestAnchor.transform.position = _DestCharacterZ.transform.position;
+		_InitDestAnchor.tag = StageCreater.Z_TAG_NAME;
+	}
 
 	private void ClearAction()
 	{

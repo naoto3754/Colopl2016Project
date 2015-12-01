@@ -406,7 +406,6 @@ public class StageManager : Singleton<StageManager>
 		CurrentController = null;
 		DestroyObject (CurrentInfo.gameObject);
 		CurrentInfo = null;
-		DestroyObject (Book);
 		DestroyObject (Root);
 		DestroyObject (PreviousRoot);
 		DestroyObject (BackgroundLeft);
