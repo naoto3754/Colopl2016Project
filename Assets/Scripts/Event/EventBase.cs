@@ -12,6 +12,11 @@ public class EventBase : MonoBehaviour {
 
 	void Awake()
 	{
+		OnAwake ();
+	}
+
+	protected virtual void OnAwake()
+	{
 		_Rect = new Rectangle (transform.position, transform.lossyScale.x, transform.lossyScale.y);
 	}
 

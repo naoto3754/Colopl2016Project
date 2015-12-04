@@ -91,9 +91,9 @@ public class StageAnimator : Singleton<StageAnimator>
 			StageManager.I.Clear();
 			IsPlayingAnimation = false; 
 			StateManager.I.GoState(State.STAGE_SELECT);
+			AudioManager.Instance.PlaySE (AudioContents.AudioTitle.CLOSE);
 		});
 		_Sequence.Play();
-		AudioManager.Instance.PlaySE (AudioContents.AudioTitle.TURN_OVER);
 	}
 	/// <summary>
 	/// ステージを閉じて開く
@@ -101,11 +101,10 @@ public class StageAnimator : Singleton<StageAnimator>
 	public void ClosePrevStage(float angle, float closetime)
 	{
 		_PrevSequence = DOTween.Sequence ();
-		float thickness = StageCreater.THICKNESS;
+		float thickness = StageCreater.THICKNESS*2;
 		StageManager.I.PreviousRoot.transform.position += new Vector3(-thickness, 0, thickness);
 		StageManager.I.PreviousBackgroundLeft.transform.position += new Vector3(-thickness, 0, thickness);
 		StageManager.I.PreviousBackgroundRight.transform.position += new Vector3(-thickness, 0, thickness);
-		StageManager.I.PreviousRoot.transform.position += new Vector3(-thickness, 0, thickness);
 		_PrevSequence.Append( StageManager.I.PreviousRoot.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
 		_PrevSequence.Join( StageManager.I.PreviousBackgroundLeft.transform.DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
 		_PrevSequence.Join( StageManager.I.PreviousBackgroundRight.transform.DORotate(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );

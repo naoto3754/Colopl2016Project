@@ -23,6 +23,8 @@ public class ColorManager
                 return new Color(0.5f, 1f, 0.5f);
             case ColorData.PINK:
                 return new Color(1f, 0.5f, 0.5f);
+			case ColorData.BLUE:
+				return new Color(0.5f, 0.5f, 1f);
         }
         //デフォルト色
         return Color.white;

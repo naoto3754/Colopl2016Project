@@ -60,12 +60,14 @@ public class StageSelectManager : Singleton<StageSelectManager> {
 
 	public void InitFromInGame()
 	{	
-		FadeManager.I.ShelfFadeIn (2f);
 		_Sequence = DOTween.Sequence();
 		Vector3 moveDir = SelectedChapter%2==0 ? Vector3.left : Vector3.back;
 
 		var book = StageManager.I.Book;
-		_Sequence.Append( book.transform.DOMove(_SelectedBook.transform.position+8f*moveDir, ANIMATION_TIME) );
+		_Sequence.Append( book.transform.DOMove(_SelectedBook.transform.position+8f*moveDir, ANIMATION_TIME).SetDelay(0.5f)
+			.OnStart(() => {
+				FadeManager.I.ShelfFadeIn (2f);
+			}));
 		_Sequence.Join( book.transform.DORotate(_SelectedBook.transform.eulerAngles, ANIMATION_TIME) );
 		_Sequence.Join( book.transform.DOScale(_SelectedBook.transform.lossyScale, ANIMATION_TIME) );
 		_Sequence.Append( book.transform.DOMove(_SelectedBook.transform.position, 0.5f)

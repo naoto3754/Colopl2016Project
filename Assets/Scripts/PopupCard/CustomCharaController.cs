@@ -371,6 +371,16 @@ public class CustomCharaController : MonoBehaviour
 		_InitDestAnchor.tag = StageCreater.Z_TAG_NAME;
 	}
 
+	public void ChangeColor(ColorData cd)
+	{
+		color = cd;
+		var bodyX = _CharacterX.transform.GetChild (1).GetComponent<SpriteRenderer> ();
+		bodyX.material.SetColor("_MainColor", ColorManager.GetColorWithColorData(color));
+		var bodyZ = _CharacterZ.transform.GetChild (1).GetComponent<SpriteRenderer> ();
+		bodyZ.material.SetColor("_MainColor", ColorManager.GetColorWithColorData(color));
+		ColorManager.MultiplyShadowColor(bodyZ.gameObject);
+	}
+
 	private void ClearAction()
 	{
 		Vector3 goalPos = StageManager.I.CurrentInfo.GoalObj.GetComponent<StageObjectParameter> ().ObjectsOnStage [0].transform.position;
