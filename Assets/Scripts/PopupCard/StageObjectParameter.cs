@@ -35,6 +35,7 @@ public enum StageObjectType
 	RECTANGLE,
 	TRIANGLE,
 	DECORATION,
+	TRIANGLE2,
 }
 
 public enum StageLineType

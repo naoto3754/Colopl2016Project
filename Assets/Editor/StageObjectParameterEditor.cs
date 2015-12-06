@@ -99,6 +99,7 @@ public class StageObjectParameterEditor : Editor
 			AssignFlag (false, false, true, false, false, false, false, false);
 			break;
 		case StageObjectType.TRIANGLE:
+		case StageObjectType.TRIANGLE2:
 			AssignFlag (false, false, true, false, false, false, false, true);
 			break;
 		case StageObjectType.HOLE:
