@@ -204,15 +204,16 @@ public class StageSelectManager : Singleton<StageSelectManager> {
 		SelectedChapter = tappedObj.GetComponent<Book>().chapter;
 		SelectedBookID = tappedObj.GetComponent<Book>().bookID;
 		SelectedStageIdx = 0;
+		int stgIndex = StageManager.CalcStageListIndex (SelectedChapter, SelectedBookID, SelectedStageIdx);
 		
 		_Sequence = DOTween.Sequence();
 		Vector3 moveDir = SelectedChapter%2==0 ? Vector3.left : Vector3.back;
-		_Sequence.Append( selectedBook.transform.DOMove(selectedBook.transform.position+8f*moveDir, 0.5f)
-		.OnComplete(() => {
-			//TODO:色決める
-			FadeManager.I.SetShelfColor(Color.cyan);	
-			FadeManager.I.ShelfFadeOut (2f);
-		}) );
+		_Sequence.Append (selectedBook.transform.DOMove (selectedBook.transform.position + 8f * moveDir, 0.5f)
+			.OnComplete (() => {
+				//TODO:色決める
+				FadeManager.I.SetShelfColor (StageManager.I.Stages[stgIndex].GetComponent<StageInfomation>().BackgroundColor);
+				FadeManager.I.ShelfFadeOut (2f);
+			}));
 		_Sequence.Append( selectedBook.transform.DOMove(BOOK_POS, ANIMATION_TIME) );
 		_Sequence.Join( selectedBook.transform.DORotate((StageAnimator.I.START_ANGLE-90)*Vector3.up, ANIMATION_TIME) );
 		_Sequence.Join( selectedBook.transform.DOScale(STAGE_BOOK_SCALE, ANIMATION_TIME) );

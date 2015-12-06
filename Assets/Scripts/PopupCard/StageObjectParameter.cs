@@ -43,4 +43,5 @@ public enum StageLineType
 	GROUND,
 	WALL,
 	SLOPE,
+	TOP_FOLD,
 }

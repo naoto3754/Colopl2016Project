@@ -52,7 +52,7 @@ public class FadeManager : Singleton<FadeManager> {
 		_ShelfFadeImage.DOColor(end, duration);
 	}
 
-	public void ShelfDoColor(Color c, float duration)
+	public void DoShelfColor(Color c, float duration)
 	{
 		_ShelfFadeImage.DOColor(c, duration);
 	}

@@ -67,6 +67,11 @@ public class StageInfomation : MonoBehaviour
     {
         get { return _FoldLine; }
     }
+	private List<Line> _TopFoldLine;
+	public List<Line> TopFoldLine
+	{
+		get { return _TopFoldLine; }
+	}
     private List<Line> _HoleLine;
     public List<Line> HoleLine
     {
@@ -109,6 +114,7 @@ public class StageInfomation : MonoBehaviour
     public void InitList()
     {
         _FoldLine = new List<Line>();
+		_TopFoldLine = new List<Line>();
         _HoleLine = new List<Line>();
         _GroundLine = new List<Line>();
         _Slope = new List<Line>();
@@ -156,6 +162,8 @@ public class StageInfomation : MonoBehaviour
 		switch (linetype) {
 		case StageLineType.FOLD:
 			return _FoldLine;
+		case StageLineType.TOP_FOLD:
+			return _TopFoldLine;
 		case StageLineType.GROUND:
 			return _GroundLine;
 		case StageLineType.SLOPE:

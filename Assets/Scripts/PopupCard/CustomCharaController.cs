@@ -191,22 +191,17 @@ public class CustomCharaController : MonoBehaviour
         {
             if (prevX < charaAnchor && charaAnchor < x)
             {
+				
                 if (r == 0) //x方向移動
                 {
 					xTrans.position = new Vector3(xOffset + charaPos.x - prevX - 0.01f, charaPos.y, zOffset - 0.01f);
-                    if (foldlineDist <= delta + 1f)
-                    {
-                        zTrans.position = new Vector3(xOffset + x - prevX - 0.01f, charaPos.y, zOffset - delta / 2 + foldlineDist - 0.01f);
-                    }
+					zTrans.position = xTrans.position + new Vector3(1,0,1) * (foldlineDist-delta/2);
 					return;
                 }
                 else //z方向移動
                 {
-                    if (foldlineDist <= delta + 1f)
-                    {
-                        xTrans.position = new Vector3(xOffset + delta / 2 - foldlineDist - 0.01f, charaPos.y, zOffset - x + prevX - 0.01f);
-                    }
 					zTrans.position = new Vector3(xOffset - 0.01f, charaPos.y, zOffset - charaPos.x + prevX - 0.01f);
+					xTrans.position = zTrans.position + new Vector3(-1,0,-1) * (foldlineDist-delta/2);
 					return;
                 }
             }

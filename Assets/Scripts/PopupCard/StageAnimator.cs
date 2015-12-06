@@ -118,6 +118,8 @@ public class StageAnimator : Singleton<StageAnimator>
 		});
 		_PrevSequence.Play();
 		AudioManager.Instance.PlaySE (AudioContents.AudioTitle.TURN_OVER);
+
+		FadeManager.I.DoShelfColor (StageManager.I.CurrentInfo.BackgroundColor, closetime);
 	}
 	/// <summary>
 	/// ステージを閉じて開く

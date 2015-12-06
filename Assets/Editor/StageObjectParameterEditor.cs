@@ -80,6 +80,7 @@ public class StageObjectParameterEditor : Editor
 		case StageObjectType.LINE:
 			switch (param.LineType) {
 			case StageLineType.FOLD:
+			case StageLineType.TOP_FOLD:
 				AssignFlag (true, false, false, false, false, false, false, false);
 				break;
 			case StageLineType.GROUND:

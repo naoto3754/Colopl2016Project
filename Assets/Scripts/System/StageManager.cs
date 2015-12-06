@@ -8,6 +8,10 @@ public class StageManager : Singleton<StageManager>
 
     [SerializeField]
     private List<GameObject> _Stages;
+	public List<GameObject> Stages
+	{
+		get { return _Stages; }
+	}
 	public int StageCount
 	{
 		get { return _Stages.Count; }
@@ -277,12 +281,22 @@ public class StageManager : Singleton<StageManager>
     /// </summary>
     public float CalcFoldLineDistance(Vector2 pos, float delta, bool createStage = false)
     {
+		float ret = delta + Mathf.Sign(delta) * 1f;
+
         if(createStage == false)
         {
-            if (CurrentController.IsTopOfWall)
-                pos -= 0.05f * Vector2.up;
+			if (CurrentController.IsTopOfWall) {
+				pos -= 0.05f * Vector2.up;
+
+				foreach (Line foldline in CurrentInfo.TopFoldLine) {
+					if (foldline.ThroughLine (pos, pos + delta * Vector2.right)) {
+						ret = foldline.points [0].x - pos.x;
+						break;
+					}
+				}
+			}
+			
         }
-        float ret = delta + Mathf.Sign(delta) * 1f;
         foreach (Line foldline in CurrentInfo.FoldLine)
         {
             if (foldline.ThroughLine(pos, pos + delta * Vector2.right))
