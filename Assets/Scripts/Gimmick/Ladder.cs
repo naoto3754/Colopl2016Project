@@ -17,7 +17,7 @@ public class Ladder : MonoBehaviour
     
     void FixedUpdate()
     {
-		if(_Rect.Contains(StageManager.I.CurrentController.Bottom))
+		if(StageManager.I.CurrentController != null && StageManager.I.CurrentController.IsTopOfWall==false && _Rect.Contains(StageManager.I.CurrentController.Bottom))
         {
             _PreviousBool = true;
 			StageManager.I.CurrentController.CanUseLadder = true;
