@@ -163,7 +163,7 @@ public class CustomCharaController : MonoBehaviour
                              _CharacterX, _CharacterZ, moveDir, foldXList);
         UpdateSubTransparent(destPos, _DummyCharacter.transform.lossyScale.x,
                              _DestCharacterX, _DestCharacterZ, moveDir, foldXList);
-		if (StageManager.I.IsOnObstacle (destPos)) {
+		if (StageManager.I.IsOnObstacle ()) {
 			foreach (Material material in _DestCharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material))
 			{
 				material.SetFloat("_ForwardThreshold", 0);

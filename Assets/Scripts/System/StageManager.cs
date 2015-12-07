@@ -406,11 +406,26 @@ public class StageManager : Singleton<StageManager>
         return retList.OrderBy(xcoord => xcoord.x);
     }
 
-	public bool IsOnObstacle(Vector2 point)
+	public bool IsOnObstacle()
 	{
+		if (CurrentController == null)
+			return false;
+
+		Vector3[] positions = new Vector3[]{ 
+			CurrentController.BottomLeft,
+			CurrentController.BottomRight,
+			CurrentController.TopLeft,
+			CurrentController.TopRight,
+			CurrentController.Center
+		};
+
 		foreach (var obstacle in CurrentInfo.Obstacle) {
-			if (obstacle.Contains (point))
-				return true;
+			foreach (var pos in positions) {
+				var destpos = pos;
+				destpos.x = -1*pos.x;
+				if (obstacle.Contains (destpos))
+					return true;
+			}
 		}
 		return false;
 	}

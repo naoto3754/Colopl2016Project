@@ -61,6 +61,15 @@ public class StageAnimator : Singleton<StageAnimator>
 		if (IsPlayingAnimation)
 			return;
 
+		if (StageManager.I.CurrentController == null)
+			return;
+
+		Vector3 destPos = StageManager.I.CurrentController.Bottom;
+		destPos.x *= -1;
+
+		if (StageManager.I.IsOnObstacle ())
+			return;
+
 		_Sequence = DOTween.Sequence();
 		ReOpenStageForReverse(1f, 1f, 0.3f);
 	}
@@ -338,10 +347,11 @@ public class StageAnimator : Singleton<StageAnimator>
 			{
 				_Sequence_Step1.Join( anchor.transform.DOBlendableRotateBy(90*Vector3.up, time).SetEase(CLOSE_EASE) );
 			}
-			if(stageObj.GetComponent<Renderer>() != null && stageObj.GetComponent<Renderer>().material.name == "ThickPaper (Instance)")
-			{
-				Material mat = stageObj.GetComponent<Renderer>().material;
-				_Sequence_Step1.Join( mat.DoShadowWeight(0f, time) );
+			if (stageObj.childCount > 0) {
+				var renderer = stageObj.transform.GetChild (0).GetComponent<Renderer> ();
+				if (renderer != null && renderer.material.HasProperty("_ShadowWeight")) {
+					_Sequence_Step4.Join (renderer.material.DoShadowWeight (0f, time));
+				}   
 			}
 		}
 	}
@@ -420,11 +430,12 @@ public class StageAnimator : Singleton<StageAnimator>
 						stageObj.eulerAngles = angle;
 					}) );
 			}
-			if(stageObj.GetComponent<Renderer>() != null && stageObj.GetComponent<Renderer>().material.name == "ThickPaper (Instance)")
-			{
-				Material mat = stageObj.GetComponent<Renderer>().material;
-				_Sequence_Step4.Join( mat.DoShadowWeight(1f, time) );
-			}   
+			if (stageObj.childCount > 0) {
+				var renderer = stageObj.transform.GetChild (0).GetComponent<Renderer> ();
+				if (renderer != null && renderer.material.HasProperty("_ShadowWeight")) {
+					_Sequence_Step4.Join (renderer.material.DoShadowWeight (1f, time));
+				}   
+			}
 		}
 		_Sequence_Step4.OnComplete(() => {
 			List<Transform> tmpAnchors = new List<Transform>(StageManager.I.Root.transform.childCount);

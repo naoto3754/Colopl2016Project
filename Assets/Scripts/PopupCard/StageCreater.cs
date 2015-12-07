@@ -20,7 +20,7 @@ public class StageCreater : Singleton<StageCreater>
     [SerializeField]
     private GameObject _Paper;
 	[SerializeField]
-	private Sprite _Fallback;
+	private Texture _Fallback;
 
     /// <summary>
     /// ステージを生成する。すでにステージがある場合、閉じた後に破棄する
@@ -76,8 +76,9 @@ public class StageCreater : Singleton<StageCreater>
                     GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
                     paper.transform.SetParent(StageManager.I.Root.transform);
 					var sprite = paper.transform.GetChild (0);
-					SetTexture (sprite.GetComponent<SpriteRenderer>(), setX, false,
-								StageManager.I.CurrentInfo.BackgroundTexture, 
+					SetTexture (sprite.GetComponent<Renderer>(), setX, false,
+								StageManager.I.CurrentInfo.BackgroundTexture,
+								StageManager.I.CurrentInfo.ShadowTexture,
 								new Vector2(prevX/StageManager.I.CurrentInfo.StageWidth+0.5f, prevY/StageManager.I.CurrentInfo.StageHeight), 
 								new Vector2((xCoord.x-prevX)/StageManager.I.CurrentInfo.StageWidth, (y-prevY)/StageManager.I.CurrentInfo.StageHeight));
 					foreach(var amim in StageManager.I.CurrentInfo.Animations)
@@ -153,8 +154,9 @@ public class StageCreater : Singleton<StageCreater>
     {
 		bool setX = xOffset - (zOffset - StageManager.I.Offset.z) + (x - prevX) / 2 < 0;
         GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
-		SetTexture (paper.transform.GetChild(0).GetComponent<SpriteRenderer>(), setX, true,
-					StageManager.I.CurrentInfo.LiningTexture, 
+		SetTexture (paper.transform.GetChild(0).GetComponent<Renderer>(), setX, true,
+					StageManager.I.CurrentInfo.LiningTexture,
+					StageManager.I.CurrentInfo.LiningTexture,
 					new Vector2(prevX/StageManager.I.CurrentInfo.StageWidth+0.5f, prevY/StageManager.I.CurrentInfo.StageHeight), 
 					new Vector2((x-prevX)/StageManager.I.CurrentInfo.StageWidth, (y-prevY)/StageManager.I.CurrentInfo.StageHeight) );
 
@@ -173,22 +175,28 @@ public class StageCreater : Singleton<StageCreater>
         paper.transform.localScale = new Vector3(x - prevX + thickness - 0.001f, y - prevY, thickness);
     }
 
-	private void SetTexture(SpriteRenderer target, bool setX, bool isBackground, Sprite sprite, Vector2 offset, Vector2 scale)
+	private void SetTexture(Renderer target, bool setX, bool isBackground, Texture texture, Texture shadow, Vector2 offset, Vector2 scale)
 	{
-		if (sprite == null) {
-			target.sprite = _Fallback;
+		if (texture == null) {
+			target.material.SetTexture ("_NoShadowTex", _Fallback);
+			target.material.SetTexture ("_ShadowTex", _Fallback);
 			if (isBackground)
-				target.color = StageManager.I.CurrentInfo.BackgroundColor;
+				target.material.color = StageManager.I.CurrentInfo.BackgroundColor;
 			if (setX)
 				ColorManager.MultiplyShadowColor (target.gameObject);
 		} else {
-			target.sprite = sprite;
+			target.material.SetTexture ("_NoShadowTex", texture);
+			target.material.SetTexture ("_ShadowTex", shadow);
 		}
 		target.sortingOrder = isBackground ? -100 : -50;
-		target.material.SetFloat ("_OffsetX", offset.x);
-		target.material.SetFloat ("_OffsetY", offset.y);
-		target.material.SetFloat ("_TilingX", scale.x);
-		target.material.SetFloat ("_TilingY", scale.y);
+		target.material.SetTextureOffset("_NoShadowTex", offset);
+		target.material.SetTextureOffset("_ShadowTex", offset);
+		target.material.SetTextureScale("_NoShadowTex", scale);
+		target.material.SetTextureScale("_ShadowTex", scale);
+//		target.material.SetFloat ("_OffsetX", offset.x);
+//		target.material.SetFloat ("_OffsetY", offset.y);
+//		target.material.SetFloat ("_TilingX", scale.x);
+//		target.material.SetFloat ("_TilingY", scale.y);
 	}
 	private void SetTexture(SpriteRenderer target, RuntimeAnimatorController anim, Vector2 offset, Vector2 scale)
 	{

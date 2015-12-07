@@ -6,8 +6,9 @@
 Shader "Shader Forge/Paper" {
     Properties {
         _Color ("Color", Color) = (1,1,1,1)
-        _Texture ("Texture", 2D) = "white" {}
-        _ShadowTexture ("Shadow Texture ", 2D) = "white" {}
+        _MainTex ("Main Texture", 2D) = "white" {}
+        _NoShadowTex ("No Shadow Texture", 2D) = "white" {}
+        _ShadowTex ("Shadow Texture ", 2D) = "white" {}
         _ShadowWeight ("ShadowWeight", Range(0, 1)) = 0
     }
     SubShader {
@@ -31,8 +32,9 @@ Shader "Shader Forge/Paper" {
             #pragma exclude_renderers gles3 metal d3d11_9x xbox360 xboxone ps3 ps4 psp2 
             #pragma target 3.0
             uniform float4 _Color;
-            uniform sampler2D _Texture; uniform float4 _Texture_ST;
-            uniform sampler2D _ShadowTexture; uniform float4 _ShadowTexture_ST;
+            uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
+            uniform sampler2D _NoShadowTex; uniform float4 _NoShadowTex_ST;
+            uniform sampler2D _ShadowTex; uniform float4 _ShadowTex_ST;
             uniform float _ShadowWeight;
             struct VertexInput {
                 float4 vertex : POSITION;
@@ -53,9 +55,9 @@ Shader "Shader Forge/Paper" {
             float4 frag(VertexOutput i) : COLOR {
 /////// Vectors:
 ////// Lighting:
-                float4 _Texture_var = tex2D(_Texture,TRANSFORM_TEX(i.uv0, _Texture));
-                float4 _ShadowTexture_var = tex2D(_ShadowTexture,TRANSFORM_TEX(i.uv0, _ShadowTexture));
-                float3 finalColor = (_Color.rgb*lerp(_Texture_var.rgb,_ShadowTexture_var.rgb,_ShadowWeight));
+                float4 _Texture_var = tex2D(_NoShadowTex,TRANSFORM_TEX(i.uv0, _NoShadowTex));
+                float4 _ShadowTexture_var = tex2D(_ShadowTex,TRANSFORM_TEX(i.uv0, _ShadowTex));
+                float3 finalColor = _Color.rgb*lerp(_Texture_var.rgb, _ShadowTexture_var.rgb, _ShadowWeight);
                 fixed4 finalRGBA = fixed4(finalColor,1);
                 UNITY_APPLY_FOG(i.fogCoord, finalRGBA);
                 return finalRGBA;

@@ -3,6 +3,8 @@ Shader "Sprites/Background"
     Properties
     {
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
+        _ShadowTex ("Shadow Texture", 2D) = "white" {}
+        _ShadowWeight ("Shadow Weight", Range(0,1)) = 1
         _MainColor ("Tint", Color) = (1,1,1,1)
         	_OffsetX ("Offset X", Range(0,1)) = 0
         	_OffsetY ("Offset Y", Range(0,1)) = 0
@@ -65,6 +67,8 @@ Shader "Sprites/Background"
             sampler2D _MainTex;
             sampler2D _AlphaTex;
             float _AlphaSplitEnabled;
+            sampler2D _ShadowTex;
+            float _ShadowWeight;
 
             fixed4 SampleSpriteTexture (float2 uv)
             {
@@ -78,6 +82,11 @@ Shader "Sprites/Background"
             {
             	fixed2 customUV = IN.texcoord;
                 fixed4 c = SampleSpriteTexture (customUV) * IN.color;
+                fixed4 shadow = tex2D (_ShadowTex, customUV);
+                if(shadow.a == 0)
+                	shadow.rgb = fixed3(1,1,1);
+                fixed3 shadowColor = lerp( fixed3(1,1,1), shadow.rgb, _ShadowWeight);
+                c = c * fixed4(shadowColor, 1);
                 if(c.r == 0 && c.g == 0 && c.b == 0)
                 	c.a = 0;
                 return c;

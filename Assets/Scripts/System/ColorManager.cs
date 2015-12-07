@@ -37,11 +37,20 @@ public class ColorManager
     {
         if (obj.GetComponent<SpriteRenderer>() != null)
         {
-            Color shadowColor = obj.GetComponent<SpriteRenderer>().color;
-            shadowColor.r *= SHADOW_SCALE;
-            shadowColor.g *= SHADOW_SCALE;
-            shadowColor.b *= SHADOW_SCALE;
-            obj.GetComponent<SpriteRenderer>().color = shadowColor;
+			var mat = obj.GetComponent<Renderer> ().material;
+			if (mat.HasProperty ("_Color")) {
+				Color shadowColor = mat.GetColor ("_Color");
+				shadowColor.r *= SHADOW_SCALE;
+				shadowColor.g *= SHADOW_SCALE;
+				shadowColor.b *= SHADOW_SCALE;
+				mat.SetColor ("_Color", shadowColor);
+			} else {
+				Color shadowColor = obj.GetComponent<SpriteRenderer>().color;
+				shadowColor.r *= SHADOW_SCALE;
+				shadowColor.g *= SHADOW_SCALE;
+				shadowColor.b *= SHADOW_SCALE;
+				obj.GetComponent<SpriteRenderer>().color = shadowColor;
+			}
             return;
         }
         if (obj.GetComponent<LineRenderer>())
@@ -50,11 +59,20 @@ public class ColorManager
         }
         if (obj.GetComponent<Renderer>())
         {
-            Color shadowColor = obj.GetComponent<Renderer>().material.color;
-            shadowColor.r *= SHADOW_SCALE;
-            shadowColor.g *= SHADOW_SCALE;
-            shadowColor.b *= SHADOW_SCALE;
-            obj.GetComponent<Renderer>().material.color = shadowColor;
+			var mat = obj.GetComponent<Renderer> ().material;
+			if (mat.HasProperty ("_Color")) {
+				Color shadowColor = mat.GetColor ("_Color");
+				shadowColor.r *= SHADOW_SCALE;
+				shadowColor.g *= SHADOW_SCALE;
+				shadowColor.b *= SHADOW_SCALE;
+				mat.SetColor ("_Color", shadowColor);
+			} else {
+				Color shadowColor = mat.color;
+				shadowColor.r *= SHADOW_SCALE;
+				shadowColor.g *= SHADOW_SCALE;
+				shadowColor.b *= SHADOW_SCALE;
+				mat.color = shadowColor;
+			}
             return;
         }
     }

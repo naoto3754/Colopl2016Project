@@ -22,20 +22,20 @@ public class StageInfomation : MonoBehaviour
 		get { return _BackgroundColor; }
 	}
     [SerializeField]
-    private Sprite _BackgroundTexture;
-	public Sprite BackgroundTexture
+    private Texture _BackgroundTexture;
+	public Texture BackgroundTexture
 	{
 		get { return _BackgroundTexture; }
 	}
     [SerializeField]
-    private Sprite _BackgroundNoShadowTexture;
-	public Sprite BackgroundNoShadowTexture
+	private Texture _ShadowTexture;
+	public Texture ShadowTexture
 	{
-		get { return _BackgroundNoShadowTexture; }
+		get { return _ShadowTexture; }
 	}
     [SerializeField]
-    private Sprite _LiningTexture;
-	public Sprite LiningTexture
+    private Texture _LiningTexture;
+	public Texture LiningTexture
 	{
 		get { return _LiningTexture; }
 	}
@@ -146,7 +146,9 @@ public class StageInfomation : MonoBehaviour
 				}
 				break;
 			case StageObjectType.GOAL:
-				_Goal = param.GetComponent<Goal>()==null ? param.gameObject.AddComponent<Goal>() : param.GetComponent<Goal>();
+				_Goal = param.GetComponent<Goal> () == null ? param.gameObject.AddComponent<Goal> () : param.GetComponent<Goal> ();
+				param.GetComponent<Renderer> ().enabled = false;
+				_Decoration.Add (param.gameObject);
 				break;
 			case StageObjectType.LADDER:
 				if (param.GetComponent<Ladder> () == null)
