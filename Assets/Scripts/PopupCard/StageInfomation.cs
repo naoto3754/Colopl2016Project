@@ -147,7 +147,7 @@ public class StageInfomation : MonoBehaviour
 				break;
 			case StageObjectType.GOAL:
 				_Goal = param.GetComponent<Goal> () == null ? param.gameObject.AddComponent<Goal> () : param.GetComponent<Goal> ();
-				param.GetComponent<Renderer> ().enabled = false;
+				param.GetComponent<Renderer> ().enabled = BackgroundTexture == null;
 				_Decoration.Add (param.gameObject);
 				break;
 			case StageObjectType.LADDER:

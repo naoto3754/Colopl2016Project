@@ -7,10 +7,13 @@ public class ShelfCreater : MonoBehaviour {
 	readonly float BOTTOM_SPACE = 10f;
     
 	float _Width;
+	float _Height;
     List<Line> _FoldLines;
     List<Line> _HoleLines;
     GameObject _Root;
     
+	[SerializeField]
+	Texture _ShelfTexture;
     [SerializeField]
     Vector2 _Offset;
     [SerializeField]
@@ -32,6 +35,7 @@ public class ShelfCreater : MonoBehaviour {
 	public void Create()
 	{
         _Width = _Shelf2D.transform.lossyScale.x;
+		_Height = _Shelf2D.transform.lossyScale.y;
         
         _FoldLines = new List<Line>();
         _HoleLines = new List<Line>();
@@ -82,9 +86,9 @@ public class ShelfCreater : MonoBehaviour {
                 if(duringHole == false){
                     GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
                     paper.transform.SetParent(_Root.transform);
-                    //  paper.GetComponent<Renderer>().material.mainTexture = StageManager.I.CurrentInfo.BackgroundTexture;
-                    //  paper.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(prevX/_Width+0.5f, prevY/_Height);
-                    //  paper.GetComponent<Renderer>().material.mainTextureScale = new Vector2((xCoord.x-prevX)/_Width, (y-prevY)/_Height);
+	                paper.GetComponent<Renderer>().material.mainTexture = _ShelfTexture;
+	                paper.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(prevX/_Width+0.5f, prevY/_Height);
+	                paper.GetComponent<Renderer>().material.mainTextureScale = new Vector2((xCoord.x-prevX)/_Width, (y-prevY)/_Height);
                     if (setX)
                     {
                         paper.transform.position = new Vector3((xCoord.x - prevX) / 2 + xOffset, (y - prevY) / 2 + yOffset, zOffset + thickness / 2);
