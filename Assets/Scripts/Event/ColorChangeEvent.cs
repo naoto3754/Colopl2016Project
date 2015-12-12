@@ -1,28 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
-using DG.Tweening;
 
 public class ColorChangeEvent : EventBase  
 {
 	[SerializeField]
-	ColorData _Color;
+	ColorData _ToColor;
+	[SerializeField]
+	bool _OnTop;
 
 	protected override void OnEnter()
 	{
-		StageManager.I.CurrentController.ChangeColor(_Color);
+		if (StageManager.I.CurrentController == null)
+			return;
+		if (StageManager.I.CurrentController.IsTopOfWall != _OnTop)
+			return;
 
-		GetObj (this.gameObject);
+		StageManager.I.CurrentController.ChangeColor(_ToColor);
+
+		base.GetObj (this.gameObject);
 		var param = this.GetComponent<StageObjectParameter> ();
 		foreach (var obj in param.ObjectsOnStage) {
-			GetObj (obj);
+			base.GetObj (obj);
 		}
-	}
-
-	private void GetObj(GameObject obj)
-	{
-		obj.transform.DORotate (4*360*Vector3.up, 1f, RotateMode.FastBeyond360).SetEase(Ease.Linear);
-		obj.transform.DOMoveY (this.transform.position.y+4f, 1f).OnComplete(() =>{
-			Destroy(obj);
-		});
 	}
 }

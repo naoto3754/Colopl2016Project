@@ -128,8 +128,8 @@ public class CustomCharaController : MonoBehaviour
             Vector2 inputDir = InputManager.I.GetDistanceFromInitPos(0);
             inputDir.y = Mathf.Clamp(inputDir.y * 15, -1, 1);
             inputDir.y = Mathf.Abs(inputDir.y) < 0.5f ? 0f : inputDir.y;
-            if (Input.GetKeyDown(KeyCode.DownArrow) && IsTopOfWall ||
-                inputDir.y < -0.8f && IsTopOfWall)
+			if (Input.GetKeyDown(KeyCode.DownArrow) && IsTopOfWall && StageManager.I.CanFall() ||
+				inputDir.y < -0.8f && IsTopOfWall && StageManager.I.CanFall())
             {
                 _DummyCharacter.transform.position -= 0.05f * Vector3.up;
             }
@@ -307,19 +307,19 @@ public class CustomCharaController : MonoBehaviour
         //アニメーション
         if (Mathf.Abs(moveDir.x) > 0.01f)
         {
-            _CharacterX.GetComponent<Animator>().Play("walk");
-            _CharacterZ.GetComponent<Animator>().Play("walk");
-            _DestCharacterX.GetComponent<Animator>().Play("walk");
-            _DestCharacterZ.GetComponent<Animator>().Play("walk");
-			AudioManager.Instance.PlaySE (AudioContents.AudioTitle.WALK);
+			foreach (var anim in GetAllCharacter().Select(x => x.GetComponent<Animator>())) {
+				anim.Play ("walk");
+			}
+			if (AudioManager.I.IsPlayingSE (AudioContents.AudioTitle.WALK) == false) {
+				AudioManager.I.PlaySE (AudioContents.AudioTitle.WALK);
+			}
         }
         else
         {
-            _CharacterX.GetComponent<Animator>().Play("idle");
-            _CharacterZ.GetComponent<Animator>().Play("idle");
-            _DestCharacterX.GetComponent<Animator>().Play("idle");
-            _DestCharacterZ.GetComponent<Animator>().Play("idle");
-			AudioManager.Instance.StopSE ();
+			foreach (var anim in GetAllCharacter().Select(x => x.GetComponent<Animator>())) {
+				anim.Play ("idle");
+			}
+			AudioManager.I.StopSE (AudioContents.AudioTitle.WALK);
         }
         //キャラクター向き
         if (moveDir.x > 0f)
@@ -383,21 +383,21 @@ public class CustomCharaController : MonoBehaviour
 		Sequence sequence = DOTween.Sequence ();
 		sequence.Join ( _CharacterX.transform.DOMove(goalPos-Vector3.up, 1f) );
 		sequence.Join ( _CharacterZ.transform.DOMove(goalPos-Vector3.up, 1f) );
-		foreach (Material mat in _CharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material))
-			sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
-		foreach (Material mat in _CharacterZ.GetComponentsInChildren<Renderer>().Select(x => x.material))
-			sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
-		foreach (Material mat in _DestCharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material))
-			sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
-		foreach (Material mat in _DestCharacterZ.GetComponentsInChildren<Renderer>().Select(x => x.material))
-			sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
+		foreach(var chara in GetAllCharacter()){
+			foreach (Material mat in chara.GetComponentsInChildren<Renderer>().Select(x => x.material))
+				sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
+		}
 
 		sequence.OnComplete (() => {
 			int chapter = StageManager.I.CurrentChapter;
 			int bookID = StageManager.I.CurrentBookID;
 			int index = StageManager.I.CurrentStageIndex;
-			int[] indexInfo = StageManager.CalcStageIndexInfo (StageManager.CalcStageListIndex (chapter, bookID, index) + 1);
-			StageManager.I.InstantiateStage (indexInfo [0], indexInfo [1], indexInfo [2]);
+			if(index == 2){
+				InGameManager.I.OnReturnHome();
+			}else{
+				int[] indexInfo = StageManager.CalcStageIndexInfo (StageManager.CalcStageListIndex (chapter, bookID, index) + 1);
+				StageManager.I.InstantiateStage (indexInfo [0], indexInfo [1], indexInfo [2]);
+			}
 		});
 		sequence.Play ();
 	}
@@ -405,6 +405,17 @@ public class CustomCharaController : MonoBehaviour
 	public void SetPosition(Vector3 pos)
 	{
 		_DummyCharacter.transform.position = pos;
+	}
+
+	private IEnumerable<GameObject> GetAllCharacter()
+	{
+		GameObject[] retList = new GameObject[]{
+			_CharacterX,
+			_CharacterZ,
+			_DestCharacterX,
+			_DestCharacterZ,
+		};
+		return retList;
 	}
 
     private readonly float ASPECT_RATE = 682f / 423f;

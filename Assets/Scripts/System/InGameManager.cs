@@ -135,7 +135,7 @@ public class InGameManager : Singleton<InGameManager>
 		seq.Play();
 
 		// BGM再生
-		AudioManager.Instance.PlayBGM (0);
+		AudioManager.I.PlayBGM (0);
 	}
 	
 	private void DisplayText()

@@ -5,22 +5,23 @@ using DG.Tweening;
 /*
  * ステージセレクト画面時の挙動を制御
  */
-public class StageSelectManager : Singleton<StageSelectManager> {
+public class StageSelectManager : Singleton<StageSelectManager> 
+{
 	private readonly float ANIMATION_TIME = 2f;
 	private readonly float ZOOM_TIME = 0.5f;
 	private readonly float LEAN_TIME = 0.2f;
-	private readonly float HIGHEST_HEIGHT = -84f;
-	private readonly float LOWEST_HEIGHT = -26f;
+	private readonly float HIGHEST_HEIGHT = -98f;
+	private readonly float LOWEST_HEIGHT = -24.5f;
 	private readonly Vector3 BOOK_POS = new Vector3(42.6f, -0.8f, -57.4f);
 	private readonly Vector3 STAGE_BOOK_SCALE = new Vector3(22f, 36f, 22f);
 
 	private GameObject _SelectedBook;
 	private Vector3 _DefaultCameraPos;
 	private float _DefaultCameraScale;
-	
+
+	private State _CurrentState;
 	private bool _IsZooming = false;
 	private bool _FinishTitle = false;
-	private bool _IsGoingIngame = false;
 	private GameObject _PrevSelectedObj;
 	
 	private Sequence _Sequence;
@@ -50,16 +51,21 @@ public class StageSelectManager : Singleton<StageSelectManager> {
 	
 	public void InitFromTitle()
 	{	
+		_CurrentState = State.FROM_TITLE;
 		_Sequence = DOTween.Sequence();		
 
-		_Sequence.Append( _Shelf.transform.DOMoveY(HIGHEST_HEIGHT, 1f).SetEase(Ease.OutCubic) );
+		_Sequence.Append( _Shelf.transform.DOMoveY(HIGHEST_HEIGHT, 10f).SetEase(Ease.OutCubic) );
 		
-		_Sequence.OnComplete(() => { _FinishTitle = true; });
+		_Sequence.OnComplete(() => { 
+			_FinishTitle = true;
+			_CurrentState = State.SELECT;
+		});
 		_Sequence.Play();
 	}
 
 	public void InitFromInGame()
 	{	
+		_CurrentState = State.FROM_INGAME;
 		_Sequence = DOTween.Sequence();
 		Vector3 moveDir = SelectedChapter%2==0 ? Vector3.left : Vector3.back;
 
@@ -72,6 +78,7 @@ public class StageSelectManager : Singleton<StageSelectManager> {
 		_Sequence.Join( book.transform.DOScale(_SelectedBook.transform.lossyScale, ANIMATION_TIME) );
 		_Sequence.Append( book.transform.DOMove(_SelectedBook.transform.position, 0.5f)
 			.OnComplete(() => {
+				_CurrentState = State.SELECT;
 				_SelectedBook.SetActive (true);
 				Destroy(book);
 			}) );
@@ -79,12 +86,31 @@ public class StageSelectManager : Singleton<StageSelectManager> {
 	}
 	
 	void Update () {
-		
-		if(_FinishTitle == false ||  _IsGoingIngame)
+		switch (_CurrentState) {
+		case State.FROM_TITLE:
+			UpdateAtScroll ();
+			break;
+		case State.SELECT:
+			UpdateAtSelect ();
+			break;
+		}
+	}
+
+	void UpdateAtScroll()
+	{
+		if(InputManager.I.GetAnyTapDown())
+		{
+			_Sequence.timeScale *= 5f;
+		}
+	}
+
+	void UpdateAtSelect()
+	{
+		if(_FinishTitle == false)
 			return;
-		
+
 		UpdateShelfPos();
-		
+
 		if(InputManager.I.GetAnyTapDown())
 		{
 			GameObject tappedObj = InputManager.I.GetTappedGameObject();
@@ -189,9 +215,9 @@ public class StageSelectManager : Singleton<StageSelectManager> {
 	
 	void GoIngame(GameObject tappedObj)
 	{
+		_CurrentState = State.TO_INGAME;
 		_Sequence.Kill();
-		
-		_IsGoingIngame = true;
+
 		_IsZooming = false;
 		Camera.main.DOOrthographicSize(_DefaultCameraScale, ZOOM_TIME);
 		Camera.main.transform.DOMove(_DefaultCameraPos, ZOOM_TIME);
@@ -218,9 +244,15 @@ public class StageSelectManager : Singleton<StageSelectManager> {
 		_Sequence.Join( selectedBook.transform.DORotate((StageAnimator.I.START_ANGLE-90)*Vector3.up, ANIMATION_TIME) );
 		_Sequence.Join( selectedBook.transform.DOScale(STAGE_BOOK_SCALE, ANIMATION_TIME) );
 		_Sequence.OnComplete( () => {
-			StateManager.I.GoState(State.INGAME);
-			_IsGoingIngame = false;
+			StateManager.I.GoState(GameState.INGAME);
 		});
 		_Sequence.Play();
+	}
+
+	private enum State{
+		FROM_TITLE,
+		SELECT,
+		TO_INGAME,
+		FROM_INGAME,
 	}
 }

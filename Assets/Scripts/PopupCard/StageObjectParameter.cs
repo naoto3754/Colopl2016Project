@@ -12,6 +12,7 @@ public class StageObjectParameter : MonoBehaviour {
 	public bool DontThroughDown = true;
 	public EnableFlag EnableCase = EnableFlag.ALWAYS;
 	public float HeightWithMaxWidth = 0f;
+	public bool OnTop = false;
 
 	public List<GameObject> _ObjectOnStage = new List<GameObject>();
 	public List<GameObject> ObjectsOnStage {

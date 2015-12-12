@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using DG.Tweening;
 
 public class EventBase : MonoBehaviour {
 	[SerializeField]
@@ -62,5 +63,13 @@ public class EventBase : MonoBehaviour {
 
 	protected virtual void OnExit()
 	{
+	}
+
+	protected void GetObj(GameObject obj)
+	{
+		obj.transform.DORotate (4*360*Vector3.up, 1f, RotateMode.FastBeyond360).SetEase(Ease.Linear);
+		obj.transform.DOMoveY (this.transform.position.y+4f, 1f).OnComplete(() =>{
+			obj.GetComponent<Renderer>().enabled = false;
+		});
 	}
 }

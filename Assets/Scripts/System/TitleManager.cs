@@ -12,7 +12,7 @@ public class TitleManager : Singleton<TitleManager> {
 	{
 		if(InputManager.I.GetAnyTapDown())
 		{
-			StateManager.I.GoState(State.STAGE_SELECT);
+			StateManager.I.GoState(GameState.STAGE_SELECT);
 		}
 	}
 }

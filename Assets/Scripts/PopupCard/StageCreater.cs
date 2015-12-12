@@ -246,7 +246,8 @@ public class StageCreater : Singleton<StageCreater>
         bool facingX = true;
         float prevX = -StageManager.I.CurrentInfo.StageWidth / 2;
 
-        foreach (float x in StageManager.I.GetFoldXCoordList(decoPos.y + decoScale.y / 2 * anchorHeightScale, true))
+		float yCoord = decoPos.y + decoScale.y / 2 * anchorHeightScale;
+        foreach (float x in StageManager.I.GetFoldXCoordList(yCoord, true))
         {
 			float leftEnd = line==null ? decoPos.x - decoScale.x / 2: decoPos.x;
             if (leftEnd < x)

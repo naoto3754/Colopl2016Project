@@ -20,26 +20,26 @@ public class StateManager : Singleton<StateManager> {
 		set;
 	} 
 	
-	private State _CurrentState;
-	public State CurrentState
+	private GameState _CurrentState;
+	public GameState CurrentState
 	{
 		get { return _CurrentState; }
 	}
 	
 	public override void OnInitialize()
 	{
-		_CurrentState = State.TITLE;
-		SwitchActiveManager(_CurrentState, State.TITLE);
+		_CurrentState = GameState.TITLE;
+		SwitchActiveManager(_CurrentState, GameState.TITLE);
 	}
 	
-	public void GoState(State state)
+	public void GoState(GameState state)
 	{
-		State prev = _CurrentState;
+		GameState prev = _CurrentState;
 		_CurrentState = state;
 		SwitchActiveManager(_CurrentState, prev);
 	}
 	
-	private void SwitchActiveManager(State current, State previous)
+	private void SwitchActiveManager(GameState current, GameState previous)
 	{
 		foreach(Transform child in _Title.transform)
 			child.gameObject.SetActive(false);
@@ -49,20 +49,20 @@ public class StateManager : Singleton<StateManager> {
 			child.gameObject.SetActive(false);
 		switch(current)
 		{
-		case State.TITLE:
+		case GameState.TITLE:
 			foreach(Transform child in _Title.transform)
 				child.gameObject.SetActive(true);
 			break;
-		case State.STAGE_SELECT:
+		case GameState.STAGE_SELECT:
 			foreach (Transform child in _StageSelect.transform)
 				child.gameObject.SetActive (true);
-			if(previous == State.TITLE)
+			if(previous == GameState.TITLE)
 				StageSelectManager.I.InitFromTitle ();
-			if(previous == State.INGAME)
+			if(previous == GameState.INGAME)
 				StageSelectManager.I.InitFromInGame ();
 			CollectionManager.I.ActivateSprite ();
 			break;
-		case State.INGAME:
+		case GameState.INGAME:
 			foreach(Transform child in _InGame.transform)
 				child.gameObject.SetActive(true);
 			StageManager.I.InstantiateStage(StageSelectManager.I.SelectedChapter, StageSelectManager.I.SelectedBookID, StageSelectManager.I.SelectedStageIdx);
@@ -71,7 +71,7 @@ public class StateManager : Singleton<StateManager> {
 	}
 }
 
-public enum State
+public enum GameState
 {
 	TITLE = 0,
 	STAGE_SELECT,

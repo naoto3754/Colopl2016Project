@@ -14,6 +14,7 @@ public class StageObjectParameterEditor : Editor
 	SerializedProperty downProp;
 	SerializedProperty enableProp;
 	SerializedProperty heightProp;
+	SerializedProperty onTopProp;
 
 	void OnEnable()
 	{
@@ -26,6 +27,7 @@ public class StageObjectParameterEditor : Editor
 		downProp = serializedObject.FindProperty("DontThroughDown");
 		enableProp = serializedObject.FindProperty("EnableCase");
 		heightProp = serializedObject.FindProperty("HeightWithMaxWidth");
+		onTopProp = serializedObject.FindProperty("OnTop");
 	}
 
 	public override void OnInspectorGUI () 
@@ -51,7 +53,7 @@ public class StageObjectParameterEditor : Editor
 			EditorGUILayout.PropertyField (downProp);
 		if(showCase)
 			EditorGUILayout.PropertyField (enableProp);
-		if(showHeight)
+		if(showUse && useProp.boolValue)
 			EditorGUILayout.PropertyField (heightProp);
 
 		serializedObject.ApplyModifiedProperties();		
@@ -71,8 +73,6 @@ public class StageObjectParameterEditor : Editor
 	bool showDown = true;
 	/*7*/
 	bool showCase = true;
-	/*8*/
-	bool showHeight = true;
 
 	private void SetFlag(StageObjectParameter param)
 	{
@@ -81,34 +81,36 @@ public class StageObjectParameterEditor : Editor
 			switch (param.LineType) {
 			case StageLineType.FOLD:
 			case StageLineType.TOP_FOLD:
-				AssignFlag (true, false, false, false, false, false, false, false);
+				AssignFlag (true, false, false, false, false, false, false);
 				break;
 			case StageLineType.GROUND:
-				AssignFlag (true, true, true, true, true, true, true, false);
+				AssignFlag (true, true, true, true, true, true, true);
 				break;
 			case StageLineType.SLOPE:
 			case StageLineType.WALL:
-				AssignFlag (true, true, true, false, false, false, true, false);
+				AssignFlag (true, true, true, false, false, false, true);
 				break;
 			}
 			break;
 		case StageObjectType.GOAL:
 		case StageObjectType.LADDER:
-		case StageObjectType.RECTANGLE:
 		case StageObjectType.DECORATION:
-			AssignFlag (false, false, true, false, false, false, false, false);
+			AssignFlag (false, false, true, false, false, false, false);
+			break;
+		case StageObjectType.RECTANGLE:
+			AssignFlag (false, true, true, false, false, false, false);
 			break;
 		case StageObjectType.TRIANGLE:
 		case StageObjectType.TRIANGLE2:
-			AssignFlag (false, false, true, false, false, false, false, true);
+			AssignFlag (false, true, true, false, false, false, false);
 			break;
 		case StageObjectType.HOLE:
-			AssignFlag (false, false, false, false, false, false, false, false);
+			AssignFlag (false, false, false, false, false, false, false);
 			break;
 		}
 	}
 
-	private void AssignFlag(bool f1, bool f2, bool f3, bool f4, bool f5, bool f6, bool f7, bool f8)
+	private void AssignFlag(bool f1, bool f2, bool f3, bool f4, bool f5, bool f6, bool f7)
 	{
 		showLine = f1;
 		showColor = f2;
@@ -117,7 +119,6 @@ public class StageObjectParameterEditor : Editor
 		showUp = f5;
 		showDown = f6;
 		showCase = f7;
-		showHeight = f8;
 	}
 }
 

@@ -7,7 +7,7 @@ public class AudioManager : MonoBehaviour {
 
 	protected static AudioManager instance;
 
-	public static AudioManager Instance
+	public static AudioManager I
 	{
 		get
 		{
@@ -72,17 +72,52 @@ public class AudioManager : MonoBehaviour {
 	public void PlaySE(AudioContents.AudioTitle Title){
 		foreach (AudioContents contents in SEList) {
 			if (contents.Title == Title) {
-				if (SESources [0].isPlaying && SESources [0].clip == contents.Clip)
+				foreach (var source in SESources) {
+					if (source.isPlaying)
+						continue;
+
+					source.clip = contents.Clip;
+					source.volume = contents.Volume;
+					source.Play ();
 					return;
-				
+				}
 				SESources[0].Stop ();
 				SESources[0].clip = contents.Clip;
 				SESources[0].volume = contents.Volume;
 				SESources[0].Play ();
+
 				return;
 			}
 		}
 		Debug.LogError("SE not found");
+	}
+
+	public bool IsPlayingSE(AudioContents.AudioTitle Title){
+		foreach (AudioContents contents in SEList) {
+			if (contents.Title == Title) {
+				foreach (var source in SESources) {
+					if (source.isPlaying && source.clip == contents.Clip){
+						return true;
+					}
+				}
+				return false;
+			}
+		}
+		return false;
+	}
+
+	public void StopSE(AudioContents.AudioTitle Title){
+		foreach (AudioContents contents in SEList) {
+			if (contents.Title == Title) {
+				foreach (var source in SESources) {
+					if (source.isPlaying && source.clip == contents.Clip){
+						source.Stop ();
+						source.clip = null;
+					}
+				}
+			}
+			return;
+		}
 	}
 
 	// SE停止

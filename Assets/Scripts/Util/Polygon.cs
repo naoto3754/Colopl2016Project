@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Polygon
 {
-	protected ColorData color;
+	public ColorData color;
 
 	public virtual bool Contains (Vector2 point){
 		Debug.LogError ("Don't through this code");

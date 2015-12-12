@@ -326,6 +326,25 @@ public class StageManager : Singleton<StageManager>
         }
         return false;
     }
+	/// <summary>
+	/// 下に降りることができるか
+	/// </summary>
+	public bool CanFall()
+	{
+		foreach (Line groundline in CurrentInfo.GroundLine)
+		{
+			if (groundline.param.TopOfWall == false)
+			{
+				Vector2 charaPos = CurrentController.BottomLeft;
+				if (groundline.ThroughLine(charaPos + 0.01f * Vector2.up, charaPos - 0.4f * Vector2.up))
+					return false;
+				charaPos = CurrentController.BottomRight;
+				if (groundline.ThroughLine(charaPos + 0.01f * Vector2.up, charaPos - 0.4f * Vector2.up))
+					return false;
+			}
+		}
+		return true;
+	}
     /// <summary>
     /// 折り目のy座標をソートした配列を取得
     /// </summary>
@@ -420,6 +439,9 @@ public class StageManager : Singleton<StageManager>
 		};
 
 		foreach (var obstacle in CurrentInfo.Obstacle) {
+			if (obstacle.color != CurrentController.color)
+				continue;
+
 			foreach (var pos in positions) {
 				var destpos = pos;
 				destpos.x = -1*pos.x;

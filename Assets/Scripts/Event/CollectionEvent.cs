@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using DG.Tweening;
 
 public class CollectionEvent: EventBase 
 {
@@ -27,18 +26,10 @@ public class CollectionEvent: EventBase
 		int index = StageManager.I.CurrentStageIndex;
 		CollectionManager.I [chap, book, index] = true;
 
-		GetObj (this.gameObject);
+		base.GetObj (this.gameObject);
 		var param = this.GetComponent<StageObjectParameter> ();
 		foreach (var obj in param.ObjectsOnStage) {
-			GetObj (obj);
+			base.GetObj (obj);
 		}
-	}
-
-	private void GetObj(GameObject obj)
-	{
-		obj.transform.DORotate (4*360*Vector3.up, 1f, RotateMode.FastBeyond360).SetEase(Ease.Linear);
-		obj.transform.DOMoveY (this.transform.position.y+4f, 1f).OnComplete(() =>{
-			Destroy(obj);
-		});
 	}
 }

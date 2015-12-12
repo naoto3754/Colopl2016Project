@@ -88,6 +88,9 @@ public class StageAnimator : Singleton<StageAnimator>
 	/// </summary>
 	public void CloseStage(float angle, float closetime)
 	{
+		if (IsPlayingAnimation)
+			return;
+
 		_Sequence = DOTween.Sequence ();
 		_Sequence.Append( StageManager.I.Root.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
 		_Sequence.Join( StageManager.I.BackgroundLeft.transform.DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
@@ -99,8 +102,8 @@ public class StageAnimator : Singleton<StageAnimator>
 		_Sequence.OnComplete(() => { 
 			StageManager.I.Clear();
 			IsPlayingAnimation = false; 
-			StateManager.I.GoState(State.STAGE_SELECT);
-			AudioManager.Instance.PlaySE (AudioContents.AudioTitle.CLOSE);
+			StateManager.I.GoState(GameState.STAGE_SELECT);
+			AudioManager.I.PlaySE (AudioContents.AudioTitle.CLOSE);
 		});
 		_Sequence.Play();
 	}
@@ -126,7 +129,7 @@ public class StageAnimator : Singleton<StageAnimator>
 			IsPlayingAnimation = false; 
 		});
 		_PrevSequence.Play();
-		AudioManager.Instance.PlaySE (AudioContents.AudioTitle.TURN_OVER);
+		AudioManager.I.PlaySE (AudioContents.AudioTitle.TURN_OVER);
 
 		FadeManager.I.DoShelfColor (StageManager.I.CurrentInfo.BackgroundColor, closetime);
 	}
@@ -161,7 +164,7 @@ public class StageAnimator : Singleton<StageAnimator>
 			{
 				StageManager.I.CurrentController.SetInitPos();
 //				StageManager.I.CurrentController.UpdateDummyCharacterPosition(0.01f*Vector2.right);
-				AudioManager.Instance.PlaySE (AudioContents.AudioTitle.CLOSE);
+				AudioManager.I.PlaySE (AudioContents.AudioTitle.CLOSE);
 			}
 		}));
 		_Sequence.Append( StageManager.I.Root.transform.DOBlendableRotateBy(-angle*Vector3.up, opentime).SetEase(OPEN_EASE).SetDelay(waittime));
@@ -301,7 +304,7 @@ public class StageAnimator : Singleton<StageAnimator>
 				_Sequence_Step3.Join( StageManager.I.Book.transform.GetChild(0).DORotate(45*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
 				_Sequence_Step3.Join( StageManager.I.Book.transform.GetChild(1).DORotate(-135*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
 				ReverseAnimationStep3(opentime*2/3);
-				AudioManager.Instance.PlaySE (AudioContents.AudioTitle.CLOSE);
+				AudioManager.I.PlaySE (AudioContents.AudioTitle.CLOSE);
 				_Sequence_Step3.OnComplete(() => {
 					_Sequence_Step4 = DOTween.Sequence();
 					_Sequence_Step4.Append( StageManager.I.Root.transform.DOBlendableRotateBy(0*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
