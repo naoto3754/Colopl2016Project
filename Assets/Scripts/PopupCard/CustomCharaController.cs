@@ -99,9 +99,9 @@ public class CustomCharaController : MonoBehaviour
         if (InputManager.I.GetTapDown(0) || InputManager.I.GetTap(0))
         {
             Vector2 inputDir = InputManager.I.GetDistanceFromInitPos(0);
-            inputDir.x = Mathf.Clamp(inputDir.x * 10, -1, 1);
+            inputDir.x = Mathf.Clamp(inputDir.x * 5, -1, 1);
             inputDir.x = Mathf.Abs(inputDir.x) < 0.5f ? 0f : inputDir.x;
-            inputDir.y = Mathf.Clamp(inputDir.y * 15, -1, 1);
+            inputDir.y = Mathf.Clamp(inputDir.y * 7.5f, -1, 1);
             inputDir.y = Mathf.Abs(inputDir.y) < 0.5f ? 0f : inputDir.y;
 
 

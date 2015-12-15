@@ -109,9 +109,11 @@ public class StageSelectManager : Singleton<StageSelectManager>
 		if(_FinishTitle == false)
 			return;
 
-		UpdateShelfPos();
+		if (UpdateShelfPos ()) {
+			return;
+		}
 
-		if(InputManager.I.GetAnyTapDown())
+		if(InputManager.I.GetAnyTapUp())
 		{
 			GameObject tappedObj = InputManager.I.GetTappedGameObject();
 			if(tappedObj != null && tappedObj.GetComponent<Book>() != null)
@@ -146,17 +148,27 @@ public class StageSelectManager : Singleton<StageSelectManager>
 			}
 		}
 	}
-	
-	void UpdateShelfPos()
+		
+	private float _ScrollSpeed;
+	bool UpdateShelfPos()
 	{
-		if(_IsZooming)
-			return;
+		if (_IsZooming) {
+			_ScrollSpeed = 0;
+			return false;
+		}
 		
 		Vector2 swipeDir = InputManager.I.GetMoveDelta(0);
 		Vector3 shelfPos = _Shelf.transform.position;
-		float shelfY = Mathf.Clamp(shelfPos.y + swipeDir.y, HIGHEST_HEIGHT, LOWEST_HEIGHT);
+		float inertiaSpeed = _ScrollSpeed/1.25f;
+		bool useInertia = InputManager.I.GetAnyTap() == false && 
+			( Mathf.Abs (inertiaSpeed) >= Mathf.Abs (swipeDir.y) && Mathf.Sign(inertiaSpeed) == Mathf.Sign(swipeDir.y)  ||  swipeDir.y == 0 );
+		_ScrollSpeed = useInertia ? inertiaSpeed : swipeDir.y;
+		float scrollSpeed = _ScrollSpeed * Time.deltaTime * 30;
+		float shelfY = Mathf.Clamp(shelfPos.y + scrollSpeed, HIGHEST_HEIGHT, LOWEST_HEIGHT);
 		shelfPos.y = shelfY;
 		_Shelf.transform.position = shelfPos;
+
+		return swipeDir.y != 0;
 	}
 	
 	void ZoomIn()

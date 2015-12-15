@@ -14,7 +14,6 @@ public class StageObjectParameterEditor : Editor
 	SerializedProperty downProp;
 	SerializedProperty enableProp;
 	SerializedProperty heightProp;
-	SerializedProperty onTopProp;
 
 	void OnEnable()
 	{
@@ -27,7 +26,6 @@ public class StageObjectParameterEditor : Editor
 		downProp = serializedObject.FindProperty("DontThroughDown");
 		enableProp = serializedObject.FindProperty("EnableCase");
 		heightProp = serializedObject.FindProperty("HeightWithMaxWidth");
-		onTopProp = serializedObject.FindProperty("OnTop");
 	}
 
 	public override void OnInspectorGUI () 
