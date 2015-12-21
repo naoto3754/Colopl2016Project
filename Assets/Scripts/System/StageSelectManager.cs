@@ -21,6 +21,7 @@ public class StageSelectManager : Singleton<StageSelectManager>
 
 	private State _CurrentState;
 	private bool _IsZooming = false;
+	private bool _SpeedUp = false;
 	private bool _FinishTitle = false;
 	private GameObject _PrevSelectedObj;
 	
@@ -98,9 +99,13 @@ public class StageSelectManager : Singleton<StageSelectManager>
 
 	void UpdateAtScroll()
 	{
+		if (_SpeedUp)
+			return;
+
 		if(InputManager.I.GetAnyTapDown())
 		{
 			_Sequence.timeScale *= 5f;
+			_SpeedUp = true;
 		}
 	}
 
