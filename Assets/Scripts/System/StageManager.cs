@@ -357,6 +357,35 @@ public class StageManager : Singleton<StageManager>
 		}
 		return true;
 	}
+	/// <summary>
+	/// 下に降りることができるか
+	/// </summary>
+	public bool OnJumpOffLine()
+	{
+		bool ret = false;
+		foreach (Line groundline in CurrentInfo.GroundLine)
+		{
+			if (groundline.param.CanFallOff)
+			{
+				Vector2 charaPos = CurrentController.BottomLeft;
+				if (groundline.ThroughLine(charaPos + 0.01f * Vector2.up, charaPos - 0.4f * Vector2.up))
+					ret = true;
+				charaPos = CurrentController.BottomRight;
+				if (groundline.ThroughLine(charaPos + 0.01f * Vector2.up, charaPos - 0.4f * Vector2.up))
+					ret = true;
+			}
+			else if (groundline.param.DontThroughDown) 
+			{
+				Vector2 charaPos = CurrentController.BottomLeft;
+				if (groundline.ThroughLine(charaPos + 0.01f * Vector2.up, charaPos - 0.4f * Vector2.up))
+					return false;
+				charaPos = CurrentController.BottomRight;
+				if (groundline.ThroughLine(charaPos + 0.01f * Vector2.up, charaPos - 0.4f * Vector2.up))
+					return false;
+			}
+		}
+		return ret;
+	}
     /// <summary>
     /// 折り目のy座標をソートした配列を取得
     /// </summary>

@@ -10,6 +10,7 @@ public class StageObjectParameter : MonoBehaviour {
 	public bool TopOfWall = false;
 	public bool DontThroughUp = false;
 	public bool DontThroughDown = true;
+	public bool CanFallOff = false;
 	public EnableFlag EnableCase = EnableFlag.ALWAYS;
 	public float HeightWithMaxWidth = 0f;
 

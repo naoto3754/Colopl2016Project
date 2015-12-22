@@ -123,20 +123,27 @@ public class CustomCharaController : MonoBehaviour
         Vector2 moveDir = StageManager.I.CalcAmountOfMovement(new Vector2(deltaHol, deltaVer));
 
         UpdateDummyCharacterPosition(moveDir);
-        if (InputManager.I.GetTapDown(0) || InputManager.I.GetTap(0))
-        {
-            Vector2 inputDir = InputManager.I.GetDistanceFromInitPos(0);
-            inputDir.y = Mathf.Clamp(inputDir.y * 15, -1, 1);
-            inputDir.y = Mathf.Abs(inputDir.y) < 0.5f ? 0f : inputDir.y;
-			if (Input.GetKeyDown(KeyCode.DownArrow) && IsTopOfWall && StageManager.I.CanFall() ||
-				inputDir.y < -0.8f && IsTopOfWall && StageManager.I.CanFall())
-            {
-                _DummyCharacter.transform.position -= 0.05f * Vector3.up;
-            }
-        }
+		JumppingOff ();
         UpdateCharacterState(moveDir);
         //ゴール判定
     }
+
+	private void JumppingOff()
+	{
+		if (InputManager.I.GetTapDown(0) || InputManager.I.GetTap(0) || Input.GetKeyDown (KeyCode.DownArrow))
+		{
+			Vector2 inputDir = InputManager.I.GetDistanceFromInitPos(0);
+			inputDir.y = Mathf.Clamp(inputDir.y * 15, -1, 1);
+			inputDir.y = Mathf.Abs(inputDir.y) < 0.5f ? 0f : inputDir.y;
+			bool inputDown = Input.GetKeyDown (KeyCode.DownArrow) || inputDir.y < -0.8f;
+			bool canFall = (IsTopOfWall && StageManager.I.CanFall ()) || StageManager.I.OnJumpOffLine ();
+			if ( inputDown && canFall )
+			{
+				_DummyCharacter.transform.position -= 0.05f * Vector3.up;
+			}
+		}
+	}
+
     /// <summary>
     /// 移動量を計算し、キャラの位置を更新
     /// </summary>
