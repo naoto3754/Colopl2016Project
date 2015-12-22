@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
+using TMPro;
 
 public class StageCreater : Singleton<StageCreater>
 {
@@ -14,7 +15,7 @@ public class StageCreater : Singleton<StageCreater>
     
     public static readonly string X_TAG_NAME = "XSideComponent";
 	public static readonly string Z_TAG_NAME = "ZSideComponent";
-    public static readonly float OFFSET = 0.02f;
+    public static readonly float OFFSET = 0.1f;
     public static readonly float THICKNESS = 0.1f;
     
     [SerializeField]
@@ -27,20 +28,29 @@ public class StageCreater : Singleton<StageCreater>
     /// </summary>
     public void CreateNewStage(float xOffset = 50f, float zOffset = -50f)
     {
-        bool existStage = StageManager.I.Root != null;
+        bool existStage = StageManager.I.PaperRoot != null;
         if(existStage)
         {
-            StageManager.I.PreviousRoot = StageManager.I.Root;
-            StageManager.I.PreviousBackgroundLeft = StageManager.I.BackgroundLeft;
-            StageManager.I.PreviousBackgroundRight = StageManager.I.BackgroundRight;
+			StageManager.I.PrevStageRoot = StageManager.I.StageRoot;
+            StageManager.I.PrevPaperRoot = StageManager.I.PaperRoot;
+			StageManager.I.PrevDecoRoot = StageManager.I.DecoRoot;
+            StageManager.I.PrevBackRootL = StageManager.I.BackRootL;
+            StageManager.I.PrevBackRootR = StageManager.I.BackRootR;
         }
-        StageManager.I.Root = new GameObject("StageRoot");
-        StageManager.I.BackgroundLeft = new GameObject("BackgroundLeft");
-        StageManager.I.BackgroundRight = new GameObject("BackgroundRight");        
+		StageManager.I.StageRoot = new GameObject("StageRoot");
+        StageManager.I.PaperRoot = new GameObject("PaperRoot");
+		StageManager.I.DecoRoot = new GameObject("DecoRoot");
+        StageManager.I.BackRootL = new GameObject("BackgroundLeft");
+        StageManager.I.BackRootR = new GameObject("BackgroundRight");
 		StageManager.I.Offset = new Vector3(xOffset, 0, zOffset);
-        StageManager.I.Root.transform.position = new Vector3(xOffset, 0f, zOffset);
-        StageManager.I.BackgroundLeft.transform.position = new Vector3(xOffset+THICKNESS*3/2, 0f, zOffset);
-        StageManager.I.BackgroundRight.transform.position = new Vector3(xOffset, 0f, zOffset+THICKNESS*3/2);
+        StageManager.I.PaperRoot.transform.position = new Vector3(xOffset, 0f, zOffset);
+		StageManager.I.PaperRoot.transform.SetParent (StageManager.I.StageRoot.transform);
+		StageManager.I.DecoRoot.transform.position = new Vector3(xOffset-OFFSET, 0f, zOffset-OFFSET);
+		StageManager.I.DecoRoot.transform.SetParent (StageManager.I.StageRoot.transform);
+        StageManager.I.BackRootL.transform.position = new Vector3(xOffset+THICKNESS*3/2, 0f, zOffset);
+		StageManager.I.BackRootL.transform.SetParent (StageManager.I.StageRoot.transform);
+        StageManager.I.BackRootR.transform.position = new Vector3(xOffset, 0f, zOffset+THICKNESS*3/2);
+		StageManager.I.BackRootR.transform.SetParent (StageManager.I.StageRoot.transform);
         
         InstantiatePaper();
         InstantiateDecoration();
@@ -74,7 +84,7 @@ public class StageCreater : Singleton<StageCreater>
                         InstantiateBackground(xCoord.x, prevX, y, prevY, xOffset, yOffset, zOffset, thickness);
                     
                     GameObject paper = Instantiate(_Paper, Vector3.zero, Quaternion.identity) as GameObject;
-                    paper.transform.SetParent(StageManager.I.Root.transform);
+                    paper.transform.SetParent(StageManager.I.PaperRoot.transform);
 					var sprite = paper.transform.GetChild (0);
 					SetTexture (sprite.GetComponent<Renderer>(), setX, false,
 								StageManager.I.CurrentInfo.BackgroundTexture,
@@ -162,12 +172,12 @@ public class StageCreater : Singleton<StageCreater>
 
         if(setX)
         {
-            paper.transform.SetParent(StageManager.I.BackgroundLeft.transform);
+            paper.transform.SetParent(StageManager.I.BackRootL.transform);
 			paper.transform.position = new Vector3(xOffset - (zOffset-StageManager.I.Offset.z) + (x - prevX)/2 + StageManager.I.Offset.x+thickness/2, (y - prevY) / 2 + yOffset, StageManager.I.Offset.z + thickness*3/2);
         }   
         else
         {
-            paper.transform.SetParent(StageManager.I.BackgroundRight.transform);
+            paper.transform.SetParent(StageManager.I.BackRootR.transform);
 			paper.transform.position = new Vector3(StageManager.I.Offset.x + thickness*3/2, (y - prevY) / 2 + yOffset, -( xOffset - (zOffset-StageManager.I.Offset.z) + (x - prevX)/2 ) + StageManager.I.Offset.z+thickness/2);
             paper.transform.forward = Vector3.right;
         }
@@ -193,10 +203,6 @@ public class StageCreater : Singleton<StageCreater>
 		target.material.SetTextureOffset("_ShadowTex", offset);
 		target.material.SetTextureScale("_NoShadowTex", scale);
 		target.material.SetTextureScale("_ShadowTex", scale);
-//		target.material.SetFloat ("_OffsetX", offset.x);
-//		target.material.SetFloat ("_OffsetY", offset.y);
-//		target.material.SetFloat ("_TilingX", scale.x);
-//		target.material.SetFloat ("_TilingY", scale.y);
 	}
 	private void SetTexture(SpriteRenderer target, RuntimeAnimatorController anim, Vector2 offset, Vector2 scale)
 	{
@@ -216,7 +222,7 @@ public class StageCreater : Singleton<StageCreater>
 	{
 		foreach (GameObject decos in StageManager.I.CurrentInfo.Decoration)
 		{
-			SetDecoration(decos);
+			CreateDeco(decos);
 			foreach (Transform child in decos.transform)
 			{
 				//表示物がないオブジェクトなら処理をしない
@@ -225,21 +231,25 @@ public class StageCreater : Singleton<StageCreater>
 					child.GetComponent<LineRenderer> () == null)
 					continue;
 
-				SetDecoration(child.gameObject);
+				CreateDeco(child.gameObject);
 			}
 		}
 	}
     /// <summary>
     /// 表示物をセット
     /// </summary>
-    private void SetDecoration(GameObject deco)
+    private void CreateDeco(GameObject deco)
 	{
         //装飾オブジェククトの表示
         Vector3 decoPos = deco.transform.position;
         Vector3 decoScale = deco.transform.lossyScale;
         Vector3 decoSetPos = new Vector3(-StageManager.I.CurrentInfo.StageWidth / 2 - OFFSET * 2 + StageManager.I.Offset.x, decoPos.y, StageManager.I.Offset.z - OFFSET * 2);
 
-		var line = deco.GetComponent<LineRenderer> ();
+		var tmPro = deco.GetComponent<TextMeshPro>();
+		if (tmPro != null) {
+			decoScale = UnityUtility.MultipleEachElement(decoScale, tmPro.bounds.size);
+		}
+
 		var param = deco.GetComponent<StageObjectParameter> ();
 		float anchorHeightScale = param == null ? 0f : param.HeightWithMaxWidth;
 
@@ -249,7 +259,7 @@ public class StageCreater : Singleton<StageCreater>
 		float yCoord = decoPos.y + decoScale.y / 2 * anchorHeightScale;
         foreach (float x in StageManager.I.GetFoldXCoordList(yCoord, true))
         {
-			float leftEnd = line==null ? decoPos.x - decoScale.x / 2: decoPos.x;
+			float leftEnd = decoPos.x - decoScale.x / 2;
             if (leftEnd < x)
                 break;
 
@@ -264,10 +274,10 @@ public class StageCreater : Singleton<StageCreater>
             decoSetPos.x += decoPos.x - prevX;
         else
             decoSetPos.z -= decoPos.x - prevX;
-        GameObject newDeco = Instantiate(deco, decoSetPos, deco.transform.rotation) as GameObject;
+        GameObject newDeco = Instantiate(deco, decoSetPos, Quaternion.identity) as GameObject;
 		Destroy (newDeco.GetComponent<StageObjectParameter> ());
 		param.ObjectsOnStage.Add (newDeco);
-        newDeco.transform.SetParent(StageManager.I.Root.transform);
+        newDeco.transform.SetParent(StageManager.I.DecoRoot.transform);
 
         if (facingX)
         {
@@ -281,44 +291,52 @@ public class StageCreater : Singleton<StageCreater>
         }
 			
         //折り目にまたがっている場合は2枚で表示
-        float delta = decoScale.x;
-		Vector2 decoAnchorPos = line == null ? 
-			new Vector2(decoPos.x - delta / 2,decoPos.y + decoScale.y / 2 * anchorHeightScale) :
-			new Vector2(decoPos.x, decoPos.y);
-        float foldlineDist = StageManager.I.CalcFoldLineDistance(decoAnchorPos, delta, true);
-        if (Mathf.Abs(foldlineDist) < Mathf.Abs(delta))
-        {
-            if (facingX)
-            {
-                Vector3 newDecoPos;
-                newDecoPos.x = newDeco.transform.position.x - decoScale.x / 2 + foldlineDist;
-                newDecoPos.y = newDeco.transform.position.y;
-                newDecoPos.z = newDeco.transform.position.z - decoScale.x / 2 + foldlineDist;
-                GameObject newDeco2 = Instantiate(deco, newDecoPos, deco.transform.rotation) as GameObject;
-				Destroy (newDeco2.GetComponent<StageObjectParameter> ());
-				param.ObjectsOnStage.Add (newDeco2);
-                newDeco2.transform.SetParent(StageManager.I.Root.transform);
-                newDeco2.transform.eulerAngles += new Vector3(0f, 90f, 0f);
-                newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist / delta);
-                newDeco2.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist / delta);
-                newDeco2.tag = Z_TAG_NAME;
-            }
-            else
-            {
-                Vector3 newDecoPos;
-                newDecoPos.x = newDeco.transform.position.x + decoScale.x / 2 - foldlineDist;
-                newDecoPos.y = newDeco.transform.position.y;
-                newDecoPos.z = newDeco.transform.position.z + decoScale.x / 2 - foldlineDist;
-                GameObject newDeco2 = Instantiate(deco, newDecoPos, deco.transform.rotation) as GameObject;
-                newDeco2.transform.SetParent(StageManager.I.Root.transform);
-                ColorManager.MultiplyShadowColor(newDeco2);
-
-                newDeco.GetComponent<Renderer>().material.SetFloat("_ForwardThreshold", foldlineDist / delta);
-                newDeco2.GetComponent<Renderer>().material.SetFloat("_BackThreshold", foldlineDist / delta);
-                newDeco2.tag = X_TAG_NAME;
-            }
-        }
+		CreateSecondDeco(deco, newDeco, decoPos, decoScale, anchorHeightScale, facingX, tmPro, param);
     }
+
+	private void CreateSecondDeco(GameObject orig, GameObject deco, Vector3 pos, Vector3 scale, float anchorHeightScale, bool facingX, TextMeshPro tmPro, StageObjectParameter param)
+	{
+		float delta = scale.x;
+		Vector2 decoAnchorPos = new Vector2(pos.x - delta / 2,pos.y + scale.y / 2 * anchorHeightScale);
+		float foldlineDist = StageManager.I.CalcFoldLineDistance(decoAnchorPos, delta, true);
+		if (Mathf.Abs(foldlineDist) < Mathf.Abs(delta))
+		{
+			GameObject deco2;
+			Vector3 newDecoPos = Vector3.up * deco.transform.position.y;
+			if (facingX)
+			{
+				newDecoPos.x = deco.transform.position.x - scale.x / 2 + foldlineDist;
+				newDecoPos.z = deco.transform.position.z - scale.x / 2 + foldlineDist;
+				deco2 = Instantiate(orig, newDecoPos, Quaternion.identity) as GameObject;
+				deco2.transform.eulerAngles += new Vector3(0f, 90f, 0f);
+				deco2.tag = Z_TAG_NAME;
+			}
+			else
+			{
+				newDecoPos.x = deco.transform.position.x + scale.x / 2 - foldlineDist;
+				newDecoPos.z = deco.transform.position.z + scale.x / 2 - foldlineDist;
+				deco2 = Instantiate(orig, newDecoPos, Quaternion.identity) as GameObject;
+				deco2.tag = X_TAG_NAME;
+				ColorManager.MultiplyShadowColor(deco2);
+
+			}
+				
+			Destroy (deco2.GetComponent<StageObjectParameter> ());
+			param.ObjectsOnStage.Add (deco2);
+			deco2.transform.SetParent(StageManager.I.DecoRoot.transform);
+
+			if (tmPro == null) {
+				deco.GetComponent<Renderer> ().material.SetFloat (Constants.M_FORWARD_THRES, foldlineDist / delta);
+				deco2.GetComponent<Renderer> ().material.SetFloat (Constants.M_BACK_THRES, foldlineDist / delta);
+			} else {
+				float width = tmPro.bounds.size.x;
+				deco.GetComponent<Renderer> ().material.SetFloat (Constants.M_FORWARD_THRES, width/2 - ((delta-foldlineDist) / delta) * width);
+				deco.GetComponent<Renderer> ().material.SetFloat (Constants.M_BACK_THRES, -width/2);
+				deco2.GetComponent<Renderer> ().material.SetFloat (Constants.M_FORWARD_THRES, width/2);
+				deco2.GetComponent<Renderer> ().material.SetFloat (Constants.M_BACK_THRES, - width/2 + (foldlineDist / delta) * width);
+			}
+		}
+	}
 }
 
 //折れ線と穴開け用の線のどちらの線かを判断するために実装。

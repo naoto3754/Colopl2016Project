@@ -45,22 +45,34 @@ public class StageManager : Singleton<StageManager>
 	public CustomCharaController CurrentController {
 		get; set;
 	}
-	public GameObject PreviousRoot {
+	public GameObject PrevStageRoot {
 		get; set;
 	}
-	public GameObject Root {
+	public GameObject StageRoot {
 		get; set;
 	}
-	public GameObject BackgroundLeft{
+	public GameObject PrevPaperRoot {
 		get; set;
 	}
-	public GameObject BackgroundRight{ 
+	public GameObject PaperRoot {
 		get; set;
 	}
-	public GameObject PreviousBackgroundLeft{
+	public GameObject PrevDecoRoot {
 		get; set;
 	}
-	public GameObject PreviousBackgroundRight{
+	public GameObject DecoRoot {
+		get; set;
+	}
+	public GameObject BackRootL{
+		get; set;
+	}
+	public GameObject BackRootR{
+		get; set;
+	}
+	public GameObject PrevBackRootL{
+		get; set;
+	}
+	public GameObject PrevBackRootR{
 		get; set;
 	}
 		    
@@ -457,16 +469,23 @@ public class StageManager : Singleton<StageManager>
 		CurrentController = null;
 		DestroyObject (CurrentInfo.gameObject);
 		CurrentInfo = null;
-		DestroyObject (Root);
-		DestroyObject (PreviousRoot);
-		DestroyObject (BackgroundLeft);
-		DestroyObject (PreviousBackgroundLeft);
-		DestroyObject (BackgroundRight);
-		DestroyObject (PreviousBackgroundRight);
+		DestroyObject (PaperRoot);
+		DestroyObject (PrevPaperRoot);
+		DestroyObject (DecoRoot);
+		DestroyObject (PrevDecoRoot);
+		DestroyObject (PrevPaperRoot);
+		DestroyObject (BackRootL);
+		DestroyObject (PrevBackRootL);
+		DestroyObject (BackRootR);
+		DestroyObject (PrevBackRootR);
+		DestroyObject (StageRoot);
+		DestroyObject (PrevStageRoot);
 	}
 
 	private void DestroyObject(GameObject obj){
-		if(obj != null)
-			Destroy(obj);
+		if (obj != null) {
+			Destroy (obj);
+			obj = null;
+		}
 	}
 }

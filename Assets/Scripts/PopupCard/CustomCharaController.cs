@@ -60,7 +60,7 @@ public class CustomCharaController : MonoBehaviour
 		GameObject character = Instantiate(_DummyCharacter, Vector3.zero, Quaternion.identity) as GameObject;
 		if(xDir == false)
 			character.transform.Rotate(0f, 90f, 0f);
-		character.transform.SetParent(StageManager.I.Root.transform);
+		character.transform.SetParent(StageManager.I.PaperRoot.transform);
 		character.tag = xDir ? StageCreater.X_TAG_NAME : StageCreater.Z_TAG_NAME;
 		//TODO:色を決める
 		var face = character.transform.GetChild (0).GetComponent<SpriteRenderer> ();
@@ -356,12 +356,12 @@ public class CustomCharaController : MonoBehaviour
 	private void SetInitPosAnchor ()
 	{
 		_InitAnchor = new GameObject ("initAnchor");
-		_InitAnchor.transform.SetParent(StageManager.I.Root.transform);
+		_InitAnchor.transform.SetParent(StageManager.I.PaperRoot.transform);
 		_InitAnchor.transform.position = _CharacterX.transform.position;
 		_InitAnchor.tag = StageCreater.X_TAG_NAME;
 
 		_InitDestAnchor = new GameObject ("initDestAnchor");
-		_InitDestAnchor.transform.SetParent(StageManager.I.Root.transform);
+		_InitDestAnchor.transform.SetParent(StageManager.I.PaperRoot.transform);
 		_InitDestAnchor.transform.position = _DestCharacterZ.transform.position;
 		_InitDestAnchor.tag = StageCreater.Z_TAG_NAME;
 	}

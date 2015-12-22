@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using TMPro;
 
 public class ColorManager
 {
@@ -57,6 +58,16 @@ public class ColorManager
         {
             return;
         }
+		if (obj.GetComponent<TextMeshPro>())
+		{
+			var mat = obj.GetComponent<Renderer> ().material;
+			Color shadowColor = mat.GetColor ("_FaceColor");
+			shadowColor.r *= SHADOW_SCALE;
+			shadowColor.g *= SHADOW_SCALE;
+			shadowColor.b *= SHADOW_SCALE;
+			mat.SetColor ("_FaceColor", shadowColor);
+			return;
+		}
         if (obj.GetComponent<Renderer>())
         {
 			var mat = obj.GetComponent<Renderer> ().material;
