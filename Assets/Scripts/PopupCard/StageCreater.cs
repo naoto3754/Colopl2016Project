@@ -302,7 +302,6 @@ public class StageCreater : Singleton<StageCreater>
 		float foldlineDist = StageManager.I.CalcFoldLineDistance(decoAnchorPos, delta, true);
 		if (Mathf.Abs(foldlineDist) < Mathf.Abs(delta))
 		{
-			Debug.Log (deco);
 			GameObject deco2;
 			Vector3 newDecoPos = Vector3.up * deco.transform.position.y;
 			if (facingX)

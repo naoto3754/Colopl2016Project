@@ -36,7 +36,7 @@ public class StageManager : Singleton<StageManager>
 	public StageInfomation CurrentInfo{
 		get; set;
 	}    
-	public GameObject Book {
+	public Book Book {
 		get; set;
 	}
 	public Vector3 Offset {

@@ -88,8 +88,8 @@ public class StageAnimator : Singleton<StageAnimator>
 		_Sequence.Join( StageManager.I.DecoRoot.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
 		_Sequence.Join( StageManager.I.BackRootL.transform.DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
 		_Sequence.Join( StageManager.I.BackRootR.transform.DORotate(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
-		_Sequence.Join( StageManager.I.Book.transform.GetChild(0).DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
-		_Sequence.Join( StageManager.I.Book.transform.GetChild(1).DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+		_Sequence.Join( StageManager.I.Book.anchorL.DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+		_Sequence.Join( StageManager.I.Book.anchorR.DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
 
 		PushCloseStage(closetime);
 		_Sequence.OnComplete(() => { 
@@ -146,8 +146,8 @@ public class StageAnimator : Singleton<StageAnimator>
 		{    
 		case ReOpenType.FIRST_OPEN:
 		case ReOpenType.RESTART_STAGE:
-			_Sequence.Join( StageManager.I.Book.transform.GetChild(0).DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
-			_Sequence.Join( StageManager.I.Book.transform.GetChild(1).DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+			_Sequence.Join( StageManager.I.Book.anchorL.DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
+			_Sequence.Join( StageManager.I.Book.anchorR.DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
 			break;
 		}
 		PushCloseStage(closetime);
@@ -168,8 +168,8 @@ public class StageAnimator : Singleton<StageAnimator>
 		{    
 		case ReOpenType.FIRST_OPEN:
 		case ReOpenType.RESTART_STAGE:
-			_Sequence.Join( StageManager.I.Book.transform.GetChild(0).DORotate(0*Vector3.up, opentime).SetEase(OPEN_EASE) );
-			_Sequence.Join( StageManager.I.Book.transform.GetChild(1).DORotate(-90*Vector3.up, opentime).SetEase(OPEN_EASE) );
+			_Sequence.Join( StageManager.I.Book.anchorL.DORotate(0*Vector3.up, opentime).SetEase(OPEN_EASE) );
+			_Sequence.Join( StageManager.I.Book.anchorR.DORotate(-90*Vector3.up, opentime).SetEase(OPEN_EASE) );
 			break;
 		}
 		PushOpenStage(opentime, type);
@@ -306,16 +306,16 @@ public class StageAnimator : Singleton<StageAnimator>
 		_Sequence_Step1.Join( StageManager.I.DecoRoot.transform.DOBlendableRotateBy(-45*Vector3.up, closetime*1/3).SetEase(CLOSE_EASE) );
 		_Sequence_Step1.Join( StageManager.I.BackRootL.transform.DORotate(45*Vector3.up, closetime*1/3).SetEase(CLOSE_EASE) );
 		_Sequence_Step1.Join( StageManager.I.BackRootR.transform.DORotate(-45*Vector3.up, closetime*1/3).SetEase(CLOSE_EASE) );
-		_Sequence_Step1.Join( StageManager.I.Book.transform.GetChild(0).DORotate(45*Vector3.up, closetime*1/3).SetEase(CLOSE_EASE) );
-		_Sequence_Step1.Join( StageManager.I.Book.transform.GetChild(1).DORotate(-135*Vector3.up, closetime*1/3).SetEase(CLOSE_EASE) );
+		_Sequence_Step1.Join( StageManager.I.Book.anchorL.DORotate(45*Vector3.up, closetime*1/3).SetEase(CLOSE_EASE) );
+		_Sequence_Step1.Join( StageManager.I.Book.anchorR.DORotate(-135*Vector3.up, closetime*1/3).SetEase(CLOSE_EASE) );
 		ReverseAnimationStep1(closetime*1/3);
 		_Sequence_Step1.OnComplete(() => {
 			_Sequence_Step2 = DOTween.Sequence();
 			_Sequence_Step2.Append( transform.DOMove(transform.position, 0f) );
 			_Sequence_Step2.Join( StageManager.I.BackRootL.transform.DORotate(-45*Vector3.up, closetime*2/3).SetEase(CLOSE_EASE) );
 			_Sequence_Step2.Join( StageManager.I.BackRootR.transform.DORotate(45*Vector3.up, closetime*2/3).SetEase(CLOSE_EASE) );
-			_Sequence_Step2.Join( StageManager.I.Book.transform.GetChild(0).DORotate(-45*Vector3.up, closetime*2/3).SetEase(CLOSE_EASE) );
-			_Sequence_Step2.Join( StageManager.I.Book.transform.GetChild(1).DORotate(-45*Vector3.up, closetime*2/3).SetEase(CLOSE_EASE) );
+			_Sequence_Step2.Join( StageManager.I.Book.anchorL.DORotate(-45*Vector3.up, closetime*2/3).SetEase(CLOSE_EASE) );
+			_Sequence_Step2.Join( StageManager.I.Book.anchorR.DORotate(-45*Vector3.up, closetime*2/3).SetEase(CLOSE_EASE) );
 			ReverseAnimationStep2(closetime*2/3);
 			_Sequence_Step2.OnComplete(() => {
 				SwapCharacter();
@@ -323,8 +323,8 @@ public class StageAnimator : Singleton<StageAnimator>
 				_Sequence_Step3.Append( transform.DOMove(transform.position, opentime*2/3).SetEase(OPEN_EASE).SetDelay(waittime));
 				_Sequence_Step3.Join( StageManager.I.BackRootL.transform.DORotate(45*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
 				_Sequence_Step3.Join( StageManager.I.BackRootR.transform.DORotate(-45*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
-				_Sequence_Step3.Join( StageManager.I.Book.transform.GetChild(0).DORotate(45*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
-				_Sequence_Step3.Join( StageManager.I.Book.transform.GetChild(1).DORotate(-135*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
+				_Sequence_Step3.Join( StageManager.I.Book.anchorL.DORotate(45*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
+				_Sequence_Step3.Join( StageManager.I.Book.anchorR.DORotate(-135*Vector3.up, opentime*2/3).SetEase(OPEN_EASE) );
 				ReverseAnimationStep3(opentime*2/3);
 				AudioManager.I.PlaySE (AudioContents.AudioTitle.CLOSE);
 				_Sequence_Step3.OnComplete(() => {
@@ -333,8 +333,8 @@ public class StageAnimator : Singleton<StageAnimator>
 					_Sequence_Step4.Join( StageManager.I.DecoRoot.transform.DOBlendableRotateBy(0*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
 					_Sequence_Step4.Join( StageManager.I.BackRootL.transform.DORotate(0*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
 					_Sequence_Step4.Join( StageManager.I.BackRootR.transform.DORotate(0*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
-					_Sequence_Step4.Join( StageManager.I.Book.transform.GetChild(0).DORotate(0*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
-					_Sequence_Step4.Join( StageManager.I.Book.transform.GetChild(1).DORotate(-90*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
+					_Sequence_Step4.Join( StageManager.I.Book.anchorL.DORotate(0*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
+					_Sequence_Step4.Join( StageManager.I.Book.anchorR.DORotate(-90*Vector3.up, opentime*1/3).SetEase(OPEN_EASE) );
 					ReverseAnimationStep4(opentime*1/3);
 					_Sequence_Step4.Play();
 				});

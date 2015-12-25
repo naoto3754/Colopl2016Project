@@ -254,10 +254,11 @@ public class StageSelectManager : Singleton<StageSelectManager>
 
 		_SelectedBook = tappedObj;
 		GameObject selectedBook = Instantiate(tappedObj, tappedObj.transform.position, tappedObj.transform.rotation) as GameObject;
-		StageManager.I.Book = selectedBook;
+		var book = selectedBook.GetComponent<Book> ();
+		StageManager.I.Book = book;
 		tappedObj.SetActive (false);
-		SelectedChapter = tappedObj.GetComponent<Book>().chapter;
-		SelectedBookID = tappedObj.GetComponent<Book>().bookID;
+		SelectedChapter = book.chapter;
+		SelectedBookID = book.bookID;
 		SelectedStageIdx = 0;
 		int stgIndex = StageManager.CalcStageListIndex (SelectedChapter, SelectedBookID, SelectedStageIdx);
 		
