@@ -14,7 +14,7 @@ public class StageObjectParameter : MonoBehaviour {
 	public EnableFlag EnableCase = EnableFlag.ALWAYS;
 	public float HeightWithMaxWidth = 0f;
 
-	public List<GameObject> _ObjectOnStage = new List<GameObject>();
+	private List<GameObject> _ObjectOnStage = new List<GameObject>();
 	public List<GameObject> ObjectsOnStage {
 		get { return _ObjectOnStage; }
 	}

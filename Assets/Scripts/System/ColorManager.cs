@@ -39,19 +39,7 @@ public class ColorManager
         if (obj.GetComponent<SpriteRenderer>() != null)
         {
 			var mat = obj.GetComponent<Renderer> ().material;
-			if (mat.HasProperty ("_Color")) {
-				Color shadowColor = mat.GetColor ("_Color");
-				shadowColor.r *= SHADOW_SCALE;
-				shadowColor.g *= SHADOW_SCALE;
-				shadowColor.b *= SHADOW_SCALE;
-				mat.SetColor ("_Color", shadowColor);
-			} else {
-				Color shadowColor = obj.GetComponent<SpriteRenderer>().color;
-				shadowColor.r *= SHADOW_SCALE;
-				shadowColor.g *= SHADOW_SCALE;
-				shadowColor.b *= SHADOW_SCALE;
-				obj.GetComponent<SpriteRenderer>().color = shadowColor;
-			}
+			SetShadowColor (mat, "_Color");
             return;
         }
         if (obj.GetComponent<LineRenderer>())
@@ -60,33 +48,28 @@ public class ColorManager
         }
 		if (obj.GetComponent<TextMeshPro>())
 		{
-			var mat = obj.GetComponent<Renderer> ().material;
-			Color shadowColor = mat.GetColor ("_FaceColor");
-			shadowColor.r *= SHADOW_SCALE;
-			shadowColor.g *= SHADOW_SCALE;
-			shadowColor.b *= SHADOW_SCALE;
-			mat.SetColor ("_FaceColor", shadowColor);
+//			var mat = obj.GetComponent<Renderer> ().material;
+//			SetShadowColor (mat, "_FaceColor");
 			return;
 		}
         if (obj.GetComponent<Renderer>())
         {
 			var mat = obj.GetComponent<Renderer> ().material;
-			if (mat.HasProperty ("_Color")) {
-				Color shadowColor = mat.GetColor ("_Color");
-				shadowColor.r *= SHADOW_SCALE;
-				shadowColor.g *= SHADOW_SCALE;
-				shadowColor.b *= SHADOW_SCALE;
-				mat.SetColor ("_Color", shadowColor);
-			} else {
-				Color shadowColor = mat.color;
-				shadowColor.r *= SHADOW_SCALE;
-				shadowColor.g *= SHADOW_SCALE;
-				shadowColor.b *= SHADOW_SCALE;
-				mat.color = shadowColor;
-			}
+			SetShadowColor (mat, "_Color");
             return;
         }
     }
+
+	private static void SetShadowColor(Material mat, string key)
+	{
+		if (mat.HasProperty (key)) {
+			Color shadowColor = mat.GetColor (key);
+			shadowColor.r *= SHADOW_SCALE;
+			shadowColor.g *= SHADOW_SCALE;
+			shadowColor.b *= SHADOW_SCALE;
+			mat.SetColor (key, shadowColor);
+		}
+	}
 }
 
 public enum ColorData

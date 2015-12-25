@@ -498,6 +498,7 @@ public class StageManager : Singleton<StageManager>
 		CurrentController = null;
 		DestroyObject (CurrentInfo.gameObject);
 		CurrentInfo = null;
+		DestroyObject (StageRoot);
 		DestroyObject (PaperRoot);
 		DestroyObject (PrevPaperRoot);
 		DestroyObject (DecoRoot);

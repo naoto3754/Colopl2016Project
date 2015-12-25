@@ -60,7 +60,7 @@ public class CustomCharaController : MonoBehaviour
 		GameObject character = Instantiate(_DummyCharacter, Vector3.zero, Quaternion.identity) as GameObject;
 		if(xDir == false)
 			character.transform.Rotate(0f, 90f, 0f);
-		character.transform.SetParent(StageManager.I.PaperRoot.transform);
+		character.transform.SetParent(StageManager.I.DecoRoot.transform);
 		character.tag = xDir ? StageCreater.X_TAG_NAME : StageCreater.Z_TAG_NAME;
 		//TODO:色を決める
 		var face = character.transform.GetChild (0).GetComponent<SpriteRenderer> ();

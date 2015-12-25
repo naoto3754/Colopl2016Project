@@ -21,6 +21,7 @@ public class StageSelectManager : Singleton<StageSelectManager>
 
 	private State _CurrentState;
 	private bool _IsZooming = false;
+	private bool _IsPlayingAnimation = false;
 	private bool _SpeedUp = false;
 	private bool _FinishTitle = false;
 	private GameObject _PrevSelectedObj;
@@ -118,6 +119,9 @@ public class StageSelectManager : Singleton<StageSelectManager>
 			return;
 		}
 
+		if (_IsPlayingAnimation)
+			return;
+
 		if(InputManager.I.GetAnyTapUp())
 		{
 			GameObject tappedObj = InputManager.I.GetTappedGameObject();
@@ -179,6 +183,7 @@ public class StageSelectManager : Singleton<StageSelectManager>
 	void ZoomIn()
 	{			
 		_IsZooming = true;
+		_IsPlayingAnimation = true;
 		_Sequence = DOTween.Sequence();
 		
 		int chapter = _PrevSelectedObj.GetComponent<Book>().chapter;
@@ -190,12 +195,16 @@ public class StageSelectManager : Singleton<StageSelectManager>
 		
 		_Sequence.Join( Camera.main.transform.DOMove(pos, ZOOM_TIME) );
 		_Sequence.Join( _Shelf.transform.DOMoveY(-83.3f+17f*(chapter-1), ZOOM_TIME) );
-		
+
+		_Sequence.OnComplete(() => { 
+			_IsPlayingAnimation = false;
+		});
 		_Sequence.Play();
 	}
 	
 	void ZoomOut()
 	{
+		_IsPlayingAnimation = true;
 		_Sequence = DOTween.Sequence();
 		
 		_Sequence.Append( Camera.main.DOOrthographicSize( _DefaultCameraScale, ZOOM_TIME) );
@@ -206,7 +215,10 @@ public class StageSelectManager : Singleton<StageSelectManager>
 			_Sequence.Join( _Shelf.transform.DOMoveY(HIGHEST_HEIGHT, ZOOM_TIME) );
 		if(_Shelf.transform.position.y > LOWEST_HEIGHT)
 			_Sequence.Join( _Shelf.transform.DOMoveY(LOWEST_HEIGHT, ZOOM_TIME) );
-		_Sequence.OnComplete(() => { _IsZooming = false; });
+		_Sequence.OnComplete(() => { 
+			_IsZooming = false;
+			_IsPlayingAnimation = false;
+		});
 		_Sequence.Play();
 	}
 	
