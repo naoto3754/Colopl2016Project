@@ -8,13 +8,13 @@ public class CollectionManager : Singleton<CollectionManager>
 	private GameObject CollectionObjectRoot;
 	private List<GameObject> _CollectionObjects;
 
-	private bool[] _CollectionList;
-	public bool this[int index]
+	private State[] _CollectionList;
+	public State this[int index]
 	{
 		get { return _CollectionList [index]; }
 		set { _CollectionList [index] = value; }
 	}
-	public bool this[int chap, int book, int id]
+	public State this[int chap, int book, int id]
 	{
 		get { return _CollectionList [StageManager.CalcStageListIndex(chap, book, id)]; }
 		set { _CollectionList [StageManager.CalcStageListIndex(chap, book, id)] = value; }
@@ -23,7 +23,7 @@ public class CollectionManager : Singleton<CollectionManager>
 	public override void OnInitialize ()
 	{
 		base.OnInitialize ();
-		_CollectionList = new bool[StageManager.I.StageCount];
+		_CollectionList = new State[StageManager.I.StageCount];
 		_CollectionObjects = new List<GameObject> ();
 		foreach (var item in CollectionObjectRoot.GetComponentsInChildren<SpriteRenderer>()) {
 			_CollectionObjects.Add (item.gameObject);
@@ -35,19 +35,19 @@ public class CollectionManager : Singleton<CollectionManager>
 	{
 		for (int i = 0; i < _CollectionObjects.Count; i++) {
 			var obj = _CollectionObjects [i];
-			obj.SetActive (this[i]);
+			obj.SetActive (this[i] == State.COLLECTED);
 		}
 	}
 
 	public void Collect(int index)
 	{
-		_CollectionList [index] = true;
+		_CollectionList [index] = State.COLLECTED;
 		Save ();
 	}
 
 	public void Collect(int chap, int book, int id)
 	{
-		_CollectionList [StageManager.CalcStageListIndex(chap, book, id)] = true;
+		_CollectionList [StageManager.CalcStageListIndex(chap, book, id)] = State.COLLECTED;
 		Save ();
 	}
 
@@ -59,9 +59,15 @@ public class CollectionManager : Singleton<CollectionManager>
 	public void Clear()
 	{
 		for (int i = 0; i < _CollectionList.Length; i++) {
-			_CollectionList [i] = false;
+			_CollectionList [i] = State.UNCOLLECTED;
 
 		}
 		Save();
+	}
+
+	public enum State
+	{
+		UNCOLLECTED,
+		COLLECTED,
 	}
 }

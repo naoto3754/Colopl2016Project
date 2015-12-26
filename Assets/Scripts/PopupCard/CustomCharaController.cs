@@ -125,7 +125,6 @@ public class CustomCharaController : MonoBehaviour
         UpdateDummyCharacterPosition(moveDir);
 		JumppingOff ();
         UpdateCharacterState(moveDir);
-        //ゴール判定
     }
 
 	private void JumppingOff()
@@ -385,6 +384,11 @@ public class CustomCharaController : MonoBehaviour
 
 	private void ClearAction()
 	{
+		int chapter = StageManager.I.CurrentChapter;
+		int bookID = StageManager.I.CurrentBookID;
+		int stageIndex = StageManager.I.CurrentStageIndex;
+		int index = StageManager.CalcStageListIndex (chapter, bookID, stageIndex);
+
 		Vector3 goalPos = StageManager.I.CurrentInfo.GoalObj.GetComponent<StageObjectParameter> ().ObjectsOnStage [0].transform.position;
 		ClearStage = true;
 		Sequence sequence = DOTween.Sequence ();
@@ -395,14 +399,14 @@ public class CustomCharaController : MonoBehaviour
 				sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
 		}
 
+
+		StageClearManager.I.ClearStage(index);
+
 		sequence.OnComplete (() => {
-			int chapter = StageManager.I.CurrentChapter;
-			int bookID = StageManager.I.CurrentBookID;
-			int index = StageManager.I.CurrentStageIndex;
-			if(index == 2){
+			if(stageIndex == 2){
 				InGameManager.I.OnReturnHome();
 			}else{
-				int[] indexInfo = StageManager.CalcStageIndexInfo (StageManager.CalcStageListIndex (chapter, bookID, index) + 1);
+				int[] indexInfo = StageManager.CalcStageIndexInfo (index + 1);
 				StageManager.I.InstantiateStage (indexInfo [0], indexInfo [1], indexInfo [2]);
 			}
 		});

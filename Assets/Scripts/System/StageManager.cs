@@ -104,7 +104,9 @@ public class StageManager : Singleton<StageManager>
         int stageCnt = 3;       
         return chapter*bookCnt*stageCnt + bookID * stageCnt + index;
     }
-    
+    /// <summary>
+    /// 0:chapter 1:bookID 2:index
+    /// </summary>
     public static int[] CalcStageIndexInfo(int index)
     {
         int[] ret = new int[3];

@@ -10,7 +10,7 @@ public class CollectionEvent: EventBase
 		int book = StageManager.I.CurrentBookID;
 		int index = StageManager.I.CurrentStageIndex;
 
-		if (CollectionManager.I [chap, book, index]) {
+		if (CollectionManager.I [chap, book, index] == CollectionManager.State.COLLECTED) {
 			this.gameObject.SetActive (false);
 			var param = this.GetComponent<StageObjectParameter> ();
 			foreach (var obj in param.ObjectsOnStage) {
@@ -24,7 +24,7 @@ public class CollectionEvent: EventBase
 		int chap = StageManager.I.CurrentChapter;
 		int book = StageManager.I.CurrentBookID;
 		int index = StageManager.I.CurrentStageIndex;
-		CollectionManager.I [chap, book, index] = true;
+		CollectionManager.I [chap, book, index] = CollectionManager.State.COLLECTED;
 
 		base.GetObj (this.gameObject);
 		var param = this.GetComponent<StageObjectParameter> ();

@@ -82,7 +82,7 @@ public class StageSelectManager : Singleton<StageSelectManager>
 			.OnComplete(() => {
 				_CurrentState = State.SELECT;
 				_SelectedBook.SetActive (true);
-				Destroy(book);
+				Destroy(book.gameObject);
 			}) );
 		_Sequence.Play();
 	}
