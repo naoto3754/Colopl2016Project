@@ -259,7 +259,15 @@ public class StageSelectManager : Singleton<StageSelectManager>
 		tappedObj.SetActive (false);
 		SelectedChapter = book.chapter;
 		SelectedBookID = book.bookID;
-		SelectedStageIdx = 0;
+		int index = StageManager.CalcStageListIndex (SelectedChapter, SelectedBookID, 0);
+		if(StageClearManager.I.ClearList[index] != StageClearManager.State.CLEARED)
+			SelectedStageIdx = 0;
+		else if(StageClearManager.I.ClearList[index+1] != StageClearManager.State.CLEARED)
+			SelectedStageIdx = 1;
+		else if(StageClearManager.I.ClearList[index+2] != StageClearManager.State.CLEARED)
+			SelectedStageIdx = 2;
+		else
+			SelectedStageIdx = 0;
 		int stgIndex = StageManager.CalcStageListIndex (SelectedChapter, SelectedBookID, SelectedStageIdx);
 		
 		_Sequence = DOTween.Sequence();

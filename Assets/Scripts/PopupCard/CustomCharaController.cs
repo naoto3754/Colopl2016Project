@@ -170,15 +170,26 @@ public class CustomCharaController : MonoBehaviour
         UpdateSubTransparent(destPos, _DummyCharacter.transform.lossyScale.x,
                              _DestCharacterX, _DestCharacterZ, moveDir, foldXList);
 		if (StageManager.I.IsOnObstacle ()) {
-			foreach (Material material in _DestCharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material))
-			{
-				material.SetFloat("_ForwardThreshold", 0);
-				material.SetFloat("_BackThreshold", 0);
+			foreach (Material material in _DestCharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material)) {
+				Color c = material.GetColor("_MainColor");
+				c.a = 0.1f;
+				material.SetColor("_MainColor", c);
 			}
-			foreach (Material material in _DestCharacterZ.GetComponentsInChildren<Renderer>().Select(x => x.material))
-			{
-				material.SetFloat("_ForwardThreshold", 0);
-				material.SetFloat("_BackThreshold", 0);
+			foreach (Material material in _DestCharacterZ.GetComponentsInChildren<Renderer>().Select(x => x.material)) {
+				Color c = material.GetColor("_MainColor");
+				c.a = 0.1f;
+				material.SetColor("_MainColor", c);
+			}
+		} else {
+			foreach (Material material in _DestCharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material)) {
+				Color c = material.GetColor("_MainColor");
+				c.a = 0.5f;
+				material.SetColor("_MainColor", c);
+			}
+			foreach (Material material in _DestCharacterZ.GetComponentsInChildren<Renderer>().Select(x => x.material)) {
+				Color c = material.GetColor("_MainColor");
+				c.a = 0.5f;
+				material.SetColor("_MainColor", c);
 			}
 		}
     }
