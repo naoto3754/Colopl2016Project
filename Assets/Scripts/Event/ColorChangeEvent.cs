@@ -6,6 +6,8 @@ public class ColorChangeEvent : EventBase
 	[SerializeField]
 	ColorData _ToColor;
 	[SerializeField]
+	Color _Color;
+	[SerializeField]
 	bool _OnTop;
 
 	protected override void OnEnter()
@@ -15,7 +17,7 @@ public class ColorChangeEvent : EventBase
 		if (StageManager.I.CurrentController.IsTopOfWall != _OnTop)
 			return;
 
-		StageManager.I.CurrentController.ChangeColor(_ToColor);
+		StageManager.I.CurrentController.ChangeColor(_ToColor, _Color);
 
 		base.GetObj (this.gameObject);
 		var param = this.GetComponent<StageObjectParameter> ();

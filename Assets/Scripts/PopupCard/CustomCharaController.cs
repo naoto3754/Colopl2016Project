@@ -44,11 +44,11 @@ public class CustomCharaController : MonoBehaviour
 	{
 		StageManager.I.CurrentController = this;
 		_DummyCharacter = this.gameObject;
-		color = StageManager.I.CurrentInfo.InitialCharacterColor;
+		color = ColorData.COLOR1;
 		InitPosition = _DummyCharacter.transform.position;
 
-		_CharacterX = CreateCharacter (ColorManager.GetColorWithColorData(StageManager.I.CurrentInfo.InitialCharacterColor), true);
-		_CharacterZ = CreateCharacter (ColorManager.GetColorWithColorData(StageManager.I.CurrentInfo.InitialCharacterColor), false);
+		_CharacterX = CreateCharacter (StageManager.I.CurrentInfo.InitialCharacterColor, true);
+		_CharacterZ = CreateCharacter (StageManager.I.CurrentInfo.InitialCharacterColor, false);
 		_DestCharacterX = CreateCharacter (new Color(0,0,0,0.5f), true);
 		_DestCharacterZ = CreateCharacter (new Color(0,0,0,0.5f), false);
 
@@ -383,13 +383,13 @@ public class CustomCharaController : MonoBehaviour
 		_InitDestAnchor.tag = StageCreater.Z_TAG_NAME;
 	}
 
-	public void ChangeColor(ColorData cd)
+	public void ChangeColor(ColorData cd, Color c)
 	{
 		color = cd;
 		var bodyX = _CharacterX.transform.GetChild (1).GetComponent<SpriteRenderer> ();
-		bodyX.material.SetColor("_MainColor", ColorManager.GetColorWithColorData(color));
+		bodyX.material.SetColor("_MainColor", c);
 		var bodyZ = _CharacterZ.transform.GetChild (1).GetComponent<SpriteRenderer> ();
-		bodyZ.material.SetColor("_MainColor", ColorManager.GetColorWithColorData(color));
+		bodyZ.material.SetColor("_MainColor", c);
 		ColorManager.MultiplyShadowColor(bodyZ.gameObject);
 	}
 

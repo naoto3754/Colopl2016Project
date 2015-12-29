@@ -10,8 +10,8 @@ public class StageInfomation : MonoBehaviour
     private Transform _StageSize;
 
     [SerializeField]
-    private ColorData _InitialCharacterColor;
-	public ColorData InitialCharacterColor
+    private Color _InitialCharacterColor;
+	public Color InitialCharacterColor
 	{
 		get { return _InitialCharacterColor; }
 	}
