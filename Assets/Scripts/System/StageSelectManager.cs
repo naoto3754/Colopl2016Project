@@ -275,7 +275,9 @@ public class StageSelectManager : Singleton<StageSelectManager>
 		_Sequence.Append (selectedBook.transform.DOMove (selectedBook.transform.position + 8f * moveDir, 0.5f)
 			.OnComplete (() => {
 				//TODO:色決める
-				FadeManager.I.SetShelfColor (StageManager.I.Stages[stgIndex].GetComponent<StageInfomation>().BackgroundColor);
+				var info = StageManager.I.Stages[stgIndex].GetComponent<StageInfomation>();
+				Color color = info == null ? Color.white : info.BackgroundColor;
+				FadeManager.I.SetShelfColor (color);
 				FadeManager.I.ShelfFadeOut (2f);
 			}));
 		_Sequence.Append( selectedBook.transform.DOMove(BOOK_POS, ANIMATION_TIME) );
