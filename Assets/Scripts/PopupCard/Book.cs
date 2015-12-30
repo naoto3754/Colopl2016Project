@@ -11,5 +11,5 @@ public class Book : MonoBehaviour {
 
 	public Transform anchorR;
 
-//	public TextMeshPro text;
+	public TextMeshPro text;
 }

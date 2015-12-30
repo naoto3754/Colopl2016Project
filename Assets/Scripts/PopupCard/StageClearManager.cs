@@ -27,6 +27,7 @@ public class StageClearManager : Singleton<StageClearManager>
 
 		SetInitParam ();
 		SetBooksColor ();
+		SetBooksText ();
 	}
 
 	public void ClearStage(int index)
@@ -39,6 +40,7 @@ public class StageClearManager : Singleton<StageClearManager>
 			_StageClearList [index + 3] = State.PLAYABLE;
 		}
 		SetBooksColor ();
+		SetBooksText ();
 	}
 
 	private void Save()
@@ -68,6 +70,22 @@ public class StageClearManager : Singleton<StageClearManager>
 		for (int i = 0; i < _BookObjects.Count; i ++) {
 			SetBookColor (_BookObjects [i].anchorL, i);
 			SetBookColor (_BookObjects [i].anchorR, i);
+		}
+	}
+
+	private void SetBooksText()
+	{
+		for (int i = 0; i < _BookObjects.Count; i ++) {
+			if (_BookObjects [i].text == null)
+				continue;
+			
+			int clearCnt = 0;
+			for (int n = 0; n < 3; n++) {
+				if (_StageClearList [i * 3 + n] == State.CLEARED) {
+					clearCnt++;
+				}
+			}
+			_BookObjects [i].text.text = string.Format ("{0}/3", clearCnt);
 		}
 	}
 

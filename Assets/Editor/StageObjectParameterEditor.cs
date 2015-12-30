@@ -96,8 +96,10 @@ public class StageObjectParameterEditor : Editor
 				break;
 			}
 			break;
-		case StageObjectType.GOAL:
 		case StageObjectType.LADDER:
+			AssignFlag (false, true, true, false, false, false, false, false);
+			break;
+		case StageObjectType.GOAL:
 		case StageObjectType.DECORATION:
 			AssignFlag (false, false, true, false, false, false, false, false);
 			break;

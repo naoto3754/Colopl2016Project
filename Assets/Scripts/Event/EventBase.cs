@@ -69,7 +69,10 @@ public class EventBase : MonoBehaviour {
 	{
 		obj.transform.DORotate (4*360*Vector3.up, 1f, RotateMode.FastBeyond360).SetEase(Ease.Linear);
 		obj.transform.DOMoveY (this.transform.position.y+4f, 1f).OnComplete(() =>{
-			obj.GetComponent<Renderer>().enabled = false;
+			if(obj.GetComponent<Renderer>() != null)
+				obj.GetComponent<Renderer>().enabled = false;
+			if(obj.GetComponent<EventBase>() != null)
+				obj.GetComponent<EventBase>().enabled = false;
 		});
 	}
 }
