@@ -71,6 +71,7 @@ public class StageAnimator : Singleton<StageAnimator>
 		if (IsPlayingAnimation)
 			return;
 
+		StageManager.I.CurrentController.GetCollection = false;
 		_Sequence = DOTween.Sequence();
 		ReOpenStage(45f, 0.5f, 0.5f, 0.3f, ReOpenType.RESTART_STAGE);
 	}
@@ -105,6 +106,7 @@ public class StageAnimator : Singleton<StageAnimator>
 	/// </summary>
 	public void ClosePrevStage(float angle, float closetime)
 	{
+		closetime *= 0.95f;
 		_PrevSequence = DOTween.Sequence ();
 		float thickness = StageCreater.THICKNESS*2;
 		StageManager.I.PrevPaperRoot.transform.position += new Vector3(-thickness, 0, thickness);
@@ -118,10 +120,11 @@ public class StageAnimator : Singleton<StageAnimator>
 
 		PushCloseStage(closetime, true);
 		_PrevSequence.OnComplete(() => { 
-			Destroy(StageManager.I.PrevPaperRoot);
-			Destroy(StageManager.I.PrevDecoRoot);
-			Destroy(StageManager.I.PrevBackRootL);
-			Destroy(StageManager.I.PrevBackRootR);
+			StageManager.DestroyObject(StageManager.I.PrevPaperRoot);
+			StageManager.DestroyObject(StageManager.I.PrevDecoRoot);
+			StageManager.DestroyObject(StageManager.I.PrevBackRootL);
+			StageManager.DestroyObject(StageManager.I.PrevBackRootR);
+			StageManager.DestroyObject(StageManager.I.PrevStageRoot);
 			IsPlayingAnimation = false; 
 		});
 		_PrevSequence.Play();
@@ -136,7 +139,8 @@ public class StageAnimator : Singleton<StageAnimator>
 	{
 		_Sequence = DOTween.Sequence();
 		_Sequence.OnStart(() => {
-			StageRendererActivate();
+			if(type == ReOpenType.FIRST_OPEN || type == ReOpenType.TO_NEXT)
+				StageRendererActivate();
 		});
 		_Sequence.Append( StageManager.I.PaperRoot.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
 		_Sequence.Join( StageManager.I.DecoRoot.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
@@ -155,7 +159,9 @@ public class StageAnimator : Singleton<StageAnimator>
 			if (type == ReOpenType.RESTART_STAGE)
 			{
 				StageManager.I.CurrentController.SetInitPos();
-//				StageManager.I.CurrentController.UpdateDummyCharacterPosition(0.01f*Vector2.right);
+				foreach(var eventBase in StageManager.I.CurrentInfo.gameObject.GetComponentsInChildren<EventBase>()){
+					eventBase.Reset();
+				}
 				AudioManager.I.PlaySE (AudioContents.AudioTitle.CLOSE);
 			}
 		}));

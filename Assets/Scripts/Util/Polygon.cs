@@ -9,6 +9,11 @@ public class Polygon
 		Debug.LogError ("Don't through this code");
 		return false;
 	}
+		
+	public virtual bool IsOverlaped(Rectangle rect){
+		Debug.LogError ("Don't through this code");
+		return false;
+	}
 }
 
 public class Line 
@@ -16,7 +21,7 @@ public class Line
 	public Vector2[] points = new Vector2[2];
 	public StageObjectParameter param;
 
-	public Line(Vector2 start, Vector2 end, StageObjectParameter p)
+	public Line(Vector2 start, Vector2 end, StageObjectParameter p = null)
 	{
 		points[0] = start;
 		points[1] = end;
@@ -88,6 +93,38 @@ public class Triangle : Polygon
 		else
 			return false;
 	}
+
+	public override bool IsOverlaped(Rectangle rect)
+	{
+		Line[] thisLines = new Line[]
+		{
+			new Line(points[0], points[1]),
+			new Line(points[1], points[2]),
+			new Line(points[2], points[0]),
+		};
+		Line[] rectLines = new Line[]
+		{
+			new Line(rect.bottomLeft, rect.bottomRight),
+			new Line(rect.bottomRight, rect.upRight),
+			new Line(rect.upRight, rect.upLeft),
+			new Line(rect.upLeft, rect.bottomLeft),
+		};
+		if (StageManager.I.CurrentController.color == color || color == ColorData.NONE) {
+			foreach (var line in thisLines) {
+				foreach (var rectLine in rectLines) {
+					if (line.ThroughLine (rectLine.points [0], rectLine.points [1]))
+						return true;
+				}
+			}
+			foreach (Line line in rectLines) {
+				if (this.Contains (line.points [0]))
+					return true;
+			}
+			return false;
+		} else {
+			return false;
+		}
+	}
 }
 
 public class Rectangle : Polygon
@@ -95,10 +132,15 @@ public class Rectangle : Polygon
 	public Vector2 center;
 	public float width;
 	public float height;
+
 	public float left { get { return center.x - width / 2; } }
 	public float right { get { return center.x + width / 2; } }
 	public float bottom { get { return center.y - height / 2; } }
 	public float up { get { return center.y + height / 2; } }
+	public Vector2 bottomLeft { get { return center + new Vector2(-width/2, -height/2); } }
+	public Vector2 bottomRight { get { return center + new Vector2(width/2, -height/2); } }
+	public Vector2 upLeft { get { return center + new Vector2(-width/2, height/2); } }
+	public Vector2 upRight { get { return center + new Vector2(width/2, height/2); } }
 
 	public Rectangle(Vector2 center, float width, float height, ColorData c = ColorData.NONE)
 	{
@@ -121,15 +163,11 @@ public class Rectangle : Polygon
 
 	}
 
-	public bool IsOverlaped(Rectangle rect)
+	public override bool IsOverlaped(Rectangle rect)
 	{
-		return rect.Contains (new Vector2 (left, up)) ||
-		rect.Contains (new Vector2 (right, up)) ||
-		rect.Contains (new Vector2 (left, bottom)) ||
-		rect.Contains (new Vector2 (right, bottom)) ||
-		this.Contains (new Vector2 (rect.left, rect.up)) ||
-		this.Contains (new Vector2 (rect.right, rect.up)) ||
-		this.Contains (new Vector2 (rect.left, rect.bottom)) ||
-		this.Contains (new Vector2 (rect.right, rect.bottom));
+		if (StageManager.I.CurrentController.color == color || color == ColorData.NONE)
+			return left < rect.right && rect.left < right && bottom < rect.up && rect.bottom < up;
+		else
+			return false;
 	}
 }

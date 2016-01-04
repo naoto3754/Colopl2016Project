@@ -3,6 +3,9 @@ using System.Collections;
 
 public class CollectionEvent: EventBase 
 {
+	[SerializeField]
+	bool _OnTop;
+
 	protected override void OnAwake()
 	{
 		base.OnAwake ();
@@ -21,10 +24,12 @@ public class CollectionEvent: EventBase
 
 	protected override void OnEnter()
 	{
-		int chap = StageManager.I.CurrentChapter;
-		int book = StageManager.I.CurrentBookID;
-		int index = StageManager.I.CurrentStageIndex;
-		CollectionManager.I [chap, book, index] = CollectionManager.State.COLLECTED;
+		if (StageManager.I.CurrentController == null)
+			return;
+		if (StageManager.I.CurrentController.IsTopOfWall != _OnTop)
+			return;
+
+		StageManager.I.CurrentController.GetCollection = true;
 
 		base.GetObj (this.gameObject);
 		var param = this.GetComponent<StageObjectParameter> ();

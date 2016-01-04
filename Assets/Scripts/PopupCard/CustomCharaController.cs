@@ -39,6 +39,10 @@ public class CustomCharaController : MonoBehaviour
 		get;
 		set;
 	}
+	public bool GetCollection {
+		get;
+		set;
+	}
 
 	public void Init()
 	{
@@ -409,7 +413,11 @@ public class CustomCharaController : MonoBehaviour
 			foreach (Material mat in chara.GetComponentsInChildren<Renderer>().Select(x => x.material))
 				sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
 		}
-
+			
+		//コレクション
+		if(GetCollection){
+			CollectionManager.I [chapter, bookID, stageIndex] = CollectionManager.State.COLLECTED;
+		}
 
 		StageClearManager.I.ClearStage(index);
 
@@ -509,4 +517,17 @@ public class CustomCharaController : MonoBehaviour
                    + new Vector3(_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE, 0f);
         }
     }
+	public Rectangle CharaRect
+	{
+		get { return new Rectangle(Center, _DummyCharacter.transform.lossyScale.x, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE, color); }
+	}
+	public Rectangle DummyCharaRect
+	{
+		get 
+		{ 
+			Vector2 dummyCenter = Center;
+			dummyCenter.x *= -1;
+			return new Rectangle(dummyCenter, _DummyCharacter.transform.lossyScale.x, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE, color); 
+		}
+	}
 }
