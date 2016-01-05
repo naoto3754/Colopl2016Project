@@ -75,7 +75,7 @@ public class StageCreater : Singleton<StageCreater>
             bool duringHole = false;
             float prevX = -StageManager.I.CurrentInfo.StageWidth / 2;
 			float xOffset = -StageManager.I.CurrentInfo.StageWidth / 2, zOffset = StageManager.I.Offset.z;
-            IEnumerable<XCoord> xCoordList = StageManager.I.GetXCoordList((prevY + y) / 2, true);
+            IEnumerable<XCoord> xCoordList = StageManager.I.GetXCoordList((prevY + y) / 2, false);
             foreach (XCoord xCoord in xCoordList)
             {
                 //折れ線の場合
@@ -257,7 +257,7 @@ public class StageCreater : Singleton<StageCreater>
         float prevX = -StageManager.I.CurrentInfo.StageWidth / 2;
 
 		float yCoord = decoPos.y + decoScale.y / 2 * anchorHeightScale;
-        foreach (float x in StageManager.I.GetFoldXCoordList(yCoord, true))
+		foreach (float x in StageManager.I.GetFoldXCoordList(yCoord, false))
         {
 			float leftEnd = decoPos.x - decoScale.x / 2;
             if (leftEnd < x)
@@ -299,7 +299,7 @@ public class StageCreater : Singleton<StageCreater>
 	{
 		float delta = scale.x;
 		Vector2 decoAnchorPos = new Vector2(pos.x - delta / 2,pos.y + scale.y / 2 * anchorHeightScale);
-		float foldlineDist = StageManager.I.CalcFoldLineDistance(decoAnchorPos, delta, true);
+		float foldlineDist = StageManager.I.CalcFoldLineDistance(decoAnchorPos, delta, false);
 		if (Mathf.Abs(foldlineDist) < Mathf.Abs(delta))
 		{
 			GameObject deco2;

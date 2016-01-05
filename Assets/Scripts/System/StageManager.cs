@@ -293,23 +293,19 @@ public class StageManager : Singleton<StageManager>
     /// <summary>
     /// 与えられた距離内にある折り目までの距離を返す
     /// </summary>
-    public float CalcFoldLineDistance(Vector2 pos, float delta, bool createStage = false)
+    public float CalcFoldLineDistance(Vector2 pos, float delta, bool isTop)
     {
 		float ret = delta + Mathf.Sign(delta) * 1f;
 
-        if(createStage == false)
+        if(isTop)
         {
-			if (CurrentController.IsTopOfWall) {
-				pos -= 0.05f * Vector2.up;
-
-				foreach (Line foldline in CurrentInfo.TopFoldLine) {
-					if (foldline.ThroughLine (pos, pos + delta * Vector2.right)) {
-						ret = foldline.points [0].x - pos.x;
-						break;
-					}
+			pos -= 0.05f * Vector2.up;
+			foreach (Line foldline in CurrentInfo.TopFoldLine) {
+				if (foldline.ThroughLine (pos, pos + delta * Vector2.right)) {
+					ret = foldline.points [0].x - pos.x;
+					break;
 				}
 			}
-			
         }
         foreach (Line foldline in CurrentInfo.FoldLine)
         {
@@ -324,17 +320,15 @@ public class StageManager : Singleton<StageManager>
     /// <summary>
     /// 自分の真下に飛び出ている部分の上面があるかどうか
     /// </summary>
-    public bool OnTopOfWall()
+    public bool OnTopOfWall(Vector2 bottomL, Vector2 bottomR)
     {
         foreach (Line groundline in CurrentInfo.GroundLine)
         {
             if (groundline.param.TopOfWall)
             {
-                Vector2 charaPos = CurrentController.BottomLeft;
-                if (groundline.ThroughLine(charaPos + 0.01f * Vector2.up, charaPos - 0.4f * Vector2.up))
+                if (groundline.ThroughLine(bottomL + 0.01f * Vector2.up, bottomL - 0.4f * Vector2.up))
                     return true;
-                charaPos = CurrentController.BottomRight;
-                if (groundline.ThroughLine(charaPos + 0.01f * Vector2.up, charaPos - 0.4f * Vector2.up))
+                if (groundline.ThroughLine(bottomR + 0.01f * Vector2.up, bottomR - 0.4f * Vector2.up))
                     return true;
             }
         }
@@ -414,14 +408,23 @@ public class StageManager : Singleton<StageManager>
     /// <summary>
     /// 引数のy座標を含む折り目のx座標をソートした配列を取得
     /// </summary>
-    public IEnumerable<float> GetFoldXCoordList(float y, bool createStage = false)
+    public IEnumerable<float> GetFoldXCoordList(float y, bool isTop)
     {   
-        if(createStage == false){
-            if (CurrentController.IsTopOfWall)
-                y -= 0.05f;
-        }
-        List<float> retList = new List<float>();
-        retList.Add(CurrentInfo.StageWidth/2);
+		List<float> retList = new List<float>();
+		retList.Add(CurrentInfo.StageWidth/2);
+
+		if(isTop)
+		{
+			y -= 0.05f;
+			foreach (Line line in CurrentInfo.TopFoldLine) {
+				if (((line.points[0].y - y) <= 0f && 0f < (line.points[1].y - y)) ||
+					((line.points[0].y - y) >= 0f && 0f > (line.points[1].y - y)))
+				{
+					retList.Add(line.points[0].x);
+				}
+			}
+		}
+
         foreach (Line line in CurrentInfo.FoldLine)
         {
             if (((line.points[0].y - y) <= 0f && 0f < (line.points[1].y - y)) ||
@@ -436,14 +439,23 @@ public class StageManager : Singleton<StageManager>
     /// <summary>
     /// 引数のy座標を含む折り目と穴のx座標をソートした配列を取得
     /// </summary>
-    public IEnumerable<XCoord> GetXCoordList(float y, bool createStage = false)
+    public IEnumerable<XCoord> GetXCoordList(float y, bool isTop)
     {
-        if(createStage == false){
-            if (CurrentController.IsTopOfWall)
-               y -= 0.05f;
-        }
-        List<XCoord> retList = new List<XCoord>();
-        retList.Add(new XCoord(CurrentInfo.StageWidth/2, XCoord.Type.FOLD));
+		List<XCoord> retList = new List<XCoord>();
+		retList.Add(new XCoord(CurrentInfo.StageWidth/2, XCoord.Type.FOLD));
+
+		if(isTop)
+		{
+			y -= 0.05f;
+			foreach (Line line in CurrentInfo.TopFoldLine) {
+				if (((line.points[0].y - y) <= 0f && 0f < (line.points[1].y - y)) ||
+					((line.points[0].y - y) >= 0f && 0f > (line.points[1].y - y)))
+				{
+					retList.Add(new XCoord(line.points[0].x, XCoord.Type.FOLD));
+				}
+			}
+		}
+
         foreach (Line line in CurrentInfo.FoldLine)
         {
             if (((line.points[0].y - y) <= 0f && 0f < (line.points[1].y - y)) ||

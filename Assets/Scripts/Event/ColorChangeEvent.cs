@@ -8,13 +8,15 @@ public class ColorChangeEvent : EventBase
 	[SerializeField]
 	Color _Color;
 	[SerializeField]
+	bool _AlwaysEnable;
+	[SerializeField]
 	bool _OnTop;
 
 	protected override void OnEnter()
 	{
 		if (StageManager.I.CurrentController == null)
 			return;
-		if (StageManager.I.CurrentController.IsTopOfWall != _OnTop)
+		if (!(_AlwaysEnable || StageManager.I.CurrentController.IsTopOfWall == _OnTop))
 			return;
 
 		StageManager.I.CurrentController.ChangeColor(_ToColor, _Color);

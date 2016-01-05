@@ -6,13 +6,11 @@ using DG.Tweening;
 
 public class CustomCharaController : MonoBehaviour
 {
-	private GameObject _InitAnchor;
-	private GameObject _InitDestAnchor;
     private GameObject _CharacterX;
     private GameObject _CharacterZ;
     private GameObject _DestCharacterX;
     private GameObject _DestCharacterZ;
-    private GameObject _DummyCharacter;
+	private GameObject _FlatCharacter;
 
     public Vector2 InitPosition
     {
@@ -31,6 +29,10 @@ public class CustomCharaController : MonoBehaviour
     {
         get; set;
     }
+	public bool IsTopOfWall_Dest
+	{
+		get; set;
+	}
     public bool CanUseLadder
     {
         get; set;
@@ -47,9 +49,9 @@ public class CustomCharaController : MonoBehaviour
 	public void Init()
 	{
 		StageManager.I.CurrentController = this;
-		_DummyCharacter = this.gameObject;
+		_FlatCharacter = this.gameObject;
 		color = ColorData.COLOR1;
-		InitPosition = _DummyCharacter.transform.position;
+		InitPosition = FlatTrans.position;
 
 		_CharacterX = CreateCharacter (StageManager.I.CurrentInfo.InitialCharacterColor, true);
 		_CharacterZ = CreateCharacter (StageManager.I.CurrentInfo.InitialCharacterColor, false);
@@ -57,11 +59,10 @@ public class CustomCharaController : MonoBehaviour
 		_DestCharacterZ = CreateCharacter (new Color(0,0,0,0.5f), false);
 
 		UpdateDummyCharacterPosition(0.01f*Vector2.right);
-		SetInitPosAnchor ();
 	}
 	private GameObject CreateCharacter(Color initColor,bool xDir)
 	{
-		GameObject character = Instantiate(_DummyCharacter, Vector3.zero, Quaternion.identity) as GameObject;
+		GameObject character = Instantiate(_FlatCharacter, Vector3.zero, Quaternion.identity) as GameObject;
 		if(xDir == false)
 			character.transform.Rotate(0f, 90f, 0f);
 		character.transform.SetParent(StageManager.I.DecoRoot.transform);
@@ -92,57 +93,60 @@ public class CustomCharaController : MonoBehaviour
 		if (StageAnimator.I.IsPlayingAnimation)
 			return;
 
-		if (Input.GetKeyDown (KeyCode.C) || ( StageManager.I.CurrentInfo.GoalObj != null &&
-			StageManager.I.CurrentInfo.GoalObj.Rect.Contains(_DummyCharacter.transform.position) ))
+		if (Input.GetKeyDown (KeyCode.C) || (StageManager.I.CurrentInfo.GoalObj != null &&
+		    StageManager.I.CurrentInfo.GoalObj.Rect.Contains (FlatTrans.position))) {
 			ClearAction ();
-
-        //入力を取得
-        float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal");
-        float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical");
-
-        if (InputManager.I.GetTapDown(0) || InputManager.I.GetTap(0))
-        {
-            Vector2 inputDir = InputManager.I.GetDistanceFromInitPos(0);
-            inputDir.x = Mathf.Clamp(inputDir.x * 5, -1, 1);
-            inputDir.x = Mathf.Abs(inputDir.x) < 0.5f ? 0f : inputDir.x;
-            inputDir.y = Mathf.Clamp(inputDir.y * 7.5f, -1, 1);
-            inputDir.y = Mathf.Abs(inputDir.y) < 0.5f ? 0f : inputDir.y;
-
-
-            deltaHol = Time.deltaTime * _Speed * inputDir.x;
-            deltaVer = Time.deltaTime * _Speed * inputDir.y;
-        }
-
-        float deltaDrop = Time.deltaTime * _DropSpeed;
-
-        if (!CanUseLadder)
-        {
-            deltaVer = -deltaDrop;
-        }
-        else if (deltaVer > Ladder.MovementLimit)
-        {
-            deltaVer = Ladder.MovementLimit + 0.01f;
-        }
-
-        Vector2 moveDir = StageManager.I.CalcAmountOfMovement(new Vector2(deltaHol, deltaVer));
+		}
+			
+		Vector2 moveDir = StageManager.I.CalcAmountOfMovement(CalcInputDir());
 
         UpdateDummyCharacterPosition(moveDir);
 		JumppingOff ();
         UpdateCharacterState(moveDir);
     }
 
+	private Vector2 CalcInputDir(){
+		//入力を取得
+		float deltaHol = Time.deltaTime * _Speed * Input.GetAxis("Horizontal");
+		float deltaVer = Time.deltaTime * _Speed * Input.GetAxis("Vertical");
+
+		if (InputManager.I.GetTapDown(0) || InputManager.I.GetTap(0))
+		{
+			Vector2 inputDir = InputManager.I.GetDistanceFromInitPos(0);
+			inputDir.x = Mathf.Clamp(inputDir.x * 5, -1, 1);
+			inputDir.x = Mathf.Abs(inputDir.x) < 0.5f ? 0f : inputDir.x;
+			inputDir.y = Mathf.Clamp(inputDir.y * 7.5f, -1, 1);
+			inputDir.y = Mathf.Abs(inputDir.y) < 0.5f ? 0f : inputDir.y;
+
+
+			deltaHol = Time.deltaTime * _Speed * inputDir.x;
+			deltaVer = Time.deltaTime * _Speed * inputDir.y;
+		}
+
+		float deltaDrop = Time.deltaTime * _DropSpeed;
+
+		if (!CanUseLadder){
+			deltaVer = -deltaDrop;
+		}else if (deltaVer > Ladder.MovementLimit){
+			deltaVer = Ladder.MovementLimit + 0.01f;
+		}
+
+		return new Vector2 (deltaHol, deltaVer);
+	}
+
 	private void JumppingOff()
 	{
-		if (InputManager.I.GetTapDown(0) || InputManager.I.GetTap(0) || Input.GetKeyDown (KeyCode.DownArrow))
+		bool down = Input.GetKeyDown (KeyCode.DownArrow) || Input.GetKeyDown (KeyCode.S);
+		if (InputManager.I.GetTapDown(0) || InputManager.I.GetTap(0) || down)
 		{
 			Vector2 inputDir = InputManager.I.GetDistanceFromInitPos(0);
 			inputDir.y = Mathf.Clamp(inputDir.y * 15, -1, 1);
 			inputDir.y = Mathf.Abs(inputDir.y) < 0.5f ? 0f : inputDir.y;
-			bool inputDown = Input.GetKeyDown (KeyCode.DownArrow) || inputDir.y < -0.8f;
+			bool inputDown = down || inputDir.y < -0.8f;
 			bool canFall = (IsTopOfWall && StageManager.I.CanFall ()) || StageManager.I.OnJumpOffLine ();
 			if ( inputDown && canFall )
 			{
-				_DummyCharacter.transform.position -= 0.05f * Vector3.up;
+				FlatTrans.position -= 0.05f * Vector3.up;
 			}
 		}
 	}
@@ -152,58 +156,44 @@ public class CustomCharaController : MonoBehaviour
     /// </summary>
     public void UpdateDummyCharacterPosition(Vector2 moveDir)
     {
-        _DummyCharacter.transform.position += new Vector3(moveDir.x, moveDir.y, 0f);
-        IEnumerable foldXList = StageManager.I.GetFoldXCoordList(_DummyCharacter.transform.position.y);
+        FlatTrans.position += new Vector3(moveDir.x, moveDir.y, 0f);
         //飛び出ている部分の上に乗っているか判定
         if (IsTopOfWall)
-            IsTopOfWall = StageManager.I.OnTopOfWall();
+            IsTopOfWall = StageManager.I.OnTopOfWall(BottomLeft, BottomRight);
+		IsTopOfWall_Dest = IsTopOfWall && StageManager.I.OnTopOfWall(DestBottomLeft, DestBottomRight);
+		IEnumerable foldXList = StageManager.I.GetFoldXCoordList(Bottom.y, IsTopOfWall);
+		IEnumerable foldXList_Dest = StageManager.I.GetFoldXCoordList(Bottom.y, IsTopOfWall_Dest);
 
-        Vector3 destPos = _DummyCharacter.transform.position;
-        destPos.x *= -1;
         // ダミーキャラの位置を実際のキャラ反映させる
-        UpdateXZCharacterPosition(_DummyCharacter.transform.position, _DummyCharacter.transform.lossyScale.x,
+        UpdateXZCharacterPosition(Bottom, FlatTrans.lossyScale.x,
                                   _CharacterX.transform, _CharacterZ.transform,
-                                  moveDir, foldXList);
-        UpdateXZCharacterPosition(destPos, _DummyCharacter.transform.lossyScale.x,
+                                  moveDir, foldXList, IsTopOfWall);
+        UpdateXZCharacterPosition(DestBottom, FlatTrans.lossyScale.x,
                                   _DestCharacterX.transform, _DestCharacterZ.transform,
-                                  moveDir, foldXList);
+								  moveDir, foldXList_Dest, IsTopOfWall_Dest);
 
         //キャラクター部分透過
-        UpdateSubTransparent(_DummyCharacter.transform.position, _DummyCharacter.transform.lossyScale.x,
-                             _CharacterX, _CharacterZ, moveDir, foldXList);
-        UpdateSubTransparent(destPos, _DummyCharacter.transform.lossyScale.x,
-                             _DestCharacterX, _DestCharacterZ, moveDir, foldXList);
-		if (StageManager.I.IsOnObstacle ()) {
-			foreach (Material material in _DestCharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material)) {
-				Color c = material.GetColor("_MainColor");
-				c.a = 0.1f;
-				material.SetColor("_MainColor", c);
-			}
-			foreach (Material material in _DestCharacterZ.GetComponentsInChildren<Renderer>().Select(x => x.material)) {
-				Color c = material.GetColor("_MainColor");
-				c.a = 0.1f;
-				material.SetColor("_MainColor", c);
-			}
-		} else {
-			foreach (Material material in _DestCharacterX.GetComponentsInChildren<Renderer>().Select(x => x.material)) {
-				Color c = material.GetColor("_MainColor");
-				c.a = 0.5f;
-				material.SetColor("_MainColor", c);
-			}
-			foreach (Material material in _DestCharacterZ.GetComponentsInChildren<Renderer>().Select(x => x.material)) {
-				Color c = material.GetColor("_MainColor");
-				c.a = 0.5f;
-				material.SetColor("_MainColor", c);
+        UpdateSubTransparent(Bottom, FlatTrans.lossyScale.x,
+							 _CharacterX, _CharacterZ, moveDir, foldXList, IsTopOfWall);
+        UpdateSubTransparent(DestBottom, FlatTrans.lossyScale.x,
+							 _DestCharacterX, _DestCharacterZ, moveDir, foldXList, IsTopOfWall_Dest);
+		
+		float alpha = StageManager.I.IsOnObstacle () ? 0.1f : 0.5f;
+		foreach (var destChara in DestCharacters) {
+			foreach (Material material in destChara.GetComponentsInChildren<Renderer>().Select(x => x.material)) {
+				Color c = material.GetColor ("_MainColor");
+				c.a = alpha;
+				material.SetColor ("_MainColor", c);
 			}
 		}
     }
     /// <summary>
     /// ダミーキャラの位置を実際のキャラ反映させる
     /// </summary>
-    private void UpdateXZCharacterPosition(Vector3 charaPos, float delta, Transform xTrans, Transform zTrans, Vector2 moveDir, IEnumerable foldXList)
+	private void UpdateXZCharacterPosition(Vector3 charaPos, float delta, Transform xTrans, Transform zTrans, Vector2 moveDir, IEnumerable foldXList, bool isTop)
     {
         int r = 0;
-        float foldlineDist = StageManager.I.CalcFoldLineDistance(charaPos - delta / 2 * Vector3.right, delta);
+        float foldlineDist = StageManager.I.CalcFoldLineDistance(charaPos - delta / 2 * Vector3.right, delta, isTop);
         float prevX = -StageManager.I.CurrentInfo.StageWidth / 2;
 		float xOffset = StageManager.I.Offset.x - StageManager.I.CurrentInfo.StageWidth / 2;
 		float zOffset = StageManager.I.Offset.z;
@@ -212,7 +202,6 @@ public class CustomCharaController : MonoBehaviour
         {
             if (prevX < charaAnchor && charaAnchor < x)
             {
-				
                 if (r == 0) //x方向移動
                 {
 					xTrans.position = new Vector3(xOffset + charaPos.x - prevX - 0.01f, charaPos.y, zOffset - 0.01f);
@@ -226,12 +215,10 @@ public class CustomCharaController : MonoBehaviour
 					return;
                 }
             }
-            else
-            {
-                if (r == 0)
-                    xOffset += x - prevX;
-                else
-                    zOffset -= x - prevX;
+			else
+			{
+                if(r==0) xOffset += x - prevX;
+                else     zOffset -= x - prevX;
             }
             prevX = x;
             r = (int)Mathf.Repeat(r + 1, 2);
@@ -241,74 +228,45 @@ public class CustomCharaController : MonoBehaviour
     /// <summary>
     /// キャラクターの部分透過を設定
     /// </summary>
-    private void UpdateSubTransparent(Vector3 charaPos, float delta, GameObject xChara, GameObject zChara, Vector2 moveDir, IEnumerable foldXList)
+	private void UpdateSubTransparent(Vector3 charaPos, float delta, GameObject xChara, GameObject zChara, Vector2 moveDir, IEnumerable foldXList, bool isTop)
     {
         int r = 0;
-        float foldlineDist = StageManager.I.CalcFoldLineDistance(charaPos - delta / 2 * Vector3.right, delta);
+		float foldlineDist = StageManager.I.CalcFoldLineDistance(charaPos - delta / 2 * Vector3.right, delta, isTop);
         foreach (float x in foldXList)
         {
             if (charaPos.x - delta / 2 < x)
             {
-                if (r == 0) //x方向移動
-                {
-                    if (foldlineDist == delta + 1f)
-                    {
-                        SetCharacterTransparent(xChara, zChara, 1f, 0f, 0f, 1f);
-                        return;
-                    }
-                    if (moveDir.x > 0f)
-                    {
-                        SetCharacterTransparent(xChara, zChara, foldlineDist / delta, 0f, 1f, foldlineDist / delta);
-                        return;
-                    }
-                    else if (moveDir.x < 0f)
-                    {
-                        SetCharacterTransparent(xChara, zChara, 1f, 1f - foldlineDist / delta, 1f - foldlineDist / delta, 0f);
-                        return;
-                    }
-                }
-                else //z方向移動
-                {
-                    if (foldlineDist == delta + 1f)
-                    {
-                        SetCharacterTransparent(xChara, zChara, 0f, 1f, 1f, 0f);
-                        return;
-                    }
-                    if (moveDir.x > 0f)
-                    {
-                        SetCharacterTransparent(xChara, zChara, 1f, foldlineDist / delta, foldlineDist / delta, 0f);
-                        return;
-                    }
-                    else if (moveDir.x < 0f)
-                    {
-                        SetCharacterTransparent(xChara, zChara, 1f - foldlineDist / delta, 0f, 1f, 1f - foldlineDist / delta);
-                        return;
-                    }
-                }
+				if (CalcTransparentParam (xChara, zChara, foldlineDist, delta, moveDir, r == 0 /*r=0ならx方向*/))
+					return;
             }
             r = (int)Mathf.Repeat(r + 1, 2);
         }
-        if (foldlineDist == delta + 1f)
-        {
-            SetCharacterTransparent(xChara, zChara, 0f, 1f, 1f, 0f);
-            return;
-        }
-        if (moveDir.x > 0f)
-        {
-            SetCharacterTransparent(xChara, zChara, 1f, foldlineDist / delta, foldlineDist / delta, 0f);
-            return;
-        }
-        else if (moveDir.x < 0f)
-        {
-            SetCharacterTransparent(xChara, zChara, 1f - foldlineDist / delta, 1f, 0f, 1f - foldlineDist / delta);
-            return;
-        }
+		CalcTransparentParam (xChara, zChara, foldlineDist, delta, moveDir, false/*z方向*/);
     }
-    //キャラクター透過用関数
+	/// <summary>
+	/// キャラクター透過用パラメータの決定
+	/// </summary>
+	private bool CalcTransparentParam(GameObject xChara, GameObject zChara, float foldlineDist, float delta, Vector2 moveDir, bool xDir)
+	{
+		float rate = foldlineDist / delta;
+		Vector4 p = Vector4.zero;
+		if (foldlineDist == delta + 1f) {
+			p = xDir ? new Vector4 (1, 0, 0, 1) : new Vector4 (0, 1, 1, 0);
+		} else if (moveDir.x > 0f) {
+			p = xDir ? new Vector4 (rate, 0, 1, rate) : new Vector4 (1, rate, rate, 0);
+		} else if (moveDir.x < 0f) {
+			p = xDir ? new Vector4 (1, 1f - rate, 1f - rate, 0) : new Vector4 (1f - rate, 0, 1, 1f - rate);
+		} else {
+			return false;
+		}
+		SetCharacterTransparent(xChara, zChara, p.x, p.y, p.z, p.w);
+		return true;
+	}
+	/// <summary>
+	/// キャラクター透過用関数
+	/// </summary>
     private void SetCharacterTransparent(GameObject xChara, GameObject zChara, float xForward, float xBack, float zForward, float zBack)
-    {
-        xChara.transform.GetChild(0).position = xChara.transform.GetChild(1).position + new Vector3(-0.001f, 0f, 0f);
-        zChara.transform.GetChild(0).position = zChara.transform.GetChild(1).position + new Vector3(0f, 0f, -0.001f);
+	{ 
         foreach (Material material in xChara.GetComponentsInChildren<Renderer>().Select(x => x.material))
         {
             material.SetFloat("_ForwardThreshold", xForward);
@@ -328,7 +286,7 @@ public class CustomCharaController : MonoBehaviour
         //アニメーション
         if (Mathf.Abs(moveDir.x) > 0.01f)
         {
-			foreach (var anim in GetAllCharacter().Select(x => x.GetComponent<Animator>())) {
+			foreach (var anim in AllCharacters.Select(x => x.GetComponent<Animator>())) {
 				anim.Play ("walk");
 			}
 			if (AudioManager.I.IsPlayingSE (AudioContents.AudioTitle.WALK) == false) {
@@ -337,7 +295,7 @@ public class CustomCharaController : MonoBehaviour
         }
         else
         {
-			foreach (var anim in GetAllCharacter().Select(x => x.GetComponent<Animator>())) {
+			foreach (var anim in AllCharacters.Select(x => x.GetComponent<Animator>())) {
 				anim.Play ("idle");
 			}
 			AudioManager.I.StopSE (AudioContents.AudioTitle.WALK);
@@ -361,42 +319,20 @@ public class CustomCharaController : MonoBehaviour
 
 	public void SwapCharacter()
 	{
-		UnityUtility.SwapGameObject(_CharacterX, _DestCharacterX);
-		UnityUtility.SwapGameObject(_CharacterZ, _DestCharacterZ);
-	}
-
-    public void SetInitPos()
-    {
-        _DummyCharacter.transform.position = new Vector3(InitPosition.x, InitPosition.y, _DummyCharacter.transform.position.z);
-		_CharacterX.transform.position = _InitAnchor.transform.position;
-		_CharacterZ.transform.position = _InitAnchor.transform.position;
-		_DestCharacterX.transform.position = _InitDestAnchor.transform.position;
-		_DestCharacterZ.transform.position = _InitDestAnchor.transform.position;
-    }
-
-	private void SetInitPosAnchor ()
-	{
-		_InitAnchor = new GameObject ("initAnchor");
-		_InitAnchor.transform.SetParent(StageManager.I.PaperRoot.transform);
-		_InitAnchor.transform.position = _CharacterX.transform.position;
-		_InitAnchor.tag = StageCreater.X_TAG_NAME;
-
-		_InitDestAnchor = new GameObject ("initDestAnchor");
-		_InitDestAnchor.transform.SetParent(StageManager.I.PaperRoot.transform);
-		_InitDestAnchor.transform.position = _DestCharacterZ.transform.position;
-		_InitDestAnchor.tag = StageCreater.Z_TAG_NAME;
+		UnityUtility.SwapGameObject (_CharacterX, _DestCharacterX);
+		UnityUtility.SwapGameObject (_CharacterZ, _DestCharacterZ);
 	}
 
 	public void ChangeColor(ColorData cd, Color c)
 	{
 		color = cd;
-		var bodyX = _CharacterX.transform.GetChild (1).GetComponent<SpriteRenderer> ();
-		bodyX.material.SetColor("_MainColor", c);
-		var bodyZ = _CharacterZ.transform.GetChild (1).GetComponent<SpriteRenderer> ();
-		bodyZ.material.SetColor("_MainColor", c);
-		ColorManager.MultiplyShadowColor(bodyZ.gameObject);
+		foreach (var body in Characters.Select(x => x.transform.GetChild (1).GetComponent<SpriteRenderer> ())) {
+			body.material.SetColor ("_MainColor", c);
+		}
 	}
-
+	/// <summary>
+	/// クリア時の処理
+	/// </summary>
 	private void ClearAction()
 	{
 		int chapter = StageManager.I.CurrentChapter;
@@ -409,7 +345,7 @@ public class CustomCharaController : MonoBehaviour
 		Sequence sequence = DOTween.Sequence ();
 		sequence.Join ( _CharacterX.transform.DOMove(goalPos-Vector3.up, 1f) );
 		sequence.Join ( _CharacterZ.transform.DOMove(goalPos-Vector3.up, 1f) );
-		foreach(var chara in GetAllCharacter()){
+		foreach(var chara in AllCharacters){
 			foreach (Material mat in chara.GetComponentsInChildren<Renderer>().Select(x => x.material))
 				sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
 		}
@@ -432,102 +368,137 @@ public class CustomCharaController : MonoBehaviour
 		sequence.Play ();
 	}
 		
-	public void SetPosition(Vector3 pos)
+	public void SetInitParam()
 	{
-		_DummyCharacter.transform.position = pos;
+		IsTopOfWall = false;
+		IsTopOfWall_Dest = false;
+		FlatTrans.position = new Vector3(InitPosition.x, InitPosition.y, FlatTrans.position.z);
+		ChangeColor (ColorData.COLOR1, StageManager.I.CurrentInfo.InitialCharacterColor);
 	}
 
-	private IEnumerable<GameObject> GetAllCharacter()
+	/// <summary>
+	/// キャラクターを非表示にする
+	/// </summary>
+	public void HideCharacter()
 	{
-		GameObject[] retList = new GameObject[]{
-			_CharacterX,
-			_CharacterZ,
-			_DestCharacterX,
-			_DestCharacterZ,
-		};
-		return retList;
+		foreach (var chara in AllCharacters) {
+			foreach (Material material in chara.GetComponentsInChildren<Renderer>().Select(x => x.material)) {
+				material.SetFloat ("_ForwardThreshold", 0);
+			}
+		}
+	}
+	/// <summary>
+	/// 平面上のキャラの位置をセットする
+	/// </summary>
+	public void SetPosition(Vector3 pos)
+	{
+		FlatTrans.position = pos;
+	}
+	/// <summary>
+	/// 全キャラクターを取得
+	/// </summary>
+	private IEnumerable<GameObject> AllCharacters
+	{
+		get{ return new GameObject[] { _CharacterX, _CharacterZ, _DestCharacterX, _DestCharacterZ }; }
+	}
+	private IEnumerable<GameObject> Characters
+	{
+		get{ return new GameObject[] { _CharacterX, _CharacterZ }; }
+	}
+	private IEnumerable<GameObject> DestCharacters
+	{
+		get{ return new GameObject[] { _DestCharacterX, _DestCharacterZ }; }
 	}
 
     private readonly float ASPECT_RATE = 682f / 423f;
-    public  Vector3 Bottom
+    public Vector3 Bottom
     {
-        get { return _DummyCharacter.transform.position; }
+        get { return FlatTrans.position; }
     }
-    public  Vector3 BottomLeft
+    public Vector3 BottomLeft
     {
-        get
-        {
-            return _DummyCharacter.transform.position
-                   + new Vector3(-_DummyCharacter.transform.lossyScale.x / 2, 0f, 0f);
-        }
+		get { return FlatTrans.position + new Vector3(-FlatTrans.lossyScale.x / 2, 0f, 0f); }
     }
     public Vector3 BottomRight
     {
-        get
-        {
-            return _DummyCharacter.transform.position
-                   + new Vector3(_DummyCharacter.transform.lossyScale.x / 2, 0f, 0f);
-        }
+		get { return FlatTrans.position + new Vector3(FlatTrans.lossyScale.x / 2, 0f, 0f); }
     }
     public Vector3 Center
     {
-        get
-        {
-            return _DummyCharacter.transform.position
-                   + new Vector3(0f, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE / 2, 0f);
-        }
+        get { return FlatTrans.position + new Vector3(0f, FlatTrans.lossyScale.y * ASPECT_RATE / 2, 0f); }
     }
     public Vector3 Left
     {
-        get
-        {
-            return _DummyCharacter.transform.position
-                   + new Vector3(-_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE / 2, 0f);
-        }
+        get { return FlatTrans.position + new Vector3(-FlatTrans.lossyScale.x / 2, FlatTrans.lossyScale.y * ASPECT_RATE / 2, 0f); }
     }
     public Vector3 Right
     {
-        get
-        {
-            return _DummyCharacter.transform.position
-                   + new Vector3(_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE / 2, 0f);
-        }
+        get { return FlatTrans.position + new Vector3(FlatTrans.lossyScale.x / 2, FlatTrans.lossyScale.y * ASPECT_RATE / 2, 0f); }
     }
     public Vector3 Top
     {
-        get
-        {
-            return _DummyCharacter.transform.position
-                   + new Vector3(0f, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE, 0f);
-        }
+        get { return FlatTrans.position + new Vector3(0f, FlatTrans.lossyScale.y * ASPECT_RATE, 0f); }
     }
     public Vector3 TopLeft
     {
-        get
-        {
-            return _DummyCharacter.transform.position
-                   + new Vector3(-_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE, 0f);
-        }
+        get { return FlatTrans.position + new Vector3(-FlatTrans.lossyScale.x / 2, FlatTrans.lossyScale.y * ASPECT_RATE, 0f); }
     }
     public Vector3 TopRight
     {
-        get
-        {
-            return _DummyCharacter.transform.position
-                   + new Vector3(_DummyCharacter.transform.lossyScale.x / 2, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE, 0f);
-        }
+        get { return FlatTrans.position + new Vector3(FlatTrans.lossyScale.x / 2, FlatTrans.lossyScale.y * ASPECT_RATE, 0f); }
     }
+	public  Vector3 DestBottom
+	{
+		get { return GetDest(Bottom); }
+	}
+	public  Vector3 DestBottomLeft
+	{
+		get { return GetDest(BottomRight); }
+	}
+	public Vector3 DestBottomRight
+	{
+		get { return GetDest(BottomLeft); }
+	}
+	public Vector3 DestCenter
+	{
+		get { return GetDest(Center); }
+	}
+	public Vector3 DestLeft
+	{
+		get { return GetDest(Right); }
+	}
+	public Vector3 DestRight
+	{
+		get { return GetDest(Left); }
+	}
+	public Vector3 DestTop
+	{
+		get { return GetDest(Top); }
+	}
+	public Vector3 DestTopLeft
+	{
+		get { return GetDest(TopRight); }
+	}
+	public Vector3 DestTopRight
+	{
+		get { return GetDest(TopLeft); }
+	}
 	public Rectangle CharaRect
 	{
-		get { return new Rectangle(Center, _DummyCharacter.transform.lossyScale.x, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE, color); }
+		get { return new Rectangle(Center, FlatTrans.lossyScale.x, FlatTrans.lossyScale.y * ASPECT_RATE, color); }
 	}
 	public Rectangle DummyCharaRect
 	{
-		get 
-		{ 
-			Vector2 dummyCenter = Center;
-			dummyCenter.x *= -1;
-			return new Rectangle(dummyCenter, _DummyCharacter.transform.lossyScale.x, _DummyCharacter.transform.lossyScale.y * ASPECT_RATE, color); 
-		}
+		get { return new Rectangle(DestCenter, FlatTrans.lossyScale.x, FlatTrans.lossyScale.y * ASPECT_RATE, color); }
+	}
+
+	private Transform FlatTrans
+	{
+		get { return _FlatCharacter.transform; }
+	}
+
+	private Vector3 GetDest(Vector3 pos){
+		pos.x *= -1;
+		return pos;
 	}
 }

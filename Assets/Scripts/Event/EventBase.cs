@@ -34,6 +34,9 @@ public class EventBase : MonoBehaviour {
 
 	void Update()
 	{
+		if (StageAnimator.I != null && StageAnimator.I.IsPlayingAnimation)
+			return;
+
 		if (_EnableOnCharacter) {
 			if (StageManager.I.CurrentController != null && _Rect.IsOverlaped(StageManager.I.CurrentController.CharaRect))
 				Enter ();

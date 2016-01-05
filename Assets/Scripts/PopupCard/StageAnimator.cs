@@ -158,7 +158,8 @@ public class StageAnimator : Singleton<StageAnimator>
 		_Sequence.Append (transform.DOMove (transform.position, 0f).OnStart (() => {
 			if (type == ReOpenType.RESTART_STAGE)
 			{
-				StageManager.I.CurrentController.SetInitPos();
+				StageManager.I.CurrentController.HideCharacter();
+				StageManager.I.CurrentController.SetInitParam();
 				foreach(var eventBase in StageManager.I.CurrentInfo.gameObject.GetComponentsInChildren<EventBase>()){
 					eventBase.Reset();
 				}
@@ -296,9 +297,7 @@ public class StageAnimator : Singleton<StageAnimator>
 	private void SwapCharacter()
 	{
 		StageManager.I.CurrentController.SwapCharacter();
-		Vector3 pos = StageManager.I.CurrentController.Bottom;
-		pos.x *= -1;
-		StageManager.I.CurrentController.SetPosition(pos);
+		StageManager.I.CurrentController.SetPosition(StageManager.I.CurrentController.DestBottom);
 	}
 	/// <summary>
 	/// ステージを閉じて開く
