@@ -71,9 +71,7 @@ public class CustomCharaController : MonoBehaviour
 		var face = character.transform.GetChild (0).GetComponent<SpriteRenderer> ();
 		var body = character.transform.GetChild (1).GetComponent<SpriteRenderer> ();
 		face.material.SetColor("_MainColor", Color.white);
-		face.sortingOrder = 101;
 		body.material.SetColor("_MainColor", initColor);
-		body.sortingOrder = 100;
 		if(xDir)
 			ColorManager.MultiplyShadowColor(character.transform.GetChild(1).gameObject);
 		Destroy (character.GetComponent<CustomCharaController> ());
@@ -287,7 +285,11 @@ public class CustomCharaController : MonoBehaviour
         if (Mathf.Abs(moveDir.x) > 0.01f)
         {
 			foreach (var anim in AllCharacters.Select(x => x.GetComponent<Animator>())) {
-				anim.Play ("walk");
+				anim.SetBool("isWalking", true);
+				var info = anim.GetCurrentAnimatorStateInfo (0);
+				if (info.IsName ("walkOUT")) {
+					anim.Play ("walkIN", -1, 1 - info.normalizedTime);
+				}
 			}
 			if (AudioManager.I.IsPlayingSE (AudioContents.AudioTitle.WALK) == false) {
 				AudioManager.I.PlaySE (AudioContents.AudioTitle.WALK);
@@ -296,7 +298,11 @@ public class CustomCharaController : MonoBehaviour
         else
         {
 			foreach (var anim in AllCharacters.Select(x => x.GetComponent<Animator>())) {
-				anim.Play ("idle");
+				anim.SetBool("isWalking", false);
+				var info = anim.GetCurrentAnimatorStateInfo (0);
+				if (info.IsName ("walkIN")) {
+					anim.Play ("walkOUT", -1, 1 - info.normalizedTime);
+				}
 			}
 			AudioManager.I.StopSE (AudioContents.AudioTitle.WALK);
         }

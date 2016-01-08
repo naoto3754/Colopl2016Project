@@ -89,15 +89,15 @@ public class StageCreater : Singleton<StageCreater>
 					SetTexture (sprite.GetComponent<Renderer>(), setX, false,
 								StageManager.I.CurrentInfo.BackgroundTexture,
 								StageManager.I.CurrentInfo.ShadowTexture,
-								new Vector2(prevX/StageManager.I.CurrentInfo.StageWidth+0.5f, prevY/StageManager.I.CurrentInfo.StageHeight), 
-								new Vector2((xCoord.x-prevX)/StageManager.I.CurrentInfo.StageWidth, (y-prevY)/StageManager.I.CurrentInfo.StageHeight));
+								new Vector2((prevX/StageManager.I.CurrentInfo.StageWidth+0.5f+StageManager.I.CurrentStageIndex)/3f, (prevY/StageManager.I.CurrentInfo.StageHeight+StageManager.I.CurrentBookID)/3f), 
+								new Vector2((xCoord.x-prevX)/StageManager.I.CurrentInfo.StageWidth/3f, (y-prevY)/StageManager.I.CurrentInfo.StageHeight/3f));
 					foreach(var amim in StageManager.I.CurrentInfo.Animations)
 					{
 						GameObject layer = Instantiate (sprite.gameObject, sprite.position, sprite.rotation) as GameObject;
 						layer.transform.SetParent (paper.transform);
 						SetTexture (layer.GetComponent<SpriteRenderer>(), amim, 
-									new Vector2(prevX/StageManager.I.CurrentInfo.StageWidth+0.5f, prevY/StageManager.I.CurrentInfo.StageHeight), 
-									new Vector2((xCoord.x-prevX)/StageManager.I.CurrentInfo.StageWidth, (y-prevY)/StageManager.I.CurrentInfo.StageHeight));
+							new Vector2((prevX/StageManager.I.CurrentInfo.StageWidth+0.5f+StageManager.I.CurrentStageIndex)/3f, (prevY/StageManager.I.CurrentInfo.StageHeight+StageManager.I.CurrentBookID)/3f), 
+									new Vector2((xCoord.x-prevX)/StageManager.I.CurrentInfo.StageWidth/3f, (y-prevY)/StageManager.I.CurrentInfo.StageHeight/3f));
 					}
 					
                     if (setX)
@@ -167,8 +167,8 @@ public class StageCreater : Singleton<StageCreater>
 		SetTexture (paper.transform.GetChild(0).GetComponent<Renderer>(), setX, true,
 					StageManager.I.CurrentInfo.LiningTexture,
 					StageManager.I.CurrentInfo.LiningTexture,
-					new Vector2(prevX/StageManager.I.CurrentInfo.StageWidth+0.5f, prevY/StageManager.I.CurrentInfo.StageHeight), 
-					new Vector2((x-prevX)/StageManager.I.CurrentInfo.StageWidth, (y-prevY)/StageManager.I.CurrentInfo.StageHeight) );
+					new Vector2((prevX/StageManager.I.CurrentInfo.StageWidth+0.5f+StageManager.I.CurrentStageIndex)/3f, (prevY/StageManager.I.CurrentInfo.StageHeight+StageManager.I.CurrentBookID)/3f), 
+					new Vector2((x-prevX)/StageManager.I.CurrentInfo.StageWidth/3, (y-prevY)/StageManager.I.CurrentInfo.StageHeight/3) );
 
         if(setX)
         {

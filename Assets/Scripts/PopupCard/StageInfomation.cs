@@ -62,64 +62,64 @@ public class StageInfomation : MonoBehaviour
 	{
 		get{ return _Goal; }
 	}
-    private List<Line> _FoldLine;
+	private List<Line> _FoldLine = new List<Line>();
     public List<Line> FoldLine
     {
         get { return _FoldLine; }
     }
-	private List<Line> _TopFoldLine;
+	private List<Line> _TopFoldLine = new List<Line>();
 	public List<Line> TopFoldLine
 	{
 		get { return _TopFoldLine; }
 	}
-    private List<Line> _HoleLine;
+	private List<Line> _HoleLine = new List<Line>();
     public List<Line> HoleLine
     {
         get { return _HoleLine; }
     }
-    private List<Line> _GroundLine;
+	private List<Line> _GroundLine = new List<Line>();
     public List<Line> GroundLine
     {
         get { return _GroundLine; }
     }
-    private List<Line> _Slope;
+	private List<Line> _Slope = new List<Line>();
     public List<Line> Slope
     {
         get { return _Slope; }
     }
-    private List<Line> _Wall;
+	private List<Line> _Wall = new List<Line>();
     public List<Line> Wall
     {
         get { return _Wall; }
     }
-	private List<Polygon> _Obstacle;
+	private List<Polygon> _Obstacle = new List<Polygon>();
 	public List<Polygon> Obstacle
 	{
 		get { return _Obstacle; }
 	}
-    private List<GameObject> _Decoration;
-    public List<GameObject> Decoration
-    {
-        get { return _Decoration; }
-    }
+	private List<GameObject> _Decoration = new List<GameObject>();
+    public List<GameObject> Decoration 
+	{
+		get { return _Decoration; }
+	}
 
-    void Awake()
+	public void Init(bool open = true)
     {
         //ステージ構成物のリストを作成
         InitList();
         //システム周りにパラメータを渡す
-        InitSystemInfo();   
+        InitSystemInfo(open);   
     }
     
     public void InitList()
     {
-        _FoldLine = new List<Line>();
-		_TopFoldLine = new List<Line>();
-        _HoleLine = new List<Line>();
-        _GroundLine = new List<Line>();
-        _Slope = new List<Line>();
-        _Wall = new List<Line>();
-        _Decoration = new List<GameObject>();
+		_FoldLine.Clear();
+		_TopFoldLine.Clear();
+		_HoleLine.Clear();
+		_GroundLine.Clear();
+		_Slope.Clear();
+		_Wall.Clear();
+		_Decoration.Clear();
 		_Obstacle = new List<Polygon>();
 		foreach (var param in GetComponentsInChildren<StageObjectParameter>()) {
 			Vector3 pos = param.transform.position;
@@ -184,13 +184,23 @@ public class StageInfomation : MonoBehaviour
     /// <summary>
     /// ステージを始める上で初期化しておくべき情報をセットする
     /// </summary>
-    private void InitSystemInfo()
+	private void InitSystemInfo(bool open)
     {
         if(StageManager.I.CurrentInfo != null)
             Destroy(StageManager.I.CurrentInfo.gameObject);
         StageManager.I.CurrentInfo = this;
         StageCreater.I.CreateNewStage();
 		GetComponentInChildren<CustomCharaController> ().Init ();
-		StageAnimator.I.OpenStage ();
+		if (open) {
+			StageAnimator.I.OpenStage ();
+		} else {
+			StartCoroutine (DelayDelete());
+		}
     }
+
+	private IEnumerator DelayDelete()
+	{
+		yield return new WaitForEndOfFrame ();
+		StageManager.I.Clear ();
+	}
 }

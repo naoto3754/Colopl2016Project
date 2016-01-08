@@ -75,7 +75,15 @@ public class StageManager : Singleton<StageManager>
 	public GameObject PrevBackRootR{
 		get; set;
 	}
-		    
+
+	void Start ()
+	{
+		_CurrentChapter = 1;
+		_CurrentBookID = 0;
+		_CurrentStageIndex = 0;
+		GameObject stage = Instantiate(_Stages[ CalcStageListIndex(1, 0, 0) ]) as GameObject;
+		stage.GetComponent<StageInfomation> ().Init (false);
+	}
     /// <summary>
     /// ステージ生成
     /// </summary>
@@ -94,7 +102,8 @@ public class StageManager : Singleton<StageManager>
         _CurrentBookID = bookID;
         _CurrentStageIndex = index;
         //ダミーカードをInstantiateすると、ダミーカードのAwakeでステージ情報を更新し、ステージ生成まで行う
-        Instantiate(_Stages[ CalcStageListIndex(chapter, bookID, index) ]);
+        var stage = Instantiate(_Stages[ CalcStageListIndex(chapter, bookID, index) ]);
+		stage.GetComponent<StageInfomation> ().Init ();
     }
     
     public static int CalcStageListIndex(int chapter, int bookID, int index)
@@ -500,7 +509,6 @@ public class StageManager : Singleton<StageManager>
 	{
 		CurrentController = null;
 		DestroyObject (CurrentInfo.gameObject);
-		CurrentInfo = null;
 		DestroyObject (PaperRoot);
 		DestroyObject (PrevPaperRoot);
 		DestroyObject (DecoRoot);
