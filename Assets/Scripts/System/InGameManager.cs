@@ -25,12 +25,17 @@ public class InGameManager : Singleton<InGameManager>
 	GameObject _HomeButton;
 	[SerializeField]
 	GameObject _RestartButton;
-	
+
+	private void ButtonPushShared()
+	{
+		InputManager.I.ClearDoubleTapParam ();
+	}
 	/// <summay>
 	/// リスタートする
 	/// </summay>
 	public void OnRestart()
 	{
+		ButtonPushShared ();
 		StageAnimator.I.RestartStage();
 		OnMenuClose();
 	}
@@ -39,6 +44,7 @@ public class InGameManager : Singleton<InGameManager>
 	/// </summay>
 	public void OnReturnHome()
 	{
+		ButtonPushShared ();
 		StageAnimator.I.CloseStage (45, 1f);
 		OnMenuClose();
 	}
@@ -50,6 +56,7 @@ public class InGameManager : Singleton<InGameManager>
 	
 	public void OnPause()
 	{
+		ButtonPushShared ();
 		if (!menu) {
 			menu = true;
 			_RestartButton.transform.DOMove (_MenuButton.transform.position - Vector3.right * 45, 0.3f);

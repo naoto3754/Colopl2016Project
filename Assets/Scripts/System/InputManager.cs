@@ -182,6 +182,10 @@ public class InputManager : Singleton<InputManager>
 	private float _DoubleTapVaildTime = 0.2f;
 	private float _DoubleTapElapsedTime;
 	private bool _OneTap;
+	public void ClearDoubleTapParam(){
+		_OneTap = false;
+		_DoubleTapElapsedTime = 0f;
+	}
 	/// <summary>
 	/// ダブルタップを取ります
 	/// </summary>
