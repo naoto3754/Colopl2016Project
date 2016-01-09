@@ -13,14 +13,18 @@ public class InGameManager : Singleton<InGameManager>
 	readonly float FADEOUT_DURATION = 1f;
 	
 	bool _NowDisplaying = false;
-	bool _IsPausing = false;
-	
+	bool menu = false;
+
 	[SerializeField]
 	List<Image> _DictionaryLines; 
 	[SerializeField]
 	List<Text> _DictionaryLabels;
-//	[SerializeField]
-//	GameObject _MenuButton;
+	[SerializeField]
+	GameObject _MenuButton;
+	[SerializeField]
+	GameObject _HomeButton;
+	[SerializeField]
+	GameObject _RestartButton;
 	
 	/// <summay>
 	/// リスタートする
@@ -28,6 +32,7 @@ public class InGameManager : Singleton<InGameManager>
 	public void OnRestart()
 	{
 		StageAnimator.I.RestartStage();
+		OnMenuClose();
 	}
 	/// <summay>
 	/// ホームに戻る
@@ -35,6 +40,7 @@ public class InGameManager : Singleton<InGameManager>
 	public void OnReturnHome()
 	{
 		StageAnimator.I.CloseStage (45, 1f);
+		OnMenuClose();
 	}
 	
 	public void OnReverse()
@@ -44,11 +50,20 @@ public class InGameManager : Singleton<InGameManager>
 	
 	public void OnPause()
 	{
-//		_IsPausing = !_IsPausing;
-//		if(_IsPausing)
-//			Time.timeScale = 0;
-//		else
-//			Time.timeScale = 1;
+		if (!menu) {
+			menu = true;
+			_RestartButton.transform.DOMove (_MenuButton.transform.position - Vector3.right * 45, 0.3f);
+			_HomeButton.transform.DOMove (_MenuButton.transform.position - Vector3.right * 90, 0.3f);
+		} else {
+			OnMenuClose();
+		}
+	}
+		
+	public void OnMenuClose()
+	{
+		menu = false;
+		_RestartButton.transform.DOMove (_MenuButton.transform.position, 0.3f);
+		_HomeButton.transform.DOMove (_MenuButton.transform.position, 0.3f);
 	}
 	
 	//仮でキーボードの入力とる
