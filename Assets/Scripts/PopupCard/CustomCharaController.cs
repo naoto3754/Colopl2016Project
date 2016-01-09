@@ -38,8 +38,7 @@ public class CustomCharaController : MonoBehaviour
         get; set;
     }
 	public bool ClearStage {
-		get;
-		set;
+		get; set;
 	}
 	public bool GetCollection {
 		get;
@@ -92,7 +91,7 @@ public class CustomCharaController : MonoBehaviour
 			return;
 
 		if (Input.GetKeyDown (KeyCode.C) || (StageManager.I.CurrentInfo.GoalObj != null &&
-		    StageManager.I.CurrentInfo.GoalObj.Rect.Contains (FlatTrans.position))) {
+		    StageManager.I.CurrentInfo.GoalObj.Rect.Contains (Bottom))) {
 			ClearAction ();
 		}
 			
@@ -163,10 +162,10 @@ public class CustomCharaController : MonoBehaviour
 		IEnumerable foldXList_Dest = StageManager.I.GetFoldXCoordList(Bottom.y, IsTopOfWall_Dest);
 
         // ダミーキャラの位置を実際のキャラ反映させる
-        UpdateXZCharacterPosition(Bottom, FlatTrans.lossyScale.x,
+        UpdateXZCharacterPosition(Bottom, Scale.x,
                                   _CharacterX.transform, _CharacterZ.transform,
                                   moveDir, foldXList, IsTopOfWall);
-        UpdateXZCharacterPosition(DestBottom, FlatTrans.lossyScale.x,
+        UpdateXZCharacterPosition(DestBottom, Scale.x,
                                   _DestCharacterX.transform, _DestCharacterZ.transform,
 								  moveDir, foldXList_Dest, IsTopOfWall_Dest);
 
@@ -196,19 +195,25 @@ public class CustomCharaController : MonoBehaviour
 		float xOffset = StageManager.I.Offset.x - StageManager.I.CurrentInfo.StageWidth / 2;
 		float zOffset = StageManager.I.Offset.z;
         float charaAnchor = charaPos.x - delta / 2;
+		if (charaAnchor < prevX) 
+		{
+			xTrans.position = new Vector3(StageManager.I.Offset.x + charaPos.x - 0.01f, FlatTrans.position.y, zOffset - 0.01f);
+			zTrans.position = xTrans.position + new Vector3(1,0,1) * (foldlineDist-delta/2);
+			return;
+		}
         foreach (float x in foldXList)
         {
             if (prevX < charaAnchor && charaAnchor < x)
             {
                 if (r == 0) //x方向移動
                 {
-					xTrans.position = new Vector3(xOffset + charaPos.x - prevX - 0.01f, charaPos.y, zOffset - 0.01f);
+					xTrans.position = new Vector3(xOffset + charaPos.x - prevX - 0.01f, FlatTrans.position.y, zOffset - 0.01f);
 					zTrans.position = xTrans.position + new Vector3(1,0,1) * (foldlineDist-delta/2);
 					return;
                 }
                 else //z方向移動
                 {
-					zTrans.position = new Vector3(xOffset - 0.01f, charaPos.y, zOffset - charaPos.x + prevX - 0.01f);
+					zTrans.position = new Vector3(xOffset - 0.01f, FlatTrans.position.y, zOffset - charaPos.x + prevX - 0.01f);
 					xTrans.position = zTrans.position + new Vector3(-1,0,-1) * (foldlineDist-delta/2);
 					return;
                 }
@@ -281,31 +286,7 @@ public class CustomCharaController : MonoBehaviour
     /// </summary>
     public void UpdateCharacterState(Vector2 moveDir)
     {
-        //アニメーション
-        if (Mathf.Abs(moveDir.x) > 0.01f)
-        {
-			foreach (var anim in AllCharacters.Select(x => x.GetComponent<Animator>())) {
-				anim.SetBool("isWalking", true);
-				var info = anim.GetCurrentAnimatorStateInfo (0);
-				if (info.IsName ("walkOUT")) {
-					anim.Play ("walkIN", -1, 1 - info.normalizedTime);
-				}
-			}
-			if (AudioManager.I.IsPlayingSE (AudioContents.AudioTitle.WALK) == false) {
-				AudioManager.I.PlaySE (AudioContents.AudioTitle.WALK);
-			}
-        }
-        else
-        {
-			foreach (var anim in AllCharacters.Select(x => x.GetComponent<Animator>())) {
-				anim.SetBool("isWalking", false);
-				var info = anim.GetCurrentAnimatorStateInfo (0);
-				if (info.IsName ("walkIN")) {
-					anim.Play ("walkOUT", -1, 1 - info.normalizedTime);
-				}
-			}
-			AudioManager.I.StopSE (AudioContents.AudioTitle.WALK);
-        }
+		UpdateCharacterAnimation (moveDir);
         //キャラクター向き
         if (moveDir.x > 0f)
         {
@@ -322,6 +303,63 @@ public class CustomCharaController : MonoBehaviour
             _DestCharacterZ.transform.forward = Vector3.left;
         }
     }
+
+	private void UpdateCharacterAnimation(Vector2 moveDir)
+	{
+		if (CanUseLadder) {
+			foreach (var anim in AllCharacters.Select(x => x.GetComponent<Animator>())) {
+				var stateInfo = anim.GetCurrentAnimatorStateInfo (0);
+				if (stateInfo.IsName ("Ladder")) {
+					if (moveDir.magnitude > 0.01f) {
+						anim.speed = 1;
+					} else {
+						anim.speed = 0;
+					}
+				} else {
+					anim.Play ("Ladder");
+				}
+
+			}
+		}
+		else if (Mathf.Abs(moveDir.x) > 0.01f)
+		{			
+			foreach (var anim in AllCharacters.Select(x => x.GetComponent<Animator>())) {
+				var stateInfo = anim.GetCurrentAnimatorStateInfo (0);
+				if (stateInfo.IsName ("Wait")) {
+					anim.Play ("WalkIN");
+				} else if (stateInfo.IsName ("WalkOUT")) {
+					anim.Play ("WalkIN", -1, 1 - stateInfo.normalizedTime);
+				} else if (stateInfo.IsName ("WalkIN")) {
+					if (stateInfo.normalizedTime > 0.9f) {
+						anim.Play ("Walk");
+					}
+				} else if (stateInfo.IsName ("Ladder")) {
+					anim.Play ("Wait");
+				}
+			}
+			if (AudioManager.I.IsPlayingSE (AudioContents.AudioTitle.WALK) == false) {
+				AudioManager.I.PlaySE (AudioContents.AudioTitle.WALK);
+			}
+		}
+		else
+		{
+			foreach (var anim in AllCharacters.Select(x => x.GetComponent<Animator>())) {
+				var stateInfo = anim.GetCurrentAnimatorStateInfo (0);
+				if (stateInfo.IsName ("Walk")) {
+					anim.Play ("WalkOUT");
+				} else if(stateInfo.IsName ("WalkIN")){
+					anim.Play ("WalkOUT", -1, 1 - stateInfo.normalizedTime);
+				} else if(stateInfo.IsName ("WalkOUT")){
+					if (stateInfo.normalizedTime > 0.9f) {
+						anim.Play ("Wait");
+					}
+				} else if (stateInfo.IsName ("Ladder")) {
+					anim.Play ("Wait");
+				}
+			}
+			AudioManager.I.StopSE (AudioContents.AudioTitle.WALK);
+		}
+	}
 
 	public void SwapCharacter()
 	{
@@ -349,8 +387,8 @@ public class CustomCharaController : MonoBehaviour
 		Vector3 goalPos = StageManager.I.CurrentInfo.GoalObj.GetComponent<StageObjectParameter> ().ObjectsOnStage [0].transform.position;
 		ClearStage = true;
 		Sequence sequence = DOTween.Sequence ();
-		sequence.Join ( _CharacterX.transform.DOMove(goalPos-Vector3.up, 1f) );
-		sequence.Join ( _CharacterZ.transform.DOMove(goalPos-Vector3.up, 1f) );
+		sequence.Join ( _CharacterX.transform.DOMove(goalPos-Vector3.up*(1f+Scale.y*ASPECT_RATE/6f), 1f) );
+		sequence.Join ( _CharacterZ.transform.DOMove(goalPos-Vector3.up*(1f+Scale.y*ASPECT_RATE/6f), 1f) );
 		foreach(var chara in AllCharacters){
 			foreach (Material mat in chara.GetComponentsInChildren<Renderer>().Select(x => x.material))
 				sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
@@ -416,42 +454,44 @@ public class CustomCharaController : MonoBehaviour
 		get{ return new GameObject[] { _DestCharacterX, _DestCharacterZ }; }
 	}
 
-    private readonly float ASPECT_RATE = 682f / 423f;
+    private readonly float ASPECT_RATE = 500f / 800f;
+	private readonly float RateX = 1f/4.0f;
     public Vector3 Bottom
     {
-        get { return FlatTrans.position; }
+		get { return FlatTrans.position+new Vector3(0f,Scale.y*ASPECT_RATE/6f,0f); }
+		set { FlatTrans.position = value-new Vector3(0f,Scale.y*ASPECT_RATE/6f,0f); }
     }
     public Vector3 BottomLeft
     {
-		get { return FlatTrans.position + new Vector3(-FlatTrans.lossyScale.x / 2, 0f, 0f); }
+		get { return Bottom + new Vector3(-Scale.x*RateX/2, 0f, 0f); }
     }
     public Vector3 BottomRight
     {
-		get { return FlatTrans.position + new Vector3(FlatTrans.lossyScale.x / 2, 0f, 0f); }
+		get { return Bottom + new Vector3(Scale.x*RateX/2, 0f, 0f); }
     }
     public Vector3 Center
     {
-        get { return FlatTrans.position + new Vector3(0f, FlatTrans.lossyScale.y * ASPECT_RATE / 2, 0f); }
+        get { return FlatTrans.position + new Vector3(0f,Scale.y*ASPECT_RATE/2,0f); }
     }
     public Vector3 Left
     {
-        get { return FlatTrans.position + new Vector3(-FlatTrans.lossyScale.x / 2, FlatTrans.lossyScale.y * ASPECT_RATE / 2, 0f); }
+		get { return Center + new Vector3(-Scale.x*RateX/2, 0f, 0f); }
     }
     public Vector3 Right
     {
-        get { return FlatTrans.position + new Vector3(FlatTrans.lossyScale.x / 2, FlatTrans.lossyScale.y * ASPECT_RATE / 2, 0f); }
+		get { return Center + new Vector3(Scale.x*RateX/2, 0f, 0f); }
     }
     public Vector3 Top
     {
-        get { return FlatTrans.position + new Vector3(0f, FlatTrans.lossyScale.y * ASPECT_RATE, 0f); }
+        get { return FlatTrans.position + new Vector3(0f, Scale.y*ASPECT_RATE*5f/6f, 0f); }
     }
     public Vector3 TopLeft
     {
-        get { return FlatTrans.position + new Vector3(-FlatTrans.lossyScale.x / 2, FlatTrans.lossyScale.y * ASPECT_RATE, 0f); }
+		get { return Top + new Vector3(-Scale.x*RateX/2, 0f, 0f); }
     }
     public Vector3 TopRight
     {
-        get { return FlatTrans.position + new Vector3(FlatTrans.lossyScale.x / 2, FlatTrans.lossyScale.y * ASPECT_RATE, 0f); }
+		get { return Top + new Vector3(Scale.x*RateX/2, 0f, 0f); }
     }
 	public  Vector3 DestBottom
 	{
@@ -491,16 +531,20 @@ public class CustomCharaController : MonoBehaviour
 	}
 	public Rectangle CharaRect
 	{
-		get { return new Rectangle(Center, FlatTrans.lossyScale.x, FlatTrans.lossyScale.y * ASPECT_RATE, color); }
+		get { return new Rectangle(Center, Scale.x*RateX, Scale.y*ASPECT_RATE*2f/3f, color); }
 	}
 	public Rectangle DummyCharaRect
 	{
-		get { return new Rectangle(DestCenter, FlatTrans.lossyScale.x, FlatTrans.lossyScale.y * ASPECT_RATE, color); }
+		get { return new Rectangle(DestCenter, Scale.x*RateX, Scale.y*ASPECT_RATE*2f/3f, color); }
 	}
 
 	private Transform FlatTrans
 	{
 		get { return _FlatCharacter.transform; }
+	}
+	private Vector3 Scale
+	{
+		get { return FlatTrans.lossyScale; }
 	}
 
 	private Vector3 GetDest(Vector3 pos){

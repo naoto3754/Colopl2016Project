@@ -311,8 +311,9 @@ public class StageManager : Singleton<StageManager>
 			pos -= 0.05f * Vector2.up;
 			foreach (Line foldline in CurrentInfo.TopFoldLine) {
 				if (foldline.ThroughLine (pos, pos + delta * Vector2.right)) {
-					ret = foldline.points [0].x - pos.x;
-					break;
+					if (Mathf.Abs (ret) > Mathf.Abs (foldline.points [0].x - pos.x)) {
+						ret = foldline.points [0].x - pos.x;
+					}
 				}
 			}
         }
@@ -320,8 +321,9 @@ public class StageManager : Singleton<StageManager>
         {
             if (foldline.ThroughLine(pos, pos + delta * Vector2.right))
             {
-                ret = foldline.points[0].x - pos.x;
-                break;
+				if (Mathf.Abs (ret) > Mathf.Abs (foldline.points [0].x - pos.x)) {
+					ret = foldline.points [0].x - pos.x;
+				}
             }
         }
         return ret;
