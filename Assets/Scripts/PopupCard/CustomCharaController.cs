@@ -52,14 +52,14 @@ public class CustomCharaController : MonoBehaviour
 		color = ColorData.COLOR1;
 		InitPosition = FlatTrans.position;
 
-		_CharacterX = CreateCharacter (StageManager.I.CurrentInfo.InitialCharacterColor, true);
-		_CharacterZ = CreateCharacter (StageManager.I.CurrentInfo.InitialCharacterColor, false);
-		_DestCharacterX = CreateCharacter (new Color(0,0,0,0.5f), true);
-		_DestCharacterZ = CreateCharacter (new Color(0,0,0,0.5f), false);
+		_CharacterX = CreateCharacter (StageManager.I.CurrentInfo.InitialCharacterColor, true, true);
+		_CharacterZ = CreateCharacter (StageManager.I.CurrentInfo.InitialCharacterColor, false, true);
+		_DestCharacterX = CreateCharacter (Color.black, true, false);
+		_DestCharacterZ = CreateCharacter (Color.black, false, false);
 
 		UpdateDummyCharacterPosition(0.01f*Vector2.right);
 	}
-	private GameObject CreateCharacter(Color initColor,bool xDir)
+	private GameObject CreateCharacter(Color initColor,bool xDir,bool main)
 	{
 		GameObject character = Instantiate(_FlatCharacter, Vector3.zero, Quaternion.identity) as GameObject;
 		if(xDir == false)
@@ -71,6 +71,12 @@ public class CustomCharaController : MonoBehaviour
 		var body = character.transform.GetChild (1).GetComponent<SpriteRenderer> ();
 		face.material.SetColor("_MainColor", Color.white);
 		body.material.SetColor("_MainColor", initColor);
+		if (main == false) {
+			face.material.SetFloat("_MaskWeight", 1f);
+			body.material.SetFloat("_MaskWeight", 1f);	
+			face.transform.Rotate (0,180,0);
+			body.transform.Rotate (0,180,0);
+		}
 		if(xDir)
 			ColorManager.MultiplyShadowColor(character.transform.GetChild(1).gameObject);
 		Destroy (character.GetComponent<CustomCharaController> ());
@@ -171,11 +177,11 @@ public class CustomCharaController : MonoBehaviour
 
         //キャラクター部分透過
         UpdateSubTransparent(Bottom, FlatTrans.lossyScale.x,
-							 _CharacterX, _CharacterZ, moveDir, foldXList, IsTopOfWall);
+							 _CharacterX, _CharacterZ, moveDir, foldXList, IsTopOfWall, true);
         UpdateSubTransparent(DestBottom, FlatTrans.lossyScale.x,
-							 _DestCharacterX, _DestCharacterZ, moveDir, foldXList, IsTopOfWall_Dest);
+							 _DestCharacterX, _DestCharacterZ, moveDir, foldXList, IsTopOfWall_Dest, false);
 		
-		float alpha = StageManager.I.IsOnObstacle () ? 0.1f : 0.5f;
+		float alpha = StageManager.I.IsOnObstacle () ? 0.2f : 0.8f;
 		foreach (var destChara in DestCharacters) {
 			foreach (Material material in destChara.GetComponentsInChildren<Renderer>().Select(x => x.material)) {
 				Color c = material.GetColor ("_MainColor");
@@ -231,7 +237,7 @@ public class CustomCharaController : MonoBehaviour
     /// <summary>
     /// キャラクターの部分透過を設定
     /// </summary>
-	private void UpdateSubTransparent(Vector3 charaPos, float delta, GameObject xChara, GameObject zChara, Vector2 moveDir, IEnumerable foldXList, bool isTop)
+	private void UpdateSubTransparent(Vector3 charaPos, float delta, GameObject xChara, GameObject zChara, Vector2 moveDir, IEnumerable foldXList, bool isTop, bool main)
     {
         int r = 0;
 		float foldlineDist = StageManager.I.CalcFoldLineDistance(charaPos - delta / 2 * Vector3.right, delta, isTop);
@@ -239,17 +245,17 @@ public class CustomCharaController : MonoBehaviour
         {
             if (charaPos.x - delta / 2 < x)
             {
-				if (CalcTransparentParam (xChara, zChara, foldlineDist, delta, moveDir, r == 0 /*r=0ならx方向*/))
+				if (CalcTransparentParam (xChara, zChara, foldlineDist, delta, moveDir, r == 0 /*r=0ならx方向*/, main))
 					return;
             }
             r = (int)Mathf.Repeat(r + 1, 2);
         }
-		CalcTransparentParam (xChara, zChara, foldlineDist, delta, moveDir, false/*z方向*/);
+		CalcTransparentParam (xChara, zChara, foldlineDist, delta, moveDir, false/*z方向*/, main);
     }
 	/// <summary>
 	/// キャラクター透過用パラメータの決定
 	/// </summary>
-	private bool CalcTransparentParam(GameObject xChara, GameObject zChara, float foldlineDist, float delta, Vector2 moveDir, bool xDir)
+	private bool CalcTransparentParam(GameObject xChara, GameObject zChara, float foldlineDist, float delta, Vector2 moveDir, bool xDir, bool main)
 	{
 		float rate = foldlineDist / delta;
 		Vector4 p = Vector4.zero;
@@ -262,23 +268,27 @@ public class CustomCharaController : MonoBehaviour
 		} else {
 			return false;
 		}
-		SetCharacterTransparent(xChara, zChara, p.x, p.y, p.z, p.w);
+		SetCharacterTransparent(xChara, zChara, p.x, p.y, p.z, p.w, main);
 		return true;
 	}
 	/// <summary>
 	/// キャラクター透過用関数
 	/// </summary>
-    private void SetCharacterTransparent(GameObject xChara, GameObject zChara, float xForward, float xBack, float zForward, float zBack)
+	private void SetCharacterTransparent(GameObject xChara, GameObject zChara, float xForward, float xBack, float zForward, float zBack, bool main)
 	{ 
+		float xforward = main ? xForward : 1-xBack;
+		float xback = main ? xBack : 1-xForward;
+		float zforward = main ? zForward : 1-zBack;
+		float zback = main ? zBack : 1 - zForward;
         foreach (Material material in xChara.GetComponentsInChildren<Renderer>().Select(x => x.material))
         {
-            material.SetFloat("_ForwardThreshold", xForward);
-            material.SetFloat("_BackThreshold", xBack);
+            material.SetFloat("_ForwardThreshold", xforward);
+            material.SetFloat("_BackThreshold", xback);
         }
         foreach (Material material in zChara.GetComponentsInChildren<Renderer>().Select(x => x.material))
         {
-            material.SetFloat("_ForwardThreshold", zForward);
-            material.SetFloat("_BackThreshold", zBack);
+            material.SetFloat("_ForwardThreshold", zforward);
+            material.SetFloat("_BackThreshold", zback);
         }
     }
     /// <summary>

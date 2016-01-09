@@ -3,7 +3,9 @@ Shader "Sprites/Custom Chara"
     Properties
     {
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
-        _MainColor ("Tint", Color) = (1,1,1,1)
+        	_MaskTex ("Alpha Mask", 2D) = "white" {}
+        	_MaskWeight ("Mask Weight", Range(0,1)) = 0
+        	_MainColor ("Tint", Color) = (1,1,1,1)
             _ForwardThreshold ("Forward Threshold", Range(0,1)) = 1
             _BackThreshold ("Back Threshold", Range(0.001,1)) = 0.001
             [MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
@@ -55,6 +57,8 @@ Shader "Sprites/Custom Chara"
                 half2 texcoord  : TEXCOORD0;
             };
 
+            uniform sampler2D _MaskTex; uniform float4 _MaskTex_ST;
+            fixed _MaskWeight;
             fixed4 _MainColor;
             fixed _ForwardThreshold;
             fixed _BackThreshold;
@@ -86,11 +90,12 @@ Shader "Sprites/Custom Chara"
 
             fixed4 frag(v2f IN) : SV_Target
             {
+            	fixed4 mask = tex2D(_MaskTex,TRANSFORM_TEX(IN.texcoord, _MaskTex));
                 fixed2 remove_forward = step(IN.texcoord.r, _ForwardThreshold)*IN.texcoord;
                 fixed step_double  = step(_BackThreshold, remove_forward);
                 fixed2 remove_double = step_double*remove_forward;
                 fixed4 c = SampleSpriteTexture (remove_double) * IN.color;
-                c.a *= step_double;
+                c.a *= step_double*(1-mask.a*_MaskWeight);
                 c.rgb *= c.a;
                 return c;
             }
