@@ -320,12 +320,22 @@ public class CustomCharaController : MonoBehaviour
 				}
 
 			}
-		}
-		else if (Mathf.Abs(moveDir.x) > 0.01f)
-		{			
+		} else if (moveDir.y < -0.05f) {
 			foreach (var anim in AllCharacters.Select(x => x.GetComponent<Animator>())) {
 				var stateInfo = anim.GetCurrentAnimatorStateInfo (0);
-				if (stateInfo.IsName ("Wait")) {
+				if (!stateInfo.IsName ("Fall")) {
+					anim.Play ("Fall");
+				}
+			}
+		}
+		else if (Mathf.Abs(moveDir.x) > 0.01f){			
+			foreach (var anim in AllCharacters.Select(x => x.GetComponent<Animator>())) {
+				var stateInfo = anim.GetCurrentAnimatorStateInfo (0);
+				if (stateInfo.IsName ("Fall")) {
+					anim.Play ("Walk");
+				} else if (stateInfo.IsName ("FallOUT")) {
+					anim.Play ("WalkIN", -1, 1 - stateInfo.normalizedTime);
+				} else if (stateInfo.IsName ("Wait")) {
 					anim.Play ("WalkIN");
 				} else if (stateInfo.IsName ("WalkOUT")) {
 					anim.Play ("WalkIN", -1, 1 - stateInfo.normalizedTime);
@@ -340,12 +350,16 @@ public class CustomCharaController : MonoBehaviour
 			if (AudioManager.I.IsPlayingSE (AudioContents.AudioTitle.WALK) == false) {
 				AudioManager.I.PlaySE (AudioContents.AudioTitle.WALK);
 			}
-		}
-		else
-		{
+		}else{
 			foreach (var anim in AllCharacters.Select(x => x.GetComponent<Animator>())) {
 				var stateInfo = anim.GetCurrentAnimatorStateInfo (0);
-				if (stateInfo.IsName ("Walk")) {
+				if (stateInfo.IsName ("Fall")) {
+					anim.Play ("FallOUT");
+				} else if (stateInfo.IsName ("FallOUT")) {
+					if (stateInfo.normalizedTime > 0.9f) {
+						anim.Play ("Wait");
+					}
+				}else if (stateInfo.IsName ("Walk")) {
 					anim.Play ("WalkOUT");
 				} else if(stateInfo.IsName ("WalkIN")){
 					anim.Play ("WalkOUT", -1, 1 - stateInfo.normalizedTime);
