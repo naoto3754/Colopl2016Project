@@ -56,9 +56,6 @@ public class StageAnimator : Singleton<StageAnimator>
 		if (StageManager.I.CurrentController == null)
 			return;
 
-		Vector3 destPos = StageManager.I.CurrentController.Bottom;
-		destPos.x *= -1;
-
 		if (StageManager.I.IsOnObstacle ())
 			return;
 
@@ -208,13 +205,13 @@ public class StageAnimator : Singleton<StageAnimator>
 				tmp.GetChild(0).SetParent(StageManager.I.DecoRoot.transform);
 				DestroyImmediate(tmp.gameObject);
 			}
-//			switch(type)
-//			{    
-//			case ReOpenType.FIRST_OPEN:
-//			case ReOpenType.TO_NEXT:
-//				InGameManager.I.DisplayDictionary();
-//				break;
-//			}
+			switch(type)
+			{    
+			case ReOpenType.RESTART_STAGE:
+				StageManager.I.CurrentController.UpdateDummyCharacterPosition(Vector2.right);
+				StageManager.I.CurrentController.UpdateCharacterState(Vector2.right);
+				break;
+			}
 			IsPlayingAnimation = false;
 		});
 	}
@@ -297,7 +294,7 @@ public class StageAnimator : Singleton<StageAnimator>
 	private void SwapCharacter()
 	{
 		StageManager.I.CurrentController.SwapCharacter();
-		StageManager.I.CurrentController.SetPosition(StageManager.I.CurrentController.DestBottom);
+		StageManager.I.CurrentController.Bottom = StageManager.I.CurrentController.DestBottom;
 	}
 	/// <summary>
 	/// ステージを閉じて開く
@@ -519,6 +516,7 @@ public class StageAnimator : Singleton<StageAnimator>
 				DestroyImmediate(tmpAnchor.gameObject);
 			}
 			IsPlayingAnimation = false;
+			StageManager.I.CurrentController.UpdateCharacterState(Vector2.right);
 		});
 	}
 	private void OpenChildStep4(Transform target, float time)

@@ -38,8 +38,7 @@ public class CustomCharaController : MonoBehaviour
         get; set;
     }
 	public bool ClearStage {
-		get;
-		set;
+		get; set;
 	}
 	public bool GetCollection {
 		get;
@@ -163,10 +162,10 @@ public class CustomCharaController : MonoBehaviour
 		IEnumerable foldXList_Dest = StageManager.I.GetFoldXCoordList(Bottom.y, IsTopOfWall_Dest);
 
         // ダミーキャラの位置を実際のキャラ反映させる
-        UpdateXZCharacterPosition(Bottom, FlatTrans.lossyScale.x,
+        UpdateXZCharacterPosition(Bottom, Scale.x,
                                   _CharacterX.transform, _CharacterZ.transform,
                                   moveDir, foldXList, IsTopOfWall);
-        UpdateXZCharacterPosition(DestBottom, FlatTrans.lossyScale.x,
+        UpdateXZCharacterPosition(DestBottom, Scale.x,
                                   _DestCharacterX.transform, _DestCharacterZ.transform,
 								  moveDir, foldXList_Dest, IsTopOfWall_Dest);
 
@@ -460,6 +459,7 @@ public class CustomCharaController : MonoBehaviour
     public Vector3 Bottom
     {
 		get { return FlatTrans.position+new Vector3(0f,Scale.y*ASPECT_RATE/6f,0f); }
+		set { FlatTrans.position = value-new Vector3(0f,Scale.y*ASPECT_RATE/6f,0f); }
     }
     public Vector3 BottomLeft
     {

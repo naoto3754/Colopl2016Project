@@ -13,14 +13,14 @@ public class InGameManager : Singleton<InGameManager>
 	readonly float FADEOUT_DURATION = 1f;
 	
 	bool _NowDisplaying = false;
-	bool _MenuIsOpened = false;
+	bool _IsPausing = false;
 	
 	[SerializeField]
 	List<Image> _DictionaryLines; 
 	[SerializeField]
 	List<Text> _DictionaryLabels;
-	[SerializeField]
-	GameObject _MenuButton;
+//	[SerializeField]
+//	GameObject _MenuButton;
 	
 	/// <summay>
 	/// リスタートする
@@ -42,38 +42,13 @@ public class InGameManager : Singleton<InGameManager>
 		StageAnimator.I.Reverse();
 	}
 	
-	public void OnPressMenu()
+	public void OnPause()
 	{
-		_MenuIsOpened = !_MenuIsOpened;
-		if(_MenuIsOpened)
-			OpenMenu();
-		else
-			CloseMenu();
-	}
-	
-	private void OpenMenu()
-	{
-		Sequence sequence = DOTween.Sequence();
-		foreach(Transform button in _MenuButton.transform)
-		{
-			Vector3 defaultPos = button.position;
-			Vector3 defaultScale = button.localScale;
-			button.position = _MenuButton.transform.position; 
-			button.localScale = Vector3.zero;
-			sequence.Join( button.DOMove(defaultPos, 0.1f).SetDelay(0.05f) );
-			sequence.Join( button.DOScale(defaultScale, 0.1f) );
-			
-			button.gameObject.SetActive(true);
-		}
-		sequence.Play();
-		
-	}
-	
-	private void CloseMenu()
-	{
-		foreach(Transform button in _MenuButton.transform){
-			button.gameObject.SetActive(false);
-		}
+//		_IsPausing = !_IsPausing;
+//		if(_IsPausing)
+//			Time.timeScale = 0;
+//		else
+//			Time.timeScale = 1;
 	}
 	
 	//仮でキーボードの入力とる
