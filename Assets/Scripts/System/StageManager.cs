@@ -302,17 +302,20 @@ public class StageManager : Singleton<StageManager>
     /// <summary>
     /// 与えられた距離内にある折り目までの距離を返す
     /// </summary>
-    public float CalcFoldLineDistance(Vector2 pos, float delta, bool isTop)
+	public List<float> CalcFoldLineDistance(Vector2 pos, float delta, bool isTop)
     {
-		float ret = delta + Mathf.Sign(delta) * 1f;
+		List<float> ret = new List<float>();
 
         if(isTop)
         {
 			pos -= 0.05f * Vector2.up;
 			foreach (Line foldline in CurrentInfo.TopFoldLine) {
 				if (foldline.ThroughLine (pos, pos + delta * Vector2.right)) {
-					if (Mathf.Abs (ret) > Mathf.Abs (foldline.points [0].x - pos.x)) {
-						ret = foldline.points [0].x - pos.x;
+					float dist = foldline.points [0].x - pos.x;
+					if (ret.Contains (dist)) {
+						ret.Remove (dist);
+					} else {
+						ret.Add (dist);
 					}
 				}
 			}
@@ -321,12 +324,15 @@ public class StageManager : Singleton<StageManager>
         {
             if (foldline.ThroughLine(pos, pos + delta * Vector2.right))
             {
-				if (Mathf.Abs (ret) > Mathf.Abs (foldline.points [0].x - pos.x)) {
-					ret = foldline.points [0].x - pos.x;
+				float dist = foldline.points [0].x - pos.x;
+				if (ret.Contains (dist)) {
+					ret.Remove (dist);
+				} else {
+					ret.Add (dist);
 				}
             }
         }
-        return ret;
+		return ret.OrderBy (x => x).ToList ();
     }
     /// <summary>
     /// 自分の真下に飛び出ている部分の上面があるかどうか

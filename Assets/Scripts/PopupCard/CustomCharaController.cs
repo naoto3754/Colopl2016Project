@@ -10,6 +10,10 @@ public class CustomCharaController : MonoBehaviour
     private GameObject _CharacterZ;
     private GameObject _DestCharacterX;
     private GameObject _DestCharacterZ;
+	private GameObject _CharacterX_2;
+	private GameObject _CharacterZ_2;
+	private GameObject _DestCharacterX_2;
+	private GameObject _DestCharacterZ_2;
 	private GameObject _FlatCharacter;
 
     public Vector2 InitPosition
@@ -41,12 +45,15 @@ public class CustomCharaController : MonoBehaviour
 		get; set;
 	}
 	public bool GetCollection {
-		get;
-		set;
+		get; set;
+	}
+	public bool TowardPositive {
+		get; private set;
 	}
 
 	public void Init()
 	{
+		TowardPositive = false;
 		StageManager.I.CurrentController = this;
 		_FlatCharacter = this.gameObject;
 		color = ColorData.COLOR1;
@@ -54,10 +61,15 @@ public class CustomCharaController : MonoBehaviour
 
 		_CharacterX = CreateCharacter (StageManager.I.CurrentInfo.InitialCharacterColor, true, true);
 		_CharacterZ = CreateCharacter (StageManager.I.CurrentInfo.InitialCharacterColor, false, true);
+		_CharacterX_2 = CreateCharacter (StageManager.I.CurrentInfo.InitialCharacterColor, true, true);
+		_CharacterZ_2 = CreateCharacter (StageManager.I.CurrentInfo.InitialCharacterColor, false, true);
 		_DestCharacterX = CreateCharacter (Color.black, true, false);
 		_DestCharacterZ = CreateCharacter (Color.black, false, false);
+		_DestCharacterX_2 = CreateCharacter (Color.black, true, false);
+		_DestCharacterZ_2 = CreateCharacter (Color.black, false, false);
 
-		UpdateDummyCharacterPosition(0.01f*Vector2.right);
+		UpdateDummyCharacterPosition(Vector2.right);
+		UpdateCharacterState(Vector2.right);
 	}
 	private GameObject CreateCharacter(Color initColor,bool xDir,bool main)
 	{
@@ -72,6 +84,8 @@ public class CustomCharaController : MonoBehaviour
 		face.material.SetColor("_MainColor", Color.white);
 		body.material.SetColor("_MainColor", initColor);
 		if (main == false) {
+			face.sortingOrder = 99;
+			body.sortingOrder = 99;
 			face.material.SetFloat("_MaskWeight", 1f);
 			body.material.SetFloat("_MaskWeight", 1f);	
 			face.transform.Rotate (0,180,0);
@@ -103,8 +117,10 @@ public class CustomCharaController : MonoBehaviour
 			
 		Vector2 moveDir = StageManager.I.CalcAmountOfMovement(CalcInputDir());
 
+		FlatTrans.position += new Vector3(moveDir.x, moveDir.y, 0f);
         UpdateDummyCharacterPosition(moveDir);
 		JumppingOff ();
+		UpdateCharacterAnimation (moveDir);
         UpdateCharacterState(moveDir);
     }
 
@@ -159,7 +175,6 @@ public class CustomCharaController : MonoBehaviour
     /// </summary>
     public void UpdateDummyCharacterPosition(Vector2 moveDir)
     {
-        FlatTrans.position += new Vector3(moveDir.x, moveDir.y, 0f);
         //飛び出ている部分の上に乗っているか判定
         if (IsTopOfWall)
             IsTopOfWall = StageManager.I.OnTopOfWall(BottomLeft, BottomRight);
@@ -168,18 +183,32 @@ public class CustomCharaController : MonoBehaviour
 		IEnumerable foldXList_Dest = StageManager.I.GetFoldXCoordList(Bottom.y, IsTopOfWall_Dest);
 
         // ダミーキャラの位置を実際のキャラ反映させる
-        UpdateXZCharacterPosition(Bottom, Scale.x,
-                                  _CharacterX.transform, _CharacterZ.transform,
-                                  moveDir, foldXList, IsTopOfWall);
-        UpdateXZCharacterPosition(DestBottom, Scale.x,
-                                  _DestCharacterX.transform, _DestCharacterZ.transform,
-								  moveDir, foldXList_Dest, IsTopOfWall_Dest);
+        UpdateXZCharacterPosition(
+			Bottom, Scale.x,
+			_CharacterX.transform, _CharacterZ.transform,
+			_CharacterX_2.transform, _CharacterZ_2.transform,
+			moveDir, foldXList, IsTopOfWall
+		);
+        UpdateXZCharacterPosition(
+			DestBottom, Scale.x,
+			_DestCharacterX.transform, _DestCharacterZ.transform,
+			_DestCharacterX_2.transform, _DestCharacterZ_2.transform,
+			moveDir, foldXList_Dest, IsTopOfWall_Dest
+		);
 
         //キャラクター部分透過
-        UpdateSubTransparent(Bottom, FlatTrans.lossyScale.x,
-							 _CharacterX, _CharacterZ, moveDir, foldXList, IsTopOfWall, true);
-        UpdateSubTransparent(DestBottom, FlatTrans.lossyScale.x,
-							 _DestCharacterX, _DestCharacterZ, moveDir, foldXList, IsTopOfWall_Dest, false);
+        UpdateSubTransparent(
+			Bottom, FlatTrans.lossyScale.x,
+			_CharacterX, _CharacterZ, 
+			_CharacterX_2, _CharacterZ_2, 
+			moveDir, foldXList, IsTopOfWall, true
+		);
+        UpdateSubTransparent(
+			DestBottom, FlatTrans.lossyScale.x,
+			_DestCharacterX, _DestCharacterZ,
+			_DestCharacterX_2, _DestCharacterZ_2,
+			moveDir, foldXList_Dest, IsTopOfWall_Dest, false
+		);
 		
 		float alpha = StageManager.I.IsOnObstacle () ? 0.2f : 0.8f;
 		foreach (var destChara in DestCharacters) {
@@ -193,10 +222,13 @@ public class CustomCharaController : MonoBehaviour
     /// <summary>
     /// ダミーキャラの位置を実際のキャラ反映させる
     /// </summary>
-	private void UpdateXZCharacterPosition(Vector3 charaPos, float delta, Transform xTrans, Transform zTrans, Vector2 moveDir, IEnumerable foldXList, bool isTop)
+	private void UpdateXZCharacterPosition(Vector3 charaPos, float delta, 
+		Transform xTrans, Transform zTrans, Transform xTrans2, Transform zTrans2,
+		Vector2 moveDir, IEnumerable foldXList, bool isTop)
     {
         int r = 0;
-        float foldlineDist = StageManager.I.CalcFoldLineDistance(charaPos - delta / 2 * Vector3.right, delta, isTop);
+		List<float> foldlineDists = StageManager.I.CalcFoldLineDistance(charaPos - delta / 2 * Vector3.right, delta, isTop);
+		int foldCnt = foldlineDists.Count;
         float prevX = -StageManager.I.CurrentInfo.StageWidth / 2;
 		float xOffset = StageManager.I.Offset.x - StageManager.I.CurrentInfo.StageWidth / 2;
 		float zOffset = StageManager.I.Offset.z;
@@ -204,7 +236,12 @@ public class CustomCharaController : MonoBehaviour
 		if (charaAnchor < prevX) 
 		{
 			xTrans.position = new Vector3(StageManager.I.Offset.x + charaPos.x - 0.01f, FlatTrans.position.y, zOffset - 0.01f);
-			zTrans.position = xTrans.position + new Vector3(1,0,1) * (foldlineDist-delta/2);
+			if(foldCnt > 0)
+				zTrans.position = xTrans.position + new Vector3(1,0,1) * (foldlineDists[0]-delta/2);
+			if(foldCnt > 1)
+				xTrans2.position = zTrans.position + new Vector3(1,0,1) * (foldlineDists[1]-delta/2);
+			if(foldCnt > 2)
+				zTrans2.position = xTrans2.position + new Vector3(1,0,1) * (foldlineDists[2]-delta/2);
 			return;
 		}
         foreach (float x in foldXList)
@@ -214,13 +251,23 @@ public class CustomCharaController : MonoBehaviour
                 if (r == 0) //x方向移動
                 {
 					xTrans.position = new Vector3(xOffset + charaPos.x - prevX - 0.01f, FlatTrans.position.y, zOffset - 0.01f);
-					zTrans.position = xTrans.position + new Vector3(1,0,1) * (foldlineDist-delta/2);
+					if(foldCnt > 0)
+						zTrans.position = xTrans.position + new Vector3(1,0,1) * (foldlineDists[0]-delta/2);
+					if(foldCnt > 1)
+						xTrans2.position = zTrans.position + new Vector3(-1,0,-1) * (foldlineDists[1]-delta/2);
+					if(foldCnt > 2)
+						zTrans2.position = xTrans2.position + new Vector3(1,0,1) * (foldlineDists[2]-delta/2);
 					return;
                 }
                 else //z方向移動
                 {
 					zTrans.position = new Vector3(xOffset - 0.01f, FlatTrans.position.y, zOffset - charaPos.x + prevX - 0.01f);
-					xTrans.position = zTrans.position + new Vector3(-1,0,-1) * (foldlineDist-delta/2);
+					if(foldCnt > 0)
+						xTrans.position = zTrans.position + new Vector3(-1,0,-1) * (foldlineDists[0]-delta/2);
+					if(foldCnt > 1)
+						zTrans2.position = xTrans.position + new Vector3(1,0,1) * (foldlineDists[1]-delta/2);
+					if(foldCnt > 2)
+						xTrans2.position = zTrans2.position + new Vector3(-1,0,-1) * (foldlineDists[2]-delta/2);
 					return;
                 }
             }
@@ -233,87 +280,140 @@ public class CustomCharaController : MonoBehaviour
             r = (int)Mathf.Repeat(r + 1, 2);
         }
     }
-
     /// <summary>
     /// キャラクターの部分透過を設定
     /// </summary>
-	private void UpdateSubTransparent(Vector3 charaPos, float delta, GameObject xChara, GameObject zChara, Vector2 moveDir, IEnumerable foldXList, bool isTop, bool main)
+	private void UpdateSubTransparent(Vector3 charaPos, float delta, 
+		GameObject xChara, GameObject zChara, GameObject xChara2, GameObject zChara2, 
+		Vector2 moveDir, IEnumerable foldXList, bool isTop, bool main)
     {
         int r = 0;
-		float foldlineDist = StageManager.I.CalcFoldLineDistance(charaPos - delta / 2 * Vector3.right, delta, isTop);
+		List<float> foldlineDists = StageManager.I.CalcFoldLineDistance(charaPos - delta / 2 * Vector3.right, delta, isTop);
+		
         foreach (float x in foldXList)
         {
             if (charaPos.x - delta / 2 < x)
             {
-				if (CalcTransparentParam (xChara, zChara, foldlineDist, delta, moveDir, r == 0 /*r=0ならx方向*/, main))
+				if (CalcTransparentParam (xChara, zChara, xChara2, zChara2, foldlineDists, delta, moveDir, r == 0 /*r=0ならx方向*/, main))
 					return;
             }
             r = (int)Mathf.Repeat(r + 1, 2);
         }
-		CalcTransparentParam (xChara, zChara, foldlineDist, delta, moveDir, false/*z方向*/, main);
+		CalcTransparentParam (xChara, zChara, xChara2, zChara2, foldlineDists, delta, moveDir, false/*z方向*/, main);
     }
 	/// <summary>
 	/// キャラクター透過用パラメータの決定
 	/// </summary>
-	private bool CalcTransparentParam(GameObject xChara, GameObject zChara, float foldlineDist, float delta, Vector2 moveDir, bool xDir, bool main)
+	private bool CalcTransparentParam(GameObject xChara, GameObject zChara, GameObject xChara2, GameObject zChara2, List<float> foldlineDists, float delta, Vector2 moveDir, bool xDir, bool main)
 	{
-		float rate = foldlineDist / delta;
-		Vector4 p = Vector4.zero;
-		if (foldlineDist == delta + 1f) {
-			p = xDir ? new Vector4 (1, 0, 0, 1) : new Vector4 (0, 1, 1, 0);
-		} else if (moveDir.x > 0f) {
-			p = xDir ? new Vector4 (rate, 0, 1, rate) : new Vector4 (1, rate, rate, 0);
-		} else if (moveDir.x < 0f) {
-			p = xDir ? new Vector4 (1, 1f - rate, 1f - rate, 0) : new Vector4 (1f - rate, 0, 1, 1f - rate);
-		} else {
-			return false;
+		int foldCnt = foldlineDists.Count; 
+		Vector4 p1 = xDir ? new Vector4 (1, 0, 0, 1) : new Vector4 (0, 1, 1, 0);
+		Vector4 p2 = Vector4.zero;
+		if (foldCnt == 1) {
+			float rate = foldlineDists [0] / delta;
+			if (moveDir.x > 0f) {
+				p1 = xDir ? new Vector4 (rate, 0, 1, rate) : new Vector4 (1, rate, rate, 0);
+			} else if (moveDir.x < 0f) {
+				p1 = xDir ? new Vector4 (1, 1f - rate, 1f - rate, 0) : new Vector4 (1f - rate, 0, 1, 1f - rate);
+			} else {
+				return false;
+			}
+		} else if (foldCnt == 2) {
+			float rate = foldlineDists [0] / delta;
+			float rate2 = foldlineDists [1] / delta;
+			if (moveDir.x > 0f) {
+				p1 = xDir ? new Vector4 (rate, 0, rate2, rate) : new Vector4 (rate2, rate, rate, 0);
+				p2 = xDir ? new Vector4 (1, rate2, 0, 0) : new Vector4 (0, 0, 1, rate2);
+			} else if (moveDir.x < 0f) {
+				p1 = xDir ? new Vector4 (1, 1f-rate, 1f-rate, 1f-rate2) : new Vector4 (1f-rate, 1f-rate2, 1, 1f-rate);
+				p2 = xDir ? new Vector4 (1f-rate2, 0, 0, 0) : new Vector4 (0, 0, 1f-rate2, 0);
+			} else {
+				return false;
+			}
+		} else if (foldCnt == 3) {
+			float rate = foldlineDists [0] / delta;
+			float rate2 = foldlineDists [1] / delta;
+			float rate3 = foldlineDists [2] / delta;
+			if (moveDir.x > 0f) {
+				p1 = xDir ? new Vector4 (rate, 0, rate2, rate) : new Vector4 (rate2, rate, rate, 0);
+				p2 = xDir ? new Vector4 (rate3, rate2, 1, rate3) : new Vector4 (1, rate3, rate3, rate2);
+			} else if (moveDir.x < 0f) {
+				p1 = xDir ? new Vector4 (1, 1f-rate, 1f-rate, 1f-rate2) : new Vector4 (1f-rate, 1f-rate2, 1, 1f-rate);
+				p2 = xDir ? new Vector4 (1f-rate2, 1f-rate3, 1f-rate3, 0) : new Vector4 (1f-rate3, 0, 1f-rate2, 1f-rate3);
+			} else {
+				return false;
+			}
 		}
-		SetCharacterTransparent(xChara, zChara, p.x, p.y, p.z, p.w, main);
+		SetCharacterTransparent(
+			xChara, zChara, xChara2, zChara2, 
+			p1.x, p1.y, p1.z, p1.w,
+			p2.x, p2.y, p2.z, p2.w,
+			main);
 		return true;
 	}
 	/// <summary>
 	/// キャラクター透過用関数
 	/// </summary>
-	private void SetCharacterTransparent(GameObject xChara, GameObject zChara, float xForward, float xBack, float zForward, float zBack, bool main)
+	private void SetCharacterTransparent(
+		GameObject xChara, GameObject zChara, GameObject xChara2, GameObject zChara2, 
+		float xForward, float xBack, float zForward, float zBack, 
+		float xForward2, float xBack2, float zForward2, float zBack2, 
+		bool main)
 	{ 
+		float add = 0.0075f;
 		float xforward = main ? xForward : 1-xBack;
 		float xback = main ? xBack : 1-xForward;
 		float zforward = main ? zForward : 1-zBack;
-		float zback = main ? zBack : 1 - zForward;
+		float zback = main ? zBack : 1-zForward;
+		float xforward2 = main ? xForward2 : 1-xBack2;
+		float xback2 = main ? xBack2 : 1-xForward2;
+		float zforward2 = main ? zForward2 : 1-zBack2;
+		float zback2 = main ? zBack2 : 1-zForward2;
         foreach (Material material in xChara.GetComponentsInChildren<Renderer>().Select(x => x.material))
         {
-            material.SetFloat("_ForwardThreshold", xforward);
-            material.SetFloat("_BackThreshold", xback);
+            material.SetFloat("_ForwardThreshold", xforward+add);
+            material.SetFloat("_BackThreshold", xback-add);
         }
         foreach (Material material in zChara.GetComponentsInChildren<Renderer>().Select(x => x.material))
         {
-            material.SetFloat("_ForwardThreshold", zforward);
-            material.SetFloat("_BackThreshold", zback);
+            material.SetFloat("_ForwardThreshold", zforward+add);
+			material.SetFloat("_BackThreshold", zback-add);
         }
+		foreach (Material material in xChara2.GetComponentsInChildren<Renderer>().Select(x => x.material))
+		{
+			material.SetFloat("_ForwardThreshold", xforward2+add);
+			material.SetFloat("_BackThreshold", xback2-add);
+		}
+		foreach (Material material in zChara2.GetComponentsInChildren<Renderer>().Select(x => x.material))
+		{
+			material.SetFloat("_ForwardThreshold", zforward2+add);
+			material.SetFloat("_BackThreshold", zback2-add);
+		}
     }
     /// <summary>
-    /// 移動方向からキャラクターの向きやアニメーションを決定する
+    /// 移動方向からキャラクターの向きを決定する
     /// </summary>
     public void UpdateCharacterState(Vector2 moveDir)
     {
-		UpdateCharacterAnimation (moveDir);
-        //キャラクター向き
-        if (moveDir.x > 0f)
-        {
-            _CharacterX.transform.forward = Vector3.forward;
-            _CharacterZ.transform.forward = Vector3.right;
-            _DestCharacterX.transform.forward = Vector3.forward;
-            _DestCharacterZ.transform.forward = Vector3.right;
-        }
-        else if (moveDir.x < 0f)
-        {
-            _CharacterX.transform.forward = Vector3.back;
-            _CharacterZ.transform.forward = Vector3.left;
-            _DestCharacterX.transform.forward = Vector3.back;
-            _DestCharacterZ.transform.forward = Vector3.left;
-        }
-    }
+		if (moveDir.x == 0f)
+			return;
+		bool current = moveDir.x > 0f;
+		if (current != TowardPositive) {
+			Vector3 xDir = current ? 0 * Vector3.up : 180 * Vector3.up;
+			Vector3 zDir = current ? 90 * Vector3.up : 270 * Vector3.up;
+			foreach (var xchara in XDirCharacters) {
+				xchara.transform.eulerAngles = xDir;
+			}
+			foreach (var zchara in ZDirCharacters) {
+				zchara.transform.eulerAngles = zDir;
+			}
+		}
 
+		TowardPositive = current;
+    }
+	/// <summary>
+	/// 移動方向からアニメーションを決定する
+	/// </summary>
 	private void UpdateCharacterAnimation(Vector2 moveDir)
 	{
 		if (CanUseLadder) {
@@ -385,10 +485,19 @@ public class CustomCharaController : MonoBehaviour
 		}
 	}
 
+	public void SetAnimationTimeScale(float timeScale)
+	{
+		foreach (var anim in AllCharacters.Select(x => x.GetComponent<Animator>())) {
+			anim.speed = timeScale;
+		}
+	}
+
 	public void SwapCharacter()
 	{
 		UnityUtility.SwapGameObject (_CharacterX, _DestCharacterX);
 		UnityUtility.SwapGameObject (_CharacterZ, _DestCharacterZ);
+		UnityUtility.SwapGameObject (_CharacterX_2, _DestCharacterX_2);
+		UnityUtility.SwapGameObject (_CharacterZ_2, _DestCharacterZ_2);
 	}
 
 	public void ChangeColor(ColorData cd, Color c)
@@ -467,15 +576,23 @@ public class CustomCharaController : MonoBehaviour
 	/// </summary>
 	private IEnumerable<GameObject> AllCharacters
 	{
-		get{ return new GameObject[] { _CharacterX, _CharacterZ, _DestCharacterX, _DestCharacterZ }; }
+		get{ return new GameObject[] { _CharacterX, _CharacterZ, _DestCharacterX, _DestCharacterZ, _CharacterX_2, _CharacterZ_2, _DestCharacterX_2, _DestCharacterZ_2 }; }
 	}
 	private IEnumerable<GameObject> Characters
 	{
-		get{ return new GameObject[] { _CharacterX, _CharacterZ }; }
+		get{ return new GameObject[] { _CharacterX, _CharacterZ, _CharacterX_2, _CharacterZ_2 }; }
 	}
 	private IEnumerable<GameObject> DestCharacters
 	{
-		get{ return new GameObject[] { _DestCharacterX, _DestCharacterZ }; }
+		get{ return new GameObject[] { _DestCharacterX, _DestCharacterZ, _DestCharacterX_2, _DestCharacterZ_2 }; }
+	}
+	private IEnumerable<GameObject> XDirCharacters
+	{
+		get{ return new GameObject[] { _CharacterX, _CharacterX_2, _DestCharacterX, _DestCharacterX_2 }; }
+	}
+	private IEnumerable<GameObject> ZDirCharacters
+	{
+		get{ return new GameObject[] { _CharacterZ, _CharacterZ_2, _DestCharacterZ, _DestCharacterZ_2 }; }
 	}
 
     private readonly float ASPECT_RATE = 500f / 800f;
