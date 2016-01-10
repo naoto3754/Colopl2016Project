@@ -103,7 +103,9 @@ public class EventBase : MonoBehaviour {
 	protected void GetObj(GameObject obj)
 	{
 		_IsGetted = true;
-		obj.transform.DORotate (2*360*Vector3.forward, 1f, RotateMode.FastBeyond360).SetEase(Ease.Linear);
+		Vector3 angle = obj.transform.localEulerAngles;
+		angle.z += 2 * 360;
+		obj.transform.DOLocalRotate (angle, 1f, RotateMode.FastBeyond360).SetEase(Ease.Linear);		
 		obj.transform.DOMoveY (this.transform.position.y+4f, 1f).OnComplete(() =>{
 			if(obj.GetComponent<Renderer>() != null)
 				obj.GetComponent<Renderer>().enabled = false;
