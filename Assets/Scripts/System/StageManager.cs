@@ -16,23 +16,16 @@ public class StageManager : Singleton<StageManager>
 	{
 		get { return _Stages.Count; }
 	}
-
-    private int _CurrentChapter;
-    public int CurrentChapter
-    {
-        get { return _CurrentChapter; }
+		
+    public int CurrentChapter {
+		get; private set;
     }
-    private int _CurrentBookID;
-    public int CurrentBookID
-    {
-        get { return _CurrentBookID; }
+    public int CurrentBookID {
+		get; private set;
     }
-    private int _CurrentStageIndex;
-    public int CurrentStageIndex
-    {
-        get { return _CurrentStageIndex; }
+    public int CurrentStageIndex {
+		get; private set;
     }
-
 	public StageInfomation CurrentInfo{
 		get; set;
 	}    
@@ -78,9 +71,9 @@ public class StageManager : Singleton<StageManager>
 
 	void Start ()
 	{
-		_CurrentChapter = 1;
-		_CurrentBookID = 0;
-		_CurrentStageIndex = 0;
+		CurrentChapter = 1;
+		CurrentBookID = 0;
+		CurrentStageIndex = 0;
 		GameObject stage = Instantiate(_Stages[ CalcStageListIndex(1, 0, 0) ]) as GameObject;
 		stage.GetComponent<StageInfomation> ().Init (false);
 	}
@@ -98,9 +91,9 @@ public class StageManager : Singleton<StageManager>
             Debug.LogError("Invalid stage index");
         
         ////仮実装
-        _CurrentChapter = chapter;
-        _CurrentBookID = bookID;
-        _CurrentStageIndex = index;
+        CurrentChapter = chapter;
+        CurrentBookID = bookID;
+        CurrentStageIndex = index;
         //ダミーカードをInstantiateすると、ダミーカードのAwakeでステージ情報を更新し、ステージ生成まで行う
         var stage = Instantiate(_Stages[ CalcStageListIndex(chapter, bookID, index) ]);
 		stage.GetComponent<StageInfomation> ().Init ();

@@ -45,11 +45,13 @@ public class StageAnimator : Singleton<StageAnimator>
 		else
 		{
 			ReOpenStage(START_ANGLE, ANIMATION_TIME, 0.001f, 0f, ReOpenType.FIRST_OPEN);
-//			ReOpenStage(START_ANGLE, ANIMATION_TIME, ANIMATION_TIME, 0f, ReOpenType.FIRST_OPEN);
 		}
 	}
 
 	public void Reverse(){
+		if (StageManager.I.CurrentChapter == 1 && StageManager.I.CurrentBookID < 2)
+			return;
+		
 		if (IsPlayingAnimation)
 			return;
 

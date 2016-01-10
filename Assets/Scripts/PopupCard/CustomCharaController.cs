@@ -84,12 +84,17 @@ public class CustomCharaController : MonoBehaviour
 		face.material.SetColor("_MainColor", Color.white);
 		body.material.SetColor("_MainColor", initColor);
 		if (main == false) {
-			face.sortingOrder = 99;
-			body.sortingOrder = 99;
-			face.material.SetFloat("_MaskWeight", 1f);
-			body.material.SetFloat("_MaskWeight", 1f);	
-			face.transform.Rotate (0,180,0);
-			body.transform.Rotate (0,180,0);
+			if (StageManager.I.CurrentChapter == 1 && StageManager.I.CurrentBookID < 2) {
+				face.enabled = false;
+				body.enabled = false;
+			} else {
+				face.sortingOrder = 99;
+				body.sortingOrder = 99;
+				face.material.SetFloat("_MaskWeight", 1f);
+				body.material.SetFloat("_MaskWeight", 1f);	
+				face.transform.Rotate (0,180,0);
+				body.transform.Rotate (0,180,0);
+			}
 		}
 		if(xDir)
 			ColorManager.MultiplyShadowColor(character.transform.GetChild(1).gameObject);
@@ -235,41 +240,29 @@ public class CustomCharaController : MonoBehaviour
         float charaAnchor = charaPos.x - delta / 2;
 		if (charaAnchor < prevX) 
 		{
-			xTrans.position = new Vector3(StageManager.I.Offset.x + charaPos.x - 0.01f, FlatTrans.position.y, zOffset - 0.01f);
-			if(foldCnt > 0)
-				zTrans.position = xTrans.position + new Vector3(1,0,1) * (foldlineDists[0]-delta/2);
-			if(foldCnt > 1)
-				xTrans2.position = zTrans.position + new Vector3(1,0,1) * (foldlineDists[1]-delta/2);
-			if(foldCnt > 2)
-				zTrans2.position = xTrans2.position + new Vector3(1,0,1) * (foldlineDists[2]-delta/2);
+			Transform[] characters = new Transform[] {xTrans, zTrans, xTrans2, zTrans2};
+			characters [0].position = new Vector3(StageManager.I.Offset.x + charaPos.x - 0.01f, FlatTrans.position.y, zOffset - 0.01f);
+			for (int i = 0; i < foldCnt; i++) {
+				Vector3 dir = i % 2 == 0 ? new Vector3 (1, 0, 1) : new Vector3 (-1, 0, -1);
+				characters [i+1].position = characters [i].position + dir * (foldlineDists [i] - delta / 2);
+			}
 			return;
 		}
         foreach (float x in foldXList)
         {
             if (prevX < charaAnchor && charaAnchor < x)
             {
-                if (r == 0) //x方向移動
-                {
-					xTrans.position = new Vector3(xOffset + charaPos.x - prevX - 0.01f, FlatTrans.position.y, zOffset - 0.01f);
-					if(foldCnt > 0)
-						zTrans.position = xTrans.position + new Vector3(1,0,1) * (foldlineDists[0]-delta/2);
-					if(foldCnt > 1)
-						xTrans2.position = zTrans.position + new Vector3(-1,0,-1) * (foldlineDists[1]-delta/2);
-					if(foldCnt > 2)
-						zTrans2.position = xTrans2.position + new Vector3(1,0,1) * (foldlineDists[2]-delta/2);
-					return;
-                }
-                else //z方向移動
-                {
-					zTrans.position = new Vector3(xOffset - 0.01f, FlatTrans.position.y, zOffset - charaPos.x + prevX - 0.01f);
-					if(foldCnt > 0)
-						xTrans.position = zTrans.position + new Vector3(-1,0,-1) * (foldlineDists[0]-delta/2);
-					if(foldCnt > 1)
-						zTrans2.position = xTrans.position + new Vector3(1,0,1) * (foldlineDists[1]-delta/2);
-					if(foldCnt > 2)
-						xTrans2.position = zTrans2.position + new Vector3(-1,0,-1) * (foldlineDists[2]-delta/2);
-					return;
-                }
+				bool xDir = r == 0;
+				Transform[] characters = xDir ? new Transform[] {xTrans, zTrans, xTrans2, zTrans2}:
+												new Transform[] {zTrans, xTrans, zTrans2, xTrans2};
+				Vector3 pos0 = xDir ? new Vector3(xOffset + charaPos.x - prevX - 0.01f, FlatTrans.position.y, zOffset - 0.01f) :
+									  new Vector3(xOffset - 0.01f, FlatTrans.position.y, zOffset - charaPos.x + prevX - 0.01f);
+				characters [0].position = pos0;
+				for (int i = 0; i < foldCnt; i++) {
+					Vector3 dir = xDir ^ i % 2 == 1 ? new Vector3 (1, 0, 1) : new Vector3 (-1, 0, -1);
+					characters [i+1].position = characters [i].position + dir * (foldlineDists [i] - delta / 2);
+				}
+				return;
             }
 			else
 			{
