@@ -16,6 +16,9 @@ public class StageClearManager : Singleton<StageClearManager>
 		get { return _StageClearList; }
 	}
 
+	/// <summary>
+	/// 初期化処理
+	/// </summary>
 	public override void OnInitialize ()
 	{
 		base.OnInitialize ();
@@ -29,7 +32,9 @@ public class StageClearManager : Singleton<StageClearManager>
 		SetBooksColor ();
 		SetBooksText ();
 	}
-
+	/// <summary>
+	/// ステージをクリアした時の処理
+	/// </summary>
 	public void ClearStage(int index)
 	{
 		_StageClearList [index] = State.CLEARED;
@@ -41,19 +46,26 @@ public class StageClearManager : Singleton<StageClearManager>
 		}
 		SetBooksColor ();
 		SetBooksText ();
+		Save ();
 	}
-
+	/// <summary>
+	/// ステージのクリア状況セーブする
+	/// </summary>
 	private void Save()
 	{
 		
 	}
-
+	/// <summary>
+	/// データ初期化
+	/// </summary>
 	public void Clear()
 	{
 		SetInitParam ();
 		Save();
 	}
-
+	/// <summary>
+	/// 初期パラメータをセットする
+	/// </summary>
 	private void SetInitParam()
 	{
 		for (int i = 0; i < _StageClearList.Length; i++) {
@@ -64,28 +76,14 @@ public class StageClearManager : Singleton<StageClearManager>
 				_StageClearList [i] = State.UNPLAYABLE;
 		}
 	}
-
+	/// <summary>
+	/// クリア状況に合わせて本の色を設定
+	/// </summary>
 	private void SetBooksColor()
 	{
 		for (int i = 0; i < _BookObjects.Count; i ++) {
 			SetBookColor (_BookObjects [i].anchorL, i);
 			SetBookColor (_BookObjects [i].anchorR, i);
-		}
-	}
-
-	private void SetBooksText()
-	{
-		for (int i = 0; i < _BookObjects.Count; i ++) {
-			if (_BookObjects [i].text == null)
-				continue;
-			
-			int clearCnt = 0;
-			for (int n = 0; n < 3; n++) {
-				if (_StageClearList [i * 3 + n] == State.CLEARED) {
-					clearCnt++;
-				}
-			}
-			_BookObjects [i].text.text = string.Format ("{0}/3", clearCnt);
 		}
 	}
 
@@ -107,6 +105,24 @@ public class StageClearManager : Singleton<StageClearManager>
 					material.color = color;
 				}
 			}
+		}
+	}
+	/// <summary>
+	/// クリア状況に合わせて本のテキストを設定する
+	/// </summary>
+	private void SetBooksText()
+	{
+		for (int i = 0; i < _BookObjects.Count; i ++) {
+			if (_BookObjects [i].text == null)
+				continue;
+			
+			int clearCnt = 0;
+			for (int n = 0; n < 3; n++) {
+				if (_StageClearList [i * 3 + n] == State.CLEARED) {
+					clearCnt++;
+				}
+			}
+			_BookObjects [i].text.text = string.Format ("{0}/3", clearCnt);
 		}
 	}
 

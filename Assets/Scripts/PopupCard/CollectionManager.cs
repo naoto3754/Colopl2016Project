@@ -8,6 +8,9 @@ public class CollectionManager : Singleton<CollectionManager>
 	private GameObject CollectionObjectRoot;
 	private List<GameObject> _CollectionObjects;
 
+	/// <summary>
+	/// コレクションしているかのリスト
+	/// </summary>
 	private State[] _CollectionList;
 	public State this[int index]
 	{
@@ -19,7 +22,9 @@ public class CollectionManager : Singleton<CollectionManager>
 		get { return _CollectionList [StageManager.CalcStageListIndex(chap, book, id)]; }
 		set { _CollectionList [StageManager.CalcStageListIndex(chap, book, id)] = value; }
 	}
-
+	/// <summary>
+	/// 初期化処理
+	/// </summary>
 	public override void OnInitialize ()
 	{
 		base.OnInitialize ();
@@ -30,7 +35,9 @@ public class CollectionManager : Singleton<CollectionManager>
 		}
 		ActivateSprite ();
 	}
-
+	/// <summary>
+	/// コレクション状況によって本棚のコレクションを表示する
+	/// </summary>
 	public void ActivateSprite()
 	{
 		for (int i = 0; i < _CollectionObjects.Count; i++) {
@@ -38,29 +45,37 @@ public class CollectionManager : Singleton<CollectionManager>
 			obj.SetActive (this[i] == State.COLLECTED);
 		}
 	}
-
+	/// <summary>
+	/// コレクションしたときに呼ばれる
+	/// </summary>
+	/// <param name="index">ステージのIndex</param>
 	public void Collect(int index)
 	{
 		_CollectionList [index] = State.COLLECTED;
 		Save ();
 	}
-
+	/// <summary>
+	/// コレクションしたときに呼ばれる
+	/// </summary>
 	public void Collect(int chap, int book, int id)
 	{
 		_CollectionList [StageManager.CalcStageListIndex(chap, book, id)] = State.COLLECTED;
 		Save ();
 	}
-
+	/// <summary>
+	/// コレクション状況をセーブする
+	/// </summary>
 	private void Save()
 	{
 		
 	}
-
+	/// <summary>
+	/// データ初期化
+	/// </summary>
 	public void Clear()
 	{
 		for (int i = 0; i < _CollectionList.Length; i++) {
 			_CollectionList [i] = State.UNCOLLECTED;
-
 		}
 		Save();
 	}
