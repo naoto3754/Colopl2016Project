@@ -301,6 +301,7 @@ public class StageAnimator : Singleton<StageAnimator>
 	/// </summary>
 	public void ReOpenStageForReverse(float opentime, float closetime, float waittime)
 	{
+		StageManager.I.CurrentController.SetAnimationTimeScale (0f);
 		IsPlayingAnimation = true;
 		//ステップ1(180度開く)
 		_Sequence_Step1 = DOTween.Sequence();
@@ -516,7 +517,8 @@ public class StageAnimator : Singleton<StageAnimator>
 				DestroyImmediate(tmpAnchor.gameObject);
 			}
 			IsPlayingAnimation = false;
-			StageManager.I.CurrentController.UpdateCharacterState(Vector2.right);
+			StageManager.I.CurrentController.UpdateCharacterState(StageManager.I.CurrentController.TowardPositive ? Vector2.left : Vector2.right);
+			StageManager.I.CurrentController.SetAnimationTimeScale (1f);
 		});
 	}
 	private void OpenChildStep4(Transform target, float time)

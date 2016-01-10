@@ -299,23 +299,23 @@ public class StageCreater : Singleton<StageCreater>
 	{
 		float delta = scale.x;
 		Vector2 decoAnchorPos = new Vector2(pos.x - delta / 2,pos.y + scale.y / 2 * anchorHeightScale);
-		float foldlineDist = StageManager.I.CalcFoldLineDistance(decoAnchorPos, delta, false);
-		if (Mathf.Abs(foldlineDist) < Mathf.Abs(delta))
+		List<float> foldlineDists = StageManager.I.CalcFoldLineDistance(decoAnchorPos, delta, false);
+		if (foldlineDists.Count != 0)
 		{
 			GameObject deco2;
 			Vector3 newDecoPos = Vector3.up * deco.transform.position.y;
 			if (facingX)
 			{
-				newDecoPos.x = deco.transform.position.x - scale.x / 2 + foldlineDist;
-				newDecoPos.z = deco.transform.position.z - scale.x / 2 + foldlineDist;
+				newDecoPos.x = deco.transform.position.x - scale.x / 2 + foldlineDists[0];
+				newDecoPos.z = deco.transform.position.z - scale.x / 2 + foldlineDists[0];
 				deco2 = Instantiate(orig, newDecoPos, Quaternion.identity) as GameObject;
 				deco2.transform.eulerAngles += new Vector3(0f, 90f, 0f);
 				deco2.tag = Z_TAG_NAME;
 			}
 			else
 			{
-				newDecoPos.x = deco.transform.position.x + scale.x / 2 - foldlineDist;
-				newDecoPos.z = deco.transform.position.z + scale.x / 2 - foldlineDist;
+				newDecoPos.x = deco.transform.position.x + scale.x / 2 - foldlineDists[0];
+				newDecoPos.z = deco.transform.position.z + scale.x / 2 - foldlineDists[0];
 				deco2 = Instantiate(orig, newDecoPos, Quaternion.identity) as GameObject;
 				deco2.tag = X_TAG_NAME;
 				ColorManager.MultiplyShadowColor(deco2);
@@ -327,14 +327,14 @@ public class StageCreater : Singleton<StageCreater>
 			deco2.transform.SetParent (StageManager.I.DecoRoot.transform);
 
 			if (tmPro == null) {
-				deco.GetComponent<Renderer> ().material.SetFloat (Constants.M_FORWARD_THRES, foldlineDist / delta);
-				deco2.GetComponent<Renderer> ().material.SetFloat (Constants.M_BACK_THRES, foldlineDist / delta);
+				deco.GetComponent<Renderer> ().material.SetFloat (Constants.M_FORWARD_THRES, foldlineDists[0] / delta);
+				deco2.GetComponent<Renderer> ().material.SetFloat (Constants.M_BACK_THRES, foldlineDists[0] / delta);
 			} else {
 				float width = tmPro.bounds.size.x;
-				deco.GetComponent<Renderer> ().material.SetFloat (Constants.M_FORWARD_THRES, width/2 - ((delta-foldlineDist) / delta) * width);
+				deco.GetComponent<Renderer> ().material.SetFloat (Constants.M_FORWARD_THRES, width/2 - ((delta-foldlineDists[0]) / delta) * width);
 				deco.GetComponent<Renderer> ().material.SetFloat (Constants.M_BACK_THRES, -255);
 				deco2.GetComponent<Renderer> ().material.SetFloat (Constants.M_FORWARD_THRES, 255);
-				deco2.GetComponent<Renderer> ().material.SetFloat (Constants.M_BACK_THRES, - width/2 + (foldlineDist / delta) * width);
+				deco2.GetComponent<Renderer> ().material.SetFloat (Constants.M_BACK_THRES, - width/2 + (foldlineDists[0] / delta) * width);
 			}
 		}
 	}
