@@ -60,8 +60,11 @@ public class InGameManager : Singleton<InGameManager>
 		if (!menu) {
 			menu = true;
 			Vector3 menuButtonPos = _MenuButton.transform.position;
-			_RestartButton.transform.DOMove (new Vector3(menuButtonPos.x * 0.9f, menuButtonPos.y, menuButtonPos.z), 0.3f);
-			_HomeButton.transform.DOMove (new Vector3(menuButtonPos.x * 0.8f, menuButtonPos.y, menuButtonPos.z), 0.3f);
+			var rectTrans = _MenuButton.GetComponent<RectTransform> ();
+			float buttonWidth = rectTrans.TransformPoint (rectTrans.rect.max).x - rectTrans.TransformPoint (rectTrans.rect.min).x;
+			float moveDelta = buttonWidth * 1.2f;
+			_RestartButton.transform.DOMove (menuButtonPos+moveDelta*Vector3.left, 0.3f);
+			_HomeButton.transform.DOMove (menuButtonPos+2*moveDelta*Vector3.left, 0.3f);
 		} else {
 			OnMenuClose();
 		}
