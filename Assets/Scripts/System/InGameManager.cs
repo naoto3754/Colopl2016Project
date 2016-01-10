@@ -59,8 +59,9 @@ public class InGameManager : Singleton<InGameManager>
 		ButtonPushShared ();
 		if (!menu) {
 			menu = true;
-			_RestartButton.transform.DOMove (_MenuButton.transform.position - Vector3.right * 45, 0.3f);
-			_HomeButton.transform.DOMove (_MenuButton.transform.position - Vector3.right * 90, 0.3f);
+			Vector3 menuButtonPos = _MenuButton.transform.position;
+			_RestartButton.transform.DOMove (new Vector3(menuButtonPos.x *0.9f, menuButtonPos.y, menuButtonPos.z), 0.3f);
+			_HomeButton.transform.DOMove (new Vector3(menuButtonPos.x *0.8f, menuButtonPos.y, menuButtonPos.z), 0.3f);
 		} else {
 			OnMenuClose();
 		}
