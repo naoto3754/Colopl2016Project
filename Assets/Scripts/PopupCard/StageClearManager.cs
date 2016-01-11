@@ -75,6 +75,16 @@ public class StageClearManager : Singleton<StageClearManager>
 			else
 				_StageClearList [i] = State.UNPLAYABLE;
 		}
+		foreach (var book in _BookObjects) {
+			book.bookmark.GetComponent<Renderer> ().enabled = false;
+		}
+	}
+	/// <summary>
+	/// Sets the bookmark active.
+	/// </summary>
+	public void SetBookmarkActive(bool active, int index)
+	{
+		_BookObjects[index].bookmark.GetComponent<Renderer> ().enabled = active;
 	}
 	/// <summary>
 	/// クリア状況に合わせて本の色を設定
@@ -96,13 +106,16 @@ public class StageClearManager : Singleton<StageClearManager>
 		Renderer[] renderers = target.GetComponentsInChildren<Renderer>();
 		foreach (var renderer in renderers) {
 			foreach(var material in renderer.materials){
-				Color color = material.name == "BookPaper (Instance)" ? Color.white : _OriginalColors [index];
-				if (unplayable) {
-					material.color = color*0.5f;
-				}else {
-					material.color = color;
+				if (material.name.Contains ("Book")) {
+					Color color = _OriginalColors [index];
+					if (unplayable) {
+						Color c = color * 0.5f;
+						c.a = 1f;
+						material.color = c;
+					} else {
+						material.color = color;
+					}
 				}
-				material.color = color;
 			}
 		}
 	}

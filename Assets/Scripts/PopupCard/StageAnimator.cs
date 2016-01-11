@@ -84,6 +84,16 @@ public class StageAnimator : Singleton<StageAnimator>
 			return;
 
 		_Sequence = DOTween.Sequence ();
+		int chap = StageManager.I.CurrentChapter;
+		int bookID = StageManager.I.CurrentBookID;
+		int stageIdx = StageManager.I.CurrentStageIndex;
+		int index = StageManager.CalcStageListIndex (chap, bookID, stageIdx);
+		bool finish = stageIdx == 2 && StageClearManager.I.ClearList [index] == StageClearManager.State.CLEARED;
+		float time = finish ? 0f : 1f;
+		StageClearManager.I.SetBookmarkActive (!finish, (chap-1)*3+bookID);
+		StageManager.I.Book.bookmark.GetComponent<Renderer> ().enabled = !finish;
+		_Sequence.Append( StageManager.I.Book.bookmark.DOLocalMoveY(Constants.BOOKMARK_LOCALY,time) );
+
 		_Sequence.Append( StageManager.I.PaperRoot.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
 		_Sequence.Join( StageManager.I.DecoRoot.transform.DOBlendableRotateBy(angle*Vector3.up, closetime).SetEase(CLOSE_EASE) );
 		_Sequence.Join( StageManager.I.BackRootL.transform.DORotate((angle-90)*Vector3.up, closetime).SetEase(CLOSE_EASE) );
@@ -212,6 +222,9 @@ public class StageAnimator : Singleton<StageAnimator>
 			case ReOpenType.RESTART_STAGE:
 				StageManager.I.CurrentController.UpdateDummyCharacterPosition(Vector2.right);
 				StageManager.I.CurrentController.UpdateCharacterState(Vector2.right);
+				break;
+			case ReOpenType.FIRST_OPEN:
+				StageManager.I.Book.bookmark.DOLocalMoveY(Constants.BOOKMARK_LOCALY+1f,1f);
 				break;
 			}
 			IsPlayingAnimation = false;
