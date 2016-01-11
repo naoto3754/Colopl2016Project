@@ -99,11 +99,10 @@ public class StageClearManager : Singleton<StageClearManager>
 				Color color = material.name == "BookPaper (Instance)" ? Color.white : _OriginalColors [index];
 				if (unplayable) {
 					material.color = color*0.5f;
-				} else if (isCleared) {
-					material.color = color*1.1f;
-				} else {
+				}else {
 					material.color = color;
 				}
+				material.color = color;
 			}
 		}
 	}
