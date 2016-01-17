@@ -142,7 +142,6 @@ public class CustomCharaController : MonoBehaviour
 			inputDir.y = Mathf.Clamp(inputDir.y * 7.5f, -1, 1);
 			inputDir.y = Mathf.Abs(inputDir.y) < 0.5f ? 0f : inputDir.y;
 
-
 			deltaHol = Time.deltaTime * _Speed * inputDir.x;
 			deltaVer = Time.deltaTime * _Speed * inputDir.y;
 		}
@@ -304,37 +303,31 @@ public class CustomCharaController : MonoBehaviour
 		Vector4 p2 = Vector4.zero;
 		if (foldCnt == 1) {
 			float rate = foldlineDists [0] / delta;
-			if (moveDir.x > 0f) {
+			if (moveDir.x > 0f || moveDir.x==0f && TowardPositive) {
 				p1 = xDir ? new Vector4 (rate, 0, 1, rate) : new Vector4 (1, rate, rate, 0);
-			} else if (moveDir.x < 0f) {
-				p1 = xDir ? new Vector4 (1, 1f - rate, 1f - rate, 0) : new Vector4 (1f - rate, 0, 1, 1f - rate);
 			} else {
-				return false;
-			}
+				p1 = xDir ? new Vector4 (1, 1f - rate, 1f - rate, 0) : new Vector4 (1f - rate, 0, 1, 1f - rate);
+			} 
 		} else if (foldCnt == 2) {
 			float rate = foldlineDists [0] / delta;
 			float rate2 = foldlineDists [1] / delta;
-			if (moveDir.x > 0f) {
+			if (moveDir.x > 0f || moveDir.x==0f && TowardPositive) {
 				p1 = xDir ? new Vector4 (rate, 0, rate2, rate) : new Vector4 (rate2, rate, rate, 0);
 				p2 = xDir ? new Vector4 (1, rate2, 0, 0) : new Vector4 (0, 0, 1, rate2);
-			} else if (moveDir.x < 0f) {
+			} else {
 				p1 = xDir ? new Vector4 (1, 1f-rate, 1f-rate, 1f-rate2) : new Vector4 (1f-rate, 1f-rate2, 1, 1f-rate);
 				p2 = xDir ? new Vector4 (1f-rate2, 0, 0, 0) : new Vector4 (0, 0, 1f-rate2, 0);
-			} else {
-				return false;
 			}
 		} else if (foldCnt == 3) {
 			float rate = foldlineDists [0] / delta;
 			float rate2 = foldlineDists [1] / delta;
 			float rate3 = foldlineDists [2] / delta;
-			if (moveDir.x > 0f) {
+			if (moveDir.x > 0f || moveDir.x==0f && TowardPositive) {
 				p1 = xDir ? new Vector4 (rate, 0, rate2, rate) : new Vector4 (rate2, rate, rate, 0);
 				p2 = xDir ? new Vector4 (rate3, rate2, 1, rate3) : new Vector4 (1, rate3, rate3, rate2);
-			} else if (moveDir.x < 0f) {
+			} else {
 				p1 = xDir ? new Vector4 (1, 1f-rate, 1f-rate, 1f-rate2) : new Vector4 (1f-rate, 1f-rate2, 1, 1f-rate);
 				p2 = xDir ? new Vector4 (1f-rate2, 1f-rate3, 1f-rate3, 0) : new Vector4 (1f-rate3, 0, 1f-rate2, 1f-rate3);
-			} else {
-				return false;
 			}
 		}
 		SetCharacterTransparent(

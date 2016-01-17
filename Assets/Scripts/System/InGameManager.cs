@@ -26,9 +26,13 @@ public class InGameManager : Singleton<InGameManager>
 	[SerializeField]
 	GameObject _RestartButton;
 
+	[SerializeField]
+	GameObject _TouchMark;
+
 	private void ButtonPushShared()
 	{
 		InputManager.I.ClearDoubleTapParam ();
+		_TouchMark.SetActive (false);
 	}
 	/// <summay>
 	/// リスタートする
@@ -37,7 +41,7 @@ public class InGameManager : Singleton<InGameManager>
 	{
 		ButtonPushShared ();
 		StageAnimator.I.RestartStage();
-		OnMenuClose();
+		CloseMenu();
 	}
 	/// <summay>
 	/// ホームに戻る
@@ -46,7 +50,7 @@ public class InGameManager : Singleton<InGameManager>
 	{
 		ButtonPushShared ();
 		StageAnimator.I.CloseStage (45, 1f);
-		OnMenuClose();
+		CloseMenu();
 	}
 	
 	public void OnReverse()
@@ -58,19 +62,24 @@ public class InGameManager : Singleton<InGameManager>
 	{
 		ButtonPushShared ();
 		if (!menu) {
-			menu = true;
-			Vector3 menuButtonPos = _MenuButton.transform.position;
-			var rectTrans = _MenuButton.GetComponent<RectTransform> ();
-			float buttonWidth = rectTrans.TransformPoint (rectTrans.rect.max).x - rectTrans.TransformPoint (rectTrans.rect.min).x;
-			float moveDelta = buttonWidth * 1.2f;
-			_RestartButton.transform.DOMove (menuButtonPos+moveDelta*Vector3.left, 0.3f);
-			_HomeButton.transform.DOMove (menuButtonPos+2*moveDelta*Vector3.left, 0.3f);
+			OpenMenu ();
 		} else {
-			OnMenuClose();
+			CloseMenu();
 		}
 	}
-		
-	public void OnMenuClose()
+
+	private void OpenMenu()
+	{
+		menu = true;
+		Vector3 menuButtonPos = _MenuButton.transform.position;
+		var rectTrans = _MenuButton.GetComponent<RectTransform> ();
+		float buttonWidth = rectTrans.TransformPoint (rectTrans.rect.max).x - rectTrans.TransformPoint (rectTrans.rect.min).x;
+		float moveDelta = buttonWidth * 1.2f;
+		_RestartButton.transform.DOMove (menuButtonPos+moveDelta*Vector3.left, 0.3f);
+		_HomeButton.transform.DOMove (menuButtonPos+2*moveDelta*Vector3.left, 0.3f);
+	}
+
+	private void CloseMenu()
 	{
 		menu = false;
 		_RestartButton.transform.DOMove (_MenuButton.transform.position, 0.3f);
@@ -80,6 +89,13 @@ public class InGameManager : Singleton<InGameManager>
 	//仮でキーボードの入力とる
 	void Update()
 	{
+		if (InputManager.I.GetTapDown (0)) {
+			_TouchMark.transform.position = Input.mousePosition;
+			_TouchMark.SetActive (true);
+		} else if (InputManager.I.GetTapUp (0)) {
+			_TouchMark.SetActive (false);
+		}
+
 		if(Input.GetKeyDown(KeyCode.Space)){
 			OnReverse();
 		}else if(Input.GetKeyDown(KeyCode.H)){
