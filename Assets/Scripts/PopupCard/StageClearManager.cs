@@ -7,8 +7,11 @@ public class StageClearManager : Singleton<StageClearManager>
 	[SerializeField]
 	private GameObject _BookObjectRoot;
 	private List<Book> _BookObjects;
+
 	[SerializeField]
-	private Color[] _OriginalColors;
+	Sprite _LockIcon;
+	[SerializeField]
+	Sprite _ClearIcon;
 
 	private State[] _StageClearList;
 	public State[] ClearList
@@ -29,8 +32,7 @@ public class StageClearManager : Singleton<StageClearManager>
 		}
 
 		SetInitParam ();
-		SetBooksColor ();
-		SetBooksText ();
+		SetBooksSpine ();
 	}
 	/// <summary>
 	/// ステージをクリアした時の処理
@@ -39,13 +41,12 @@ public class StageClearManager : Singleton<StageClearManager>
 	{
 		_StageClearList [index] = State.CLEARED;
 		int[] info = StageManager.CalcStageIndexInfo (index);
-		if (info [2] == 2) {
+		if (info [2] == 2 && info[1] != 2) {
 			_StageClearList [index + 1] = State.PLAYABLE;
 			_StageClearList [index + 2] = State.PLAYABLE;
 			_StageClearList [index + 3] = State.PLAYABLE;
 		}
-		SetBooksColor ();
-		SetBooksText ();
+		SetBooksSpine ();
 		Save ();
 	}
 	/// <summary>
@@ -70,7 +71,9 @@ public class StageClearManager : Singleton<StageClearManager>
 	{
 		for (int i = 0; i < _StageClearList.Length; i++) {
 			int[] info = StageManager.CalcStageIndexInfo (i);
-			if(info[1] == 0)
+			if(info[0] >= 3)
+				_StageClearList [i] = State.UNPLAYABLE;
+			else if(info[1] == 0)
 				_StageClearList [i] = State.PLAYABLE;
 			else
 				_StageClearList [i] = State.UNPLAYABLE;
@@ -86,56 +89,71 @@ public class StageClearManager : Singleton<StageClearManager>
 	{
 		_BookObjects[index].bookmark.GetComponent<Renderer> ().enabled = active;
 	}
-	/// <summary>
-	/// クリア状況に合わせて本の色を設定
-	/// </summary>
-	private void SetBooksColor()
-	{
-		for (int i = 0; i < _BookObjects.Count; i ++) {
-			SetBookColor (_BookObjects [i].anchorL, i);
-			SetBookColor (_BookObjects [i].anchorR, i);
-		}
-	}
 
-	private void SetBookColor(Transform target, int index)
+	/// <summary>
+	/// クリア状況に合わせて本の背表紙を設定する
+	/// </summary>
+	private void SetBooksSpine()
 	{
-		bool unplayable = _StageClearList [index * 3] == State.UNPLAYABLE;
-		bool isCleared = _StageClearList [index * 3] == State.CLEARED
-			&& _StageClearList [index * 3 + 1] == State.CLEARED
-			&& _StageClearList [index * 3 + 2] == State.CLEARED;
-		Renderer[] renderers = target.GetComponentsInChildren<Renderer>();
-		foreach (var renderer in renderers) {
-			foreach(var material in renderer.materials){
-				if (material.name.Contains ("Book")) {
-					Color color = _OriginalColors [index];
-					if (unplayable) {
-						Color c = color * 0.5f;
-						c.a = 1f;
-						material.color = c;
-					} else {
-						material.color = color;
-					}
-				}
-			}
+		for (int i = 0; i < _BookObjects.Count; i ++) {
+			State state0 = _StageClearList [i * 3];
+			State state2 = _StageClearList [i * 3 + 2];
+			bool unplayable = state0 == State.UNPLAYABLE;
+			bool displayIcon = state0 == State.UNPLAYABLE || state2 == State.CLEARED;
+			Sprite sprite = unplayable ? _LockIcon : _ClearIcon;
+
+			SetIDText (i, unplayable);
+			SetIcon (i, sprite, displayIcon);
+			SetCountText (i, !displayIcon);
 		}
 	}
 	/// <summary>
-	/// クリア状況に合わせて本のテキストを設定する
+	/// アイコンを設定する
 	/// </summary>
-	private void SetBooksText()
+	private void SetIcon(int index, Sprite sprite, bool active)
 	{
-		for (int i = 0; i < _BookObjects.Count; i ++) {
-			if (_BookObjects [i].text == null)
-				continue;
-			
-			int clearCnt = 0;
-			for (int n = 0; n < 3; n++) {
-				if (_StageClearList [i * 3 + n] == State.CLEARED) {
-					clearCnt++;
-				}
+		Book book = _BookObjects[index];
+		if (book.icon == null)
+			return;
+
+		book.icon.enabled = active;
+		if (active == false)
+			return;
+
+		book.icon.sprite = sprite;
+	}
+	/// <summary>
+	/// 数字のテキストを設定する
+	/// </summary>
+	private void SetIDText(int index, bool unplayable)
+	{
+		Book book = _BookObjects[index];
+		if (book.text_id == null)
+			return;
+
+		string str = unplayable ? "-" : (book.bookID+1).ToString();
+		book.text_id.text = str;
+	}
+	/// <summary>
+	/// クリア数のテキストを設定する
+	/// </summary>
+	private void SetCountText(int index, bool active)
+	{
+		Book book = _BookObjects[index];
+		if (book.text_count == null)
+			return;
+
+		book.text_count.GetComponent<Renderer>().enabled = active;
+		if (active == false)
+			return;
+
+		int clearCnt = 0;
+		for (int n = 0; n < 3; n++) {
+			if (_StageClearList [index * 3 + n] == State.CLEARED) {
+				clearCnt++;
 			}
-			_BookObjects [i].text.text = string.Format ("{0}/3", clearCnt);
 		}
+		book.text_count.text = string.Format ("{0}/3", clearCnt);
 	}
 
 	public enum State

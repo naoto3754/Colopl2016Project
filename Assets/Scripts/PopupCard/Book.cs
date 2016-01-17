@@ -13,5 +13,9 @@ public class Book : MonoBehaviour {
 
 	public Transform bookmark;
 
-	public TextMeshPro text;
+	public TextMeshPro text_id;
+
+	public TextMeshPro text_count;
+
+	public SpriteRenderer icon;
 }

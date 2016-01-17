@@ -22,7 +22,7 @@ public class ShelfCreater : MonoBehaviour {
     float _SizePerChapter;
     
     [SerializeField]
-	Color[] _StageColor;
+	Material[] _StageColor;
 	[SerializeField]
 	Texture _ShelfTexture;
     [SerializeField]
@@ -97,7 +97,7 @@ public class ShelfCreater : MonoBehaviour {
                     paper.transform.SetParent(_PaperRoot.transform);
 					var material = paper.transform.GetChild (0).GetComponent<Renderer> ().material;
 					material.mainTexture = _ShelfTexture;
-					material.mainTextureOffset = new Vector2(prevX/MAX_WIDTH+0.5f, prevY/_Height);
+					material.mainTextureOffset = new Vector2(prevX/MAX_WIDTH+0.5f-0.0015f, prevY/_Height);
 	                material.mainTextureScale = new Vector2((xCoord.x-prevX)/MAX_WIDTH, (y-prevY)/_Height);
                     if (setX)
                     {
@@ -174,7 +174,7 @@ public class ShelfCreater : MonoBehaviour {
             paper.transform.SetParent(_PaperRoot.transform);
 			paper.transform.position = new Vector3(_Offset.x-_SizePerChapter/2, (i+0.5f)*_SizePerChapter+BOTTOM_SPACE+_Offset.y, _Offset.z + thickness/2);
             paper.transform.localScale = new Vector3(_SizePerChapter, _SizePerChapter, thickness);
-            paper.GetComponent<Renderer>().material.color = _StageColor[idx];
+            paper.GetComponent<Renderer>().material = _StageColor[idx];
             //2枚目
 			paper = Instantiate(_StandardPaper, Vector3.zero, Quaternion.identity) as GameObject;
 			paper.name = "Paper";
@@ -182,7 +182,7 @@ public class ShelfCreater : MonoBehaviour {
 			paper.transform.position = new Vector3(_Offset.x + thickness/2, (i+0.5f)*_SizePerChapter+BOTTOM_SPACE+_Offset.y, _Offset.z-_SizePerChapter/2);
             paper.transform.localScale = new Vector3(_SizePerChapter, _SizePerChapter, thickness);
             paper.transform.forward = Vector3.right;
-            paper.GetComponent<Renderer>().material.color = _StageColor[idx];
+            paper.GetComponent<Renderer>().material = _StageColor[idx];
         }
         
     }
