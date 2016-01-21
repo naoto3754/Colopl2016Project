@@ -88,15 +88,15 @@ public class EventBase : MonoBehaviour {
 
 		this.enabled = true;
 		this.GetComponent<Renderer> ().enabled = true;
+		foreach(var renderer in this.GetComponentsInChildren<Renderer>())
+			renderer.enabled = true;
 		transform.position -= 4*Vector3.up;
-//		transform.position = DefalutPos;
-//		transform.rotation = DefalutRot;
 		var param = this.GetComponent<StageObjectParameter> ();
 		foreach (var obj in param.ObjectsOnStage) {
 			obj.GetComponent<Renderer> ().enabled = true;
+			foreach(var renderer in obj.GetComponentsInChildren<Renderer>())
+				renderer.enabled = true;
 			obj.transform.position -= 4*Vector3.up;
-//			obj.transform.position = eventBase.DefalutPos;
-//			obj.transform.rotation = eventBase.DefalutRot;
 		}
 	}
 
@@ -109,6 +109,8 @@ public class EventBase : MonoBehaviour {
 		obj.transform.DOMoveY (this.transform.position.y+4f, 1f).OnComplete(() =>{
 			if(obj.GetComponent<Renderer>() != null)
 				obj.GetComponent<Renderer>().enabled = false;
+			foreach(var renderer in obj.GetComponentsInChildren<Renderer>())
+				renderer.enabled = false;
 			if(obj.GetComponent<EventBase>() != null)
 				obj.GetComponent<EventBase>().enabled = false;
 		});

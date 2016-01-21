@@ -100,6 +100,8 @@ public class StageClearManager : Singleton<StageClearManager>
 			State state2 = _StageClearList [i * 3 + 2];
 			bool unplayable = state0 == State.UNPLAYABLE;
 			bool displayIcon = state0 == State.UNPLAYABLE || state2 == State.CLEARED;
+			unplayable = false;
+			displayIcon = false;
 			Sprite sprite = unplayable ? _LockIcon : _ClearIcon;
 
 			SetIDText (i, unplayable);

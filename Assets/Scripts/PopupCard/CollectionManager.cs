@@ -31,6 +31,7 @@ public class CollectionManager : Singleton<CollectionManager>
 		_CollectionList = new State[StageManager.I.StageCount];
 		_CollectionObjects = new List<GameObject> ();
 		foreach (var item in CollectionObjectRoot.GetComponentsInChildren<SpriteRenderer>()) {
+			if(item.name.Contains("Collection"))
 			_CollectionObjects.Add (item.gameObject);
 		}
 		ActivateSprite ();

@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using DG.Tweening;
 using TMPro;
 
 public class StageCreater : Singleton<StageCreater>
@@ -223,16 +222,16 @@ public class StageCreater : Singleton<StageCreater>
 		foreach (GameObject decos in StageManager.I.CurrentInfo.Decoration)
 		{
 			CreateDeco(decos);
-			foreach (Transform child in decos.transform)
-			{
-				//表示物がないオブジェクトなら処理をしない
-				if (child.GetComponent<Renderer> () == null &&
-					child.GetComponent<SpriteRenderer> () == null &&
-					child.GetComponent<LineRenderer> () == null)
-					continue;
-
-				CreateDeco(child.gameObject);
-			}
+//			foreach (Transform child in decos.transform)
+//			{
+//				//表示物がないオブジェクトなら処理をしない
+//				if (child.GetComponent<Renderer> () == null &&
+//					child.GetComponent<SpriteRenderer> () == null &&
+//					child.GetComponent<LineRenderer> () == null)
+//					continue;
+//
+//				CreateDeco(child.gameObject);
+//			}
 		}
 	}
     /// <summary>
