@@ -34,7 +34,13 @@ public class AudioManager : MonoBehaviour {
 	// SE
 	private AudioSource[] SESources = new AudioSource[16];
 
+	public bool isMute {
+		get;
+		set;
+	}
+
 	void Awake (){
+		isMute = false;
 		// BGM AudioSource
 		BGMSource = gameObject.AddComponent<AudioSource>();
 		// BGMはループを有効にする
@@ -49,6 +55,8 @@ public class AudioManager : MonoBehaviour {
 	// *****  BGM再生 *****
 	// BGM再生
 	public void PlayBGM(AudioContents.AudioTitle Title){
+		if (isMute)
+			return;
 		foreach (AudioContents contents in BGMList) {
 			if (contents.Title == Title) {
 				BGMSource.Stop();
@@ -70,6 +78,9 @@ public class AudioManager : MonoBehaviour {
 
 	// *****  SE再生 *****
 	public void PlaySE(AudioContents.AudioTitle Title){
+		if (isMute)
+			return;
+		
 		foreach (AudioContents contents in SEList) {
 			if (contents.Title == Title) {
 				foreach (var source in SESources) {

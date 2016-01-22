@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class ShelfCreater : MonoBehaviour {
-	readonly float BOTTOM_SPACE = 10f;
+	readonly float BOTTOM_SPACE = 6f;
 	readonly float MAX_WIDTH = 80;
     
 	float _Width;

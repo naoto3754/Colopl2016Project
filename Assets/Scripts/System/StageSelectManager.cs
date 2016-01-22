@@ -10,7 +10,7 @@ public class StageSelectManager : Singleton<StageSelectManager>
 	private readonly float ANIMATION_TIME = 2f;
 	private readonly float ZOOM_TIME = 0.5f;
 	private readonly float LEAN_TIME = 0.2f;
-	private readonly float HIGHEST_HEIGHT = -98f;
+	private readonly float HIGHEST_HEIGHT = -87f;
 	private readonly float LOWEST_HEIGHT = -24.5f;
 	private readonly Vector3 BOOK_POS = new Vector3(42.6f, -0.8f, -57.4f);
 	private readonly Vector3 STAGE_BOOK_SCALE = new Vector3(22f, 36f, 22f);
@@ -56,7 +56,7 @@ public class StageSelectManager : Singleton<StageSelectManager>
 		_CurrentState = State.FROM_TITLE;
 		_Sequence = DOTween.Sequence();		
 
-		_Sequence.Append( _Shelf.transform.DOMoveY(HIGHEST_HEIGHT, 10f).SetEase(Ease.OutCubic) );
+		_Sequence.Append( _Shelf.transform.DOMoveY(HIGHEST_HEIGHT, 0f).SetEase(Ease.OutCubic) );
 		
 		_Sequence.OnComplete(() => { 
 			_FinishTitle = true;
