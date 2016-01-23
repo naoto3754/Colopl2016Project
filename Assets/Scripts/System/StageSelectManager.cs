@@ -128,6 +128,8 @@ public class StageSelectManager : Singleton<StageSelectManager>
 			if(tappedObj != null && tappedObj.GetComponent<Book>() != null)
 			{	
 				Book bookInfo = tappedObj.GetComponent<Book>();
+				if (bookInfo.chapter > 2)
+					return;
 //				if (StageClearManager.I.ClearList [StageManager.CalcStageListIndex (bookInfo.chapter, bookInfo.bookID, 0)] == StageClearManager.State.UNPLAYABLE)
 //					return;
 				

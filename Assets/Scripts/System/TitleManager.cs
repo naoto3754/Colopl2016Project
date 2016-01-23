@@ -6,13 +6,16 @@ using System.Collections;
  */
 public class TitleManager : Singleton<TitleManager> {
 
-	//  private readonly float SHELF_HEIGHT = -102.5f;
-	
-	void Update()
+	void Start()
 	{
-		if(InputManager.I.GetAnyTapDown())
-		{
-			StateManager.I.GoState(GameState.STAGE_SELECT);
-		}
+		StateManager.I.GoState(GameState.STAGE_SELECT);
 	}
+	
+//	void Update()
+//	{
+//		if(InputManager.I.GetAnyTapDown())
+//		{
+//			StateManager.I.GoState(GameState.STAGE_SELECT);
+//		}
+//	}
 }
