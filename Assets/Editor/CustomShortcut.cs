@@ -2,6 +2,8 @@
 using UnityEngine;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using System.Linq;
+using TMPro;
 
 public class CustomShotcut : EditorWindow
 {
@@ -16,13 +18,21 @@ public class CustomShotcut : EditorWindow
 			root.SetActive(!root.activeSelf);
 		}
 	}
-	
+
+
 	static GameObject FindRoot(Transform trans)
 	{
 		if(trans.parent == null)
 			return trans.gameObject;
 		else
 			return FindRoot(trans.parent);
+	}
+
+	[MenuItem("KeyRemap/Select All TextMeshPro %t")]
+	static void SelectAllTextMeshPro()
+	{
+		var tmproObjs = GameObject.FindObjectsOfType<TextMeshPro> ().Select(x=>x.gameObject);
+		Selection.objects = tmproObjs.ToArray ();
 	}
 
     static void CommonExecuteMenuItem(string iStr)

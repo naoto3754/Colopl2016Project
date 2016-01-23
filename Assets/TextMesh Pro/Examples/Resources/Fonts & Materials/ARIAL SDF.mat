@@ -2,15 +2,16 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 5
+  serializedVersion: 6
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: ARIAL SDF
   m_Shader: {fileID: 4800000, guid: 9ecb3fe313cb5f7478141eba4a2d54ed, type: 3}
-  m_ShaderKeywords: MASK_OFF UNDERLAY_ON
+  m_ShaderKeywords: MASK_OFF OUTLINE_ON UNDERLAY_ON
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1
+  stringTagMap: {}
   m_SavedProperties:
     serializedVersion: 2
     m_TexEnvs:
@@ -18,7 +19,7 @@ Material:
         first:
           name: _MainTex
         second:
-          m_Texture: {fileID: 2835806, guid: 316f956b856b45c448987b5018ec3ef4, type: 2}
+          m_Texture: {fileID: 2836262, guid: 316f956b856b45c448987b5018ec3ef4, type: 2}
           m_Scale: {x: 1, y: 1}
           m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -34,6 +35,22 @@ Material:
         first:
           name: _OutlineSoftness
         second: 0
+      data:
+        first:
+          name: _UnderlayOffsetX
+        second: 1
+      data:
+        first:
+          name: _UnderlayOffsetY
+        second: -1
+      data:
+        first:
+          name: _UnderlayDilate
+        second: 0
+      data:
+        first:
+          name: _UnderlaySoftness
+        second: .291999996
       data:
         first:
           name: _WeightNormal
@@ -69,7 +86,7 @@ Material:
       data:
         first:
           name: _GradientScale
-        second: 11
+        second: 10
       data:
         first:
           name: _ScaleX
@@ -81,7 +98,7 @@ Material:
       data:
         first:
           name: _PerspectiveFilter
-        second: .875
+        second: 0
       data:
         first:
           name: _VertexOffsetX
@@ -92,33 +109,21 @@ Material:
         second: 0
       data:
         first:
-          name: _UnderlayOffsetX
-        second: 1
-      data:
-        first:
-          name: _UnderlayOffsetY
-        second: -1
-      data:
-        first:
-          name: _UnderlayDilate
-        second: 0
-      data:
-        first:
-          name: _UnderlaySoftness
-        second: .291999996
-      data:
-        first:
-          name: _MaskID
-        second: 0
-      data:
-        first:
           name: _MaskSoftnessX
         second: 0
       data:
         first:
           name: _MaskSoftnessY
         second: 0
+      data:
+        first:
+          name: _MaskID
+        second: 0
     m_Colors:
+      data:
+        first:
+          name: _ClipRect
+        second: {r: 0, g: 0, b: 100000, a: 100000}
       data:
         first:
           name: _FaceColor

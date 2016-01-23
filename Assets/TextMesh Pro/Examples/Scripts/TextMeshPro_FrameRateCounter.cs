@@ -5,7 +5,7 @@ using System.Collections;
 namespace TMPro.Examples
 {
     
-    public class TextMeshPro_FrameRateCounter : MonoBehaviour
+    public class TMP_FrameRateCounter : MonoBehaviour
     {
         public float UpdateInterval = 5.0f;
         private float m_LastInterval = 0;
@@ -31,21 +31,23 @@ namespace TMPro.Examples
                 return;
 
             m_camera = Camera.main;
-            //Debug.Log("w:" + Screen.width + " h:" + Screen.height);
+            Application.targetFrameRate = -1;
 
             GameObject frameCounter = new GameObject("Frame Counter");
-            m_frameCounter_transform = frameCounter.transform;
-            m_frameCounter_transform.parent = m_camera.transform;
-            m_frameCounter_transform.localRotation = Quaternion.identity;
-
 
             m_TextMeshPro = frameCounter.AddComponent<TextMeshPro>();
-            m_TextMeshPro.font = Resources.Load("Fonts & Materials/ARIAL SDF", typeof(TextMeshProFont)) as TextMeshProFont;
+            m_TextMeshPro.font = Resources.Load("Fonts & Materials/ARIAL SDF", typeof(TMP_FontAsset)) as TMP_FontAsset;
             m_TextMeshPro.fontSharedMaterial = Resources.Load("Fonts & Materials/ARIAL SDF Overlay", typeof(Material)) as Material;
 
-            m_TextMeshPro.fontSize = 48;
+
+            m_frameCounter_transform = frameCounter.transform;
+            m_frameCounter_transform.SetParent(m_camera.transform);
+            m_frameCounter_transform.localRotation = Quaternion.identity;
+
+            m_TextMeshPro.enableWordWrapping = false;
+            m_TextMeshPro.fontSize = 24;
             //m_TextMeshPro.FontColor = new Color32(255, 255, 255, 128);
-            //m_TextMeshPro.edgeWidth = .15f;      
+            //m_TextMeshPro.edgeWidth = .15f;
             m_TextMeshPro.isOverlay = true;
 
             //m_TextMeshPro.FaceColor = new Color32(255, 128, 0, 0);
