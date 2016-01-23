@@ -246,6 +246,8 @@ public class StageCreater : Singleton<StageCreater>
 
 		var tmPro = deco.GetComponent<TextMeshPro>();
 		if (tmPro != null) {
+			Debug.Log (decoScale);
+			Debug.Log (tmPro.flexibleHeight);
 			decoScale = UnityUtility.MultipleEachElement(decoScale, tmPro.bounds.size);
 		}
 
