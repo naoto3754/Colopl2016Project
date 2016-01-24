@@ -245,11 +245,11 @@ public class StageCreater : Singleton<StageCreater>
         Vector3 decoSetPos = new Vector3(-StageManager.I.CurrentInfo.StageWidth / 2 - OFFSET * 2 + StageManager.I.Offset.x, decoPos.y, StageManager.I.Offset.z - OFFSET * 2);
 
 		var tmPro = deco.GetComponent<TextMeshPro>();
-		if (tmPro != null) {
-			Debug.Log (decoScale);
-			Debug.Log (tmPro.flexibleHeight);
-			decoScale = UnityUtility.MultipleEachElement(decoScale, tmPro.bounds.size);
-		}
+//		if (tmPro != null) {
+//			Debug.Log (tmPro.textContainer.corners[0]);
+//			Debug.Log (tmPro.textContainer.);
+//			decoScale = tmPro.textContainer.size;//UnityUtility.MultipleEachElement(decoScale, tmPro.bounds.size);
+//		}
 
 		var param = deco.GetComponent<StageObjectParameter> ();
 		float anchorHeightScale = param == null ? 0f : param.HeightWithMaxWidth;
@@ -298,6 +298,9 @@ public class StageCreater : Singleton<StageCreater>
 
 	private void CreateSecondDeco(GameObject orig, GameObject deco, Vector3 pos, Vector3 scale, float anchorHeightScale, bool facingX, TextMeshPro tmPro, StageObjectParameter param)
 	{
+		if (tmPro != null)
+			return;
+
 		float delta = scale.x;
 		Vector2 decoAnchorPos = new Vector2(pos.x - delta / 2,pos.y + scale.y / 2 * anchorHeightScale);
 		List<float> foldlineDists = StageManager.I.CalcFoldLineDistance(decoAnchorPos, delta, false);

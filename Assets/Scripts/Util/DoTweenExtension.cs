@@ -40,4 +40,10 @@ public static class DoTweenExtension
 	{
 		return DOTween.To(()=>target.GetColor("_MainColor") , x=>target.SetColor("_MainColor", x), endValue, duration );
 	}
+
+	//Material
+	public static Tween DOColor(this SpriteRenderer target, Color endValue, float duration)
+	{
+		return DOTween.To(()=>target.color , x=>target.color = x, endValue, duration );
+	}
 }

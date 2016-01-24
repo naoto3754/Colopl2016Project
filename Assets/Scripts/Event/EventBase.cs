@@ -85,17 +85,30 @@ public class EventBase : MonoBehaviour {
 			return;
 
 		_IsGetted = false;
-
 		this.enabled = true;
-		this.GetComponent<Renderer> ().enabled = true;
-		foreach(var renderer in this.GetComponentsInChildren<Renderer>())
-			renderer.enabled = true;
+
+		var rootsprite = this.GetComponent<SpriteRenderer>();
+		Color rc = rootsprite.color;
+		rc.a = 0;
+		rootsprite.color = rc;
+		foreach (var sprite in this.GetComponentsInChildren<SpriteRenderer>()) {
+			Color c = sprite.color;
+			c.a = 0;
+			sprite.color = c;
+		}
+
 		transform.position -= 4*Vector3.up;
 		var param = this.GetComponent<StageObjectParameter> ();
 		foreach (var obj in param.ObjectsOnStage) {
-			obj.GetComponent<Renderer> ().enabled = true;
-			foreach(var renderer in obj.GetComponentsInChildren<Renderer>())
-				renderer.enabled = true;
+			var stagesprite = this.GetComponent<SpriteRenderer>();
+			Color sc = stagesprite.color;
+			sc.a = 0;
+			stagesprite.color = sc;
+			foreach (var sprite in this.GetComponentsInChildren<SpriteRenderer>()) {
+				Color c = sprite.color;
+				c.a = 0;
+				sprite.color = c;
+			}	
 			obj.transform.position -= 4*Vector3.up;
 		}
 	}
@@ -104,13 +117,20 @@ public class EventBase : MonoBehaviour {
 	{
 		_IsGetted = true;
 		Vector3 angle = obj.transform.localEulerAngles;
-		angle.z += 2 * 360;
+		angle.z += 360;
+
+		var rootsprite = obj.GetComponent<SpriteRenderer>();
+		Color rc = rootsprite.color;
+		rc.a = 0;
+		rootsprite.DOColor (rc, 1f).SetEase(Ease.InQuad);
+		foreach (var sprite in obj.GetComponentsInChildren<SpriteRenderer>()) {
+			Color c = sprite.color;
+			c.a = 0;
+			sprite.DOColor (c, 1f).SetEase(Ease.InQuad);
+		}
+
 		obj.transform.DOLocalRotate (angle, 1f, RotateMode.FastBeyond360).SetEase(Ease.Linear);		
 		obj.transform.DOMoveY (this.transform.position.y+4f, 1f).OnComplete(() =>{
-			if(obj.GetComponent<Renderer>() != null)
-				obj.GetComponent<Renderer>().enabled = false;
-			foreach(var renderer in obj.GetComponentsInChildren<Renderer>())
-				renderer.enabled = false;
 			if(obj.GetComponent<EventBase>() != null)
 				obj.GetComponent<EventBase>().enabled = false;
 		});
