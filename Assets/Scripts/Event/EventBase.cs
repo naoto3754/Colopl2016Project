@@ -88,26 +88,18 @@ public class EventBase : MonoBehaviour {
 		this.enabled = true;
 
 		var rootsprite = this.GetComponent<SpriteRenderer>();
-		Color rc = rootsprite.color;
-		rc.a = 0;
-		rootsprite.color = rc;
+		rootsprite.DOColorA (1,0);
 		foreach (var sprite in this.GetComponentsInChildren<SpriteRenderer>()) {
-			Color c = sprite.color;
-			c.a = 0;
-			sprite.color = c;
+			sprite.DOColorA (1,0);
 		}
 
 		transform.position -= 4*Vector3.up;
 		var param = this.GetComponent<StageObjectParameter> ();
 		foreach (var obj in param.ObjectsOnStage) {
 			var stagesprite = this.GetComponent<SpriteRenderer>();
-			Color sc = stagesprite.color;
-			sc.a = 0;
-			stagesprite.color = sc;
+			stagesprite.DOColorA (1,0);
 			foreach (var sprite in this.GetComponentsInChildren<SpriteRenderer>()) {
-				Color c = sprite.color;
-				c.a = 0;
-				sprite.color = c;
+				sprite.DOColorA (1,0);
 			}	
 			obj.transform.position -= 4*Vector3.up;
 		}
@@ -120,13 +112,9 @@ public class EventBase : MonoBehaviour {
 		angle.z += 360;
 
 		var rootsprite = obj.GetComponent<SpriteRenderer>();
-		Color rc = rootsprite.color;
-		rc.a = 0;
-		rootsprite.DOColor (rc, 1f).SetEase(Ease.InQuad);
+		rootsprite.DOColorA (0, 1f).SetEase(Ease.InQuad);
 		foreach (var sprite in obj.GetComponentsInChildren<SpriteRenderer>()) {
-			Color c = sprite.color;
-			c.a = 0;
-			sprite.DOColor (c, 1f).SetEase(Ease.InQuad);
+			sprite.DOColorA (0, 1f).SetEase(Ease.InQuad);
 		}
 
 		obj.transform.DOLocalRotate (angle, 1f, RotateMode.FastBeyond360).SetEase(Ease.Linear);		

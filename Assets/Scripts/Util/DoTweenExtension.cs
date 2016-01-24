@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityStandardAssets.ImageEffects;
 using DG.Tweening;
+using TMPro;
 
 public static class DoTweenExtension
 {
@@ -11,16 +12,28 @@ public static class DoTweenExtension
 		return DOTween.To(()=>target.blurSize , x=>target.blurSize=x, endValue, duration );
 	}
 	
-	//Texture2D
+	//Image
 	public static Tween DOColor(this Image target, Color endValue, float duration)
 	{
 		return DOTween.To(()=>target.color , x=>target.color=x, endValue, duration );
+	}
+
+	//Image
+	public static Tween DOColorA(this Image target, float endValue, float duration)
+	{
+		return DOTween.To(()=>target.color.a , x=>{Color c = target.color; c.a = x; target.color = c;}, endValue, duration );
 	}
 
 	//Text
 	public static Tween DOColor(this Text target, Color endValue, float duration)
 	{
 		return DOTween.To(()=>target.color , x=>target.color=x, endValue, duration );
+	}
+
+	//TextMeshProUGUI
+	public static Tween DOColorA(this TextMeshProUGUI target, float endValue, float duration)
+	{
+		return DOTween.To(()=>target.color.a , x=>{Color c = target.color; c.a = x; target.color = c;}, endValue, duration );
 	}
 	
 	//Text
@@ -42,8 +55,20 @@ public static class DoTweenExtension
 	}
 
 	//Material
+	public static Tween DOMainColorA(this Material target, float endValue, float duration)
+	{
+		return DOTween.To(()=>target.GetColor("_MainColor").a , x=>{Color c = target.GetColor("_MainColor"); c.a = x; target.SetColor("_MainColor", c);}, endValue, duration );
+	}
+
+	//SpriteRenderer
 	public static Tween DOColor(this SpriteRenderer target, Color endValue, float duration)
 	{
 		return DOTween.To(()=>target.color , x=>target.color = x, endValue, duration );
+	}
+
+	//SpriteRenderer
+	public static Tween DOColorA(this SpriteRenderer target, float endValue, float duration)
+	{
+		return DOTween.To(()=>target.color.a , x=>{Color c = target.color; c.a = x; target.color = c;}, endValue, duration );
 	}
 }

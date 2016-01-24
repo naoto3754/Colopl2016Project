@@ -52,17 +52,9 @@ public class StageSelectManager : Singleton<StageSelectManager>
 	}
 	
 	public void InitFromTitle()
-	{	
-		_CurrentState = State.FROM_TITLE;
-		_Sequence = DOTween.Sequence();		
-
-		_Sequence.Append( _Shelf.transform.DOMoveY(HIGHEST_HEIGHT, 0f).SetEase(Ease.OutCubic) );
-		
-		_Sequence.OnComplete(() => { 
-			_FinishTitle = true;
-			_CurrentState = State.SELECT;
-		});
-		_Sequence.Play();
+	{			
+		_FinishTitle = true;
+		_CurrentState = State.SELECT;
 	}
 
 	public void InitFromInGame()
