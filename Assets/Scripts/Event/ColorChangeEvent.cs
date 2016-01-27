@@ -21,10 +21,6 @@ public class ColorChangeEvent : EventBase
 
 		StageManager.I.CurrentController.ChangeColor(_ToColor, _Color);
 
-		base.GetObj (this.gameObject);
-		var param = this.GetComponent<StageObjectParameter> ();
-		foreach (var obj in param.ObjectsOnStage) {
-			base.GetObj (obj);
-		}
+		base.GetObj ();
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Linq;
@@ -19,6 +20,10 @@ public class CustomShotcut : EditorWindow
 		}
 	}
 
+	static void CommonExecuteMenuItem(string iStr)
+	{
+		EditorApplication.ExecuteMenuItem(iStr);
+	}
 
 	static GameObject FindRoot(Transform trans)
 	{
@@ -35,8 +40,17 @@ public class CustomShotcut : EditorWindow
 		Selection.objects = tmproObjs.ToArray ();
 	}
 
-    static void CommonExecuteMenuItem(string iStr)
-    {
-        EditorApplication.ExecuteMenuItem(iStr);
+	[MenuItem("KeyRemap/Select All Book Anchor %l")]
+	static void SelectAllBookAnchor()
+	{
+		var books = GameObject.FindObjectsOfType<Book> ();
+		List<GameObject> objs = new List<GameObject> ();
+		foreach (var book in books) {
+			objs.Add (book.gameObject);
+
+//			objs.Add (book.anchorL.gameObject);
+//			objs.Add (book.anchorR.gameObject);
+		}
+		Selection.objects = objs.ToArray ();
 	}
 }

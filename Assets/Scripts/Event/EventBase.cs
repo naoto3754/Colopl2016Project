@@ -8,6 +8,7 @@ public class EventBase : MonoBehaviour {
 //	[SerializeField]
 //	protected bool _EnableOnTouch;
 
+	private Sequence _GetSequence;
 	private bool _IsGetted;
 	protected Rectangle _Rect;
 	private bool _IsStaying;
@@ -80,47 +81,53 @@ public class EventBase : MonoBehaviour {
 	}
 
 	public void Reset()
-	{		
+	{	
 		if (_IsGetted == false)
 			return;
 
+		_GetSequence.Complete();
 		_IsGetted = false;
 		this.enabled = true;
 
-		var rootsprite = this.GetComponent<SpriteRenderer>();
-		rootsprite.DOColorA (1,0);
-		foreach (var sprite in this.GetComponentsInChildren<SpriteRenderer>()) {
-			sprite.DOColorA (1,0);
-		}
-
-		transform.position -= 4*Vector3.up;
 		var param = this.GetComponent<StageObjectParameter> ();
 		foreach (var obj in param.ObjectsOnStage) {
-			var stagesprite = this.GetComponent<SpriteRenderer>();
+			var stagesprite = obj.GetComponent<SpriteRenderer>();
 			stagesprite.DOColorA (1,0);
-			foreach (var sprite in this.GetComponentsInChildren<SpriteRenderer>()) {
+			foreach (var sprite in obj.GetComponentsInChildren<SpriteRenderer>()) {
 				sprite.DOColorA (1,0);
 			}	
 			obj.transform.position -= 4*Vector3.up;
 		}
 	}
 
-	protected void GetObj(GameObject obj)
+	protected void GetObj()
 	{
+		if (_IsGetted)
+			return;
+		
 		_IsGetted = true;
-		Vector3 angle = obj.transform.localEulerAngles;
-		angle.z += 360;
+		var param = this.GetComponent<StageObjectParameter> ();
+		foreach (var obj in param.ObjectsOnStage) {
+			
+			Vector3 angle = obj.transform.localEulerAngles;
+			angle.z += 360;
+			_GetSequence = DOTween.Sequence ();
 
-		var rootsprite = obj.GetComponent<SpriteRenderer>();
-		rootsprite.DOColorA (0, 1f).SetEase(Ease.InQuad);
-		foreach (var sprite in obj.GetComponentsInChildren<SpriteRenderer>()) {
-			sprite.DOColorA (0, 1f).SetEase(Ease.InQuad);
+			var rootsprite = obj.GetComponent<SpriteRenderer> ();
+			_GetSequence.Join (rootsprite.DOColorA (0, 1f).SetEase (Ease.InQuad));
+			foreach (var sprite in obj.GetComponentsInChildren<SpriteRenderer>()) {
+				_GetSequence.Join (sprite.DOColorA (0, 1f).SetEase (Ease.InQuad));
+			}
+
+			_GetSequence.Join (obj.transform.DOLocalRotate (angle, 1f, RotateMode.FastBeyond360).SetEase (Ease.Linear));
+			_GetSequence.Join (
+				obj.transform.DOMoveY (this.transform.position.y + 4f, 1f).OnComplete (() => {
+					if (obj.GetComponent<EventBase> () != null)
+						obj.GetComponent<EventBase> ().enabled = false;
+				})
+			);
 		}
 
-		obj.transform.DOLocalRotate (angle, 1f, RotateMode.FastBeyond360).SetEase(Ease.Linear);		
-		obj.transform.DOMoveY (this.transform.position.y+4f, 1f).OnComplete(() =>{
-			if(obj.GetComponent<EventBase>() != null)
-				obj.GetComponent<EventBase>().enabled = false;
-		});
+		_GetSequence.Play ();
 	}
 }

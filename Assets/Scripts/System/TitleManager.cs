@@ -28,6 +28,9 @@ public class TitleManager : Singleton<TitleManager>
 
 	void Update()
 	{
+		if (Application.isShowingSplashScreen)
+			return;
+		
 		if (_IsTapped)
 			return;
 		

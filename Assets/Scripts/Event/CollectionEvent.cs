@@ -31,10 +31,6 @@ public class CollectionEvent: EventBase
 
 		StageManager.I.CurrentController.GetCollection = true;
 
-		base.GetObj (this.gameObject);
-		var param = this.GetComponent<StageObjectParameter> ();
-		foreach (var obj in param.ObjectsOnStage) {
-			base.GetObj (obj);
-		}
+		base.GetObj ();
 	}
 }
