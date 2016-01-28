@@ -14,13 +14,14 @@ public class ColorChangeEvent : EventBase
 
 	protected override void OnEnter()
 	{
+		if (_IsGetted)
+			return;
 		if (StageManager.I.CurrentController == null)
 			return;
 		if (!(_AlwaysEnable || StageManager.I.CurrentController.IsTopOfWall == _OnTop))
 			return;
 
 		StageManager.I.CurrentController.ChangeColor(_ToColor, _Color);
-
 		base.GetObj ();
 	}
 }

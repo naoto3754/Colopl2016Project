@@ -9,7 +9,7 @@ public class EventBase : MonoBehaviour {
 //	protected bool _EnableOnTouch;
 
 	private Sequence _GetSequence;
-	private bool _IsGetted;
+	protected bool _IsGetted;
 	protected Rectangle _Rect;
 	private bool _IsStaying;
 	public Vector3 DefalutPos {
@@ -120,14 +120,10 @@ public class EventBase : MonoBehaviour {
 			}
 
 			_GetSequence.Join (obj.transform.DOLocalRotate (angle, 1f, RotateMode.FastBeyond360).SetEase (Ease.Linear));
-			_GetSequence.Join (
-				obj.transform.DOMoveY (this.transform.position.y + 4f, 1f).OnComplete (() => {
-					if (obj.GetComponent<EventBase> () != null)
-						obj.GetComponent<EventBase> ().enabled = false;
-				})
-			);
+			_GetSequence.Join ( obj.transform.DOMoveY (this.transform.position.y + 4f, 1f) );
 		}
 
 		_GetSequence.Play ();
+		this.enabled = false;
 	}
 }
