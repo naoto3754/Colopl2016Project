@@ -63,10 +63,11 @@ public class TitleManager : Singleton<TitleManager>
 		float width = _Width-_LineWidth*MARGIN/3;
 		float height = _Height-_LineWidth*MARGIN/3;
 		Vector2[] path = new Vector2[] {
+			new Vector2(0, height/2),
 			new Vector2(width/2, height/2),
-			new Vector2(-width/2, height/2),
-			new Vector2(-width/2, -height/2),
 			new Vector2(width/2, -height/2),
+			new Vector2(-width/2, -height/2),
+			new Vector2(-width/2, height/2),
 		};
 		CreateLineFromPath (path, time, delay);
 	}
@@ -75,9 +76,10 @@ public class TitleManager : Singleton<TitleManager>
 		float width = _Width-_LineWidth*MARGIN;
 		float height = _Height-_LineWidth*MARGIN*3;
 		Vector2[] path = new Vector2[] {
-			new Vector2(width/2, -height/2),
-			new Vector2(-width/2, -height/2),
+			new Vector2(0, height/2),
 			new Vector2(-width/2, height/2),
+			new Vector2(-width/2, -height/2),
+			new Vector2(width/2, -height/2),
 			new Vector2(width/2, height/2),
 		};
 		CreateLineFromPath (path, time, delay);
@@ -87,10 +89,11 @@ public class TitleManager : Singleton<TitleManager>
 		float width = _Width-_LineWidth*MARGIN*3;
 		float height = _Height-_LineWidth*MARGIN;
 		Vector2[] path = new Vector2[] {
-			new Vector2(-width/2, height/2),
-			new Vector2(-width/2, -height/2),
-			new Vector2(width/2, -height/2),
+			new Vector2(0, height/2),
 			new Vector2(width/2, height/2),
+			new Vector2(width/2, -height/2),
+			new Vector2(-width/2, -height/2),
+			new Vector2(-width/2, height/2),
 		};
 		CreateLineFromPath (path, time, delay);
 	}
