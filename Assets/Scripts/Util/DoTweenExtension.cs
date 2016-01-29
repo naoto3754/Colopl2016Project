@@ -71,4 +71,10 @@ public static class DoTweenExtension
 	{
 		return DOTween.To(()=>target.color.a , x=>{Color c = target.color; c.a = x; target.color = c;}, endValue, duration );
 	}
+
+	//RectTransform
+	public static Tween DOWidth(this RectTransform target, float endValue, float duration)
+	{
+		return DOTween.To(()=>target.sizeDelta.x , x=>{target.sizeDelta = new Vector2(x, target.sizeDelta.y);}, endValue, duration );
+	}
 }
