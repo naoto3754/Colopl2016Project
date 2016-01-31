@@ -41,9 +41,22 @@ public class CollectionManager : Singleton<CollectionManager>
 	/// </summary>
 	public void ActivateSprite()
 	{
-		for (int i = 0; i < _CollectionObjects.Count; i++) {
-			var obj = _CollectionObjects [i];
-			obj.SetActive (this[i] == State.COLLECTED);
+		//読み込み
+		List<GameObject> loadList = PlayerPrefsUtility.LoadList<GameObject> ("ListSaveKey");
+
+		var collectionExist = loadList.Find (x => x.Equals (State.COLLECTED));
+		if (collectionExist) {
+
+			for (int i = 0; i < _CollectionObjects.Count; i++) {
+				var obj = loadList [i];
+				obj.SetActive (this [i] == State.COLLECTED);
+			}
+		} 
+		else {
+			for (int i = 0; i < _CollectionObjects.Count; i++) {
+				var obj = _CollectionObjects [i];
+				obj.SetActive (this [i] == State.COLLECTED);
+			}
 		}
 	}
 	/// <summary>
@@ -68,7 +81,8 @@ public class CollectionManager : Singleton<CollectionManager>
 	/// </summary>
 	private void Save()
 	{
-		
+		//保存
+		PlayerPrefsUtility.SaveList<GameObject> ("ListSaveKey", _CollectionObjects);
 	}
 	/// <summary>
 	/// データ初期化
