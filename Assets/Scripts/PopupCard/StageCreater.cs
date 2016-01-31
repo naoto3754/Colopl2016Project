@@ -88,7 +88,7 @@ public class StageCreater : Singleton<StageCreater>
 					SetTexture (sprite.GetComponent<Renderer>(), setX, false,
 								StageManager.I.CurrentInfo.BackgroundTexture,
 								StageManager.I.CurrentInfo.ShadowTexture,
-								new Vector2((prevX/StageManager.I.CurrentInfo.StageWidth+0.5f+StageManager.I.CurrentStageIndex)/3f, (prevY/StageManager.I.CurrentInfo.StageHeight+StageManager.I.CurrentBookID)/3f), 
+								new Vector2((prevX/StageManager.I.CurrentInfo.StageWidth+0.5f+StageManager.I.CurrentStageIndex)/3f, (prevY/StageManager.I.CurrentInfo.StageHeight+StageManager.I.CurrentBookID)/3f+0.0003f), 
 								new Vector2((xCoord.x-prevX)/StageManager.I.CurrentInfo.StageWidth/3f, (y-prevY)/StageManager.I.CurrentInfo.StageHeight/3f));
 					foreach(var amim in StageManager.I.CurrentInfo.Animations)
 					{
