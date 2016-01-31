@@ -139,6 +139,12 @@ public class StageInfomation : MonoBehaviour
 			case StageObjectType.TRIANGLE2:
 				_Obstacle.Add (new Triangle(pos+new Vector3(-scale.x/2,scale.y/2,0), pos+new Vector3(scale.x/2, -scale.y/2, 0), pos+new Vector3(-scale.x/2, -scale.y/2, 0), param.Color));
 				break;
+			case StageObjectType.TRIANGLE3:
+				_Obstacle.Add (new Triangle(pos+new Vector3(-scale.x/2,scale.y/2,0), pos+new Vector3(scale.x/2, -scale.y/2, 0), pos+new Vector3(scale.x/2, scale.y/2, 0), param.Color));
+				break;
+			case StageObjectType.TRIANGLE4:
+				_Obstacle.Add (new Triangle(pos+new Vector3(-scale.x/2,scale.y/2,0), pos+new Vector3(scale.x/2, scale.y/2, 0), pos+new Vector3(-scale.x/2, -scale.y/2, 0), param.Color));
+				break;
 			case StageObjectType.HOLE:
 				foreach (LineRenderer line in param.GetComponentsInChildren<LineRenderer>()) {
 					if (line.transform.lossyScale.x == 0f)
