@@ -8,7 +8,13 @@ using TMPro;
 
 public class CustomShotcut : EditorWindow
 {
-	[MenuItem("KeyRemap/ActiveToggle %e")]
+	[MenuItem("Custom/Delete Save Data")]
+	static void DeleteSaveData()
+	{
+		PlayerPrefs.DeleteAll ();
+	}
+
+	[MenuItem("Custom/ActiveToggle %e")]
 	static void ApplyAndActiveToggle()
 	{
 		var obj = Selection.objects[0] as GameObject;
@@ -33,14 +39,14 @@ public class CustomShotcut : EditorWindow
 			return FindRoot(trans.parent);
 	}
 
-	[MenuItem("KeyRemap/Select All TextMeshPro %t")]
+	[MenuItem("Custom/Select All TextMeshPro %t")]
 	static void SelectAllTextMeshPro()
 	{
 		var tmproObjs = GameObject.FindObjectsOfType<TextMeshPro> ().Select(x=>x.gameObject);
 		Selection.objects = tmproObjs.ToArray ();
 	}
 
-	[MenuItem("KeyRemap/Select All Book Anchor %l")]
+	[MenuItem("Custom/Select All Book Anchor %l")]
 	static void SelectAllBookAnchor()
 	{
 		var books = GameObject.FindObjectsOfType<Book> ();
