@@ -1,16 +1,16 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityStandardAssets.ImageEffects;
+//using UnityStandardAssets.ImageEffects;
 using DG.Tweening;
 using TMPro;
 
 public static class DoTweenExtension
 {
-	//BlurOptimized
-	public static Tween DOBlurSize(this BlurOptimized target, float endValue, float duration)
-	{
-		return DOTween.To(()=>target.blurSize , x=>target.blurSize=x, endValue, duration );
-	}
+//	//BlurOptimized
+//	public static Tween DOBlurSize(this BlurOptimized target, float endValue, float duration)
+//	{
+//		return DOTween.To(()=>target.blurSize , x=>target.blurSize=x, endValue, duration );
+//	}
 	
 	//Image
 	public static Tween DOColor(this Image target, Color endValue, float duration)

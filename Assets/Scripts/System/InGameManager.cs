@@ -2,17 +2,17 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-using UnityStandardAssets.ImageEffects;
+//using UnityStandardAssets.ImageEffects;
 using DG.Tweening;
 
 public class InGameManager : Singleton<InGameManager> 
 {
 	
-	readonly float FADEIN_DURATION = 1f;
-	readonly float DISPLAY_DURATION = 1.5f;
-	readonly float FADEOUT_DURATION = 1f;
+//	readonly float FADEIN_DURATION = 1f;
+//	readonly float DISPLAY_DURATION = 1.5f;
+//	readonly float FADEOUT_DURATION = 1f;
 	
-	bool _NowDisplaying = false;
+//	bool _NowDisplaying = false;
 	bool menu = false;
 
 	[SerializeField]
@@ -110,71 +110,71 @@ public class InGameManager : Singleton<InGameManager>
 	/// </summay>
 	public void DisplayDictionary()
 	{
-		if (StageManager.I.CurrentStageIndex != 0)
-			return; 
-		if(gameObject.activeSelf == false)
-			return;
-		if(_NowDisplaying)
-			return;
-		
-		_NowDisplaying = true;
-		BlurOptimized blur = Camera.main.GetComponent<BlurOptimized>();
-		blur.enabled = true;
-		Sequence seq = DOTween.Sequence();
-		//フェードアウト
-		seq.Append( blur.DOBlurSize(3f, FADEOUT_DURATION).SetEase(Ease.OutSine).OnStart(() => {
-			FadeManager.I.AllFadeOut(FADEOUT_DURATION);
-		}));
-		//UI表示
-		seq.Append( transform.DOMove(transform.position, DISPLAY_DURATION).OnStart( DisplayText ) );
-		//フェードイン
-		seq.Append( blur.DOBlurSize(0f, FADEIN_DURATION).SetEase(Ease.InSine).OnStart(() => {
-			FadeManager.I.AllFadeIn(FADEIN_DURATION);
-		}));
-		foreach(Text text in _DictionaryLabels)
-		{
-			Color c = text.color;
-			c.a = 0f;
-			seq.Join( text.DOColor(c, FADEIN_DURATION) );
-		}
-		foreach(Image image in _DictionaryLines)
-		{
-			Color c = image.color;
-			c.a = 0f;
-			seq.Join( image.DOColor(c, FADEIN_DURATION) );
-		}
-		//終了処理
-		seq.OnComplete(() => 
-		{
-			blur.enabled = false;
-			_NowDisplaying = false;
-		});
-		seq.Play();
-
-		// BGM再生
-		AudioManager.I.PlayBGM (0);
+//		if (StageManager.I.CurrentStageIndex != 0)
+//			return; 
+//		if(gameObject.activeSelf == false)
+//			return;
+//		if(_NowDisplaying)
+//			return;
+//		
+//		_NowDisplaying = true;
+//		BlurOptimized blur = Camera.main.GetComponent<BlurOptimized>();
+//		blur.enabled = true;
+//		Sequence seq = DOTween.Sequence();
+//		//フェードアウト
+//		seq.Append( blur.DOBlurSize(3f, FADEOUT_DURATION).SetEase(Ease.OutSine).OnStart(() => {
+//			FadeManager.I.AllFadeOut(FADEOUT_DURATION);
+//		}));
+//		//UI表示
+//		seq.Append( transform.DOMove(transform.position, DISPLAY_DURATION).OnStart( DisplayText ) );
+//		//フェードイン
+//		seq.Append( blur.DOBlurSize(0f, FADEIN_DURATION).SetEase(Ease.InSine).OnStart(() => {
+//			FadeManager.I.AllFadeIn(FADEIN_DURATION);
+//		}));
+//		foreach(Text text in _DictionaryLabels)
+//		{
+//			Color c = text.color;
+//			c.a = 0f;
+//			seq.Join( text.DOColor(c, FADEIN_DURATION) );
+//		}
+//		foreach(Image image in _DictionaryLines)
+//		{
+//			Color c = image.color;
+//			c.a = 0f;
+//			seq.Join( image.DOColor(c, FADEIN_DURATION) );
+//		}
+//		//終了処理
+//		seq.OnComplete(() => 
+//		{
+//			blur.enabled = false;
+//			_NowDisplaying = false;
+//		});
+//		seq.Play();
+//
+//		// BGM再生
+//		AudioManager.I.PlayBGM (0);
 	}
 	
 	private void DisplayText()
 	{
-		Sequence seq = DOTween.Sequence();
-		foreach(Image image in _DictionaryLines)
-		{
-			Color c = image.color;
-			c.a = 1f;
-			image.color = c;
-			Vector3 scale = image.transform.localScale;
-			scale.x = 0;  
-			image.transform.localScale = scale; 
-			seq.Join( image.transform.DOScaleX(200, DISPLAY_DURATION/3) );
-		}
-		seq.Append( transform.DOMove(transform.position, DISPLAY_DURATION/3) );
-		foreach(Text text in _DictionaryLabels)
-		{		
-			Color c = text.color;
-			c.a = 1f;
-			seq.Join( text.DOColor(c, DISPLAY_DURATION/3) );
-		}
-		seq.Play();
+//		Sequence seq = DOTween.Sequence();
+//		foreach(Image image in _DictionaryLines)
+//		{
+//			Color c = image.color;
+//			c.a = 1f;
+//			image.color = c;
+//			Vector3 scale = image.transform.localScale;
+//			scale.x = 0;  
+//			image.transform.localScale = scale; 
+//			seq.Join( image.transform.DOScaleX(200, DISPLAY_DURATION/3) );
+//		}
+//		seq.Append( transform.DOMove(transform.position, DISPLAY_DURATION/3) );
+//		foreach(Text text in _DictionaryLabels)
+//		{		
+//			Color c = text.color;
+//			c.a = 1f;
+//			seq.Join( text.DOColor(c, DISPLAY_DURATION/3) );
+//		}
+//		seq.Play();
 	} 
 }
