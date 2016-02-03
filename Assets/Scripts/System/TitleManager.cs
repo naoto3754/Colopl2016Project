@@ -10,6 +10,7 @@ using TMPro;
 public class TitleManager : Singleton<TitleManager> 
 {
 	private readonly float ANIM_TIME = 2.5f;
+	private readonly float FADE_TIME = 1.5f;
 	private readonly float MARGIN = 20;
 	private readonly float ROOT2 = Mathf.Sqrt(2);
 
@@ -17,7 +18,6 @@ public class TitleManager : Singleton<TitleManager>
 	private Image _LineBase;
 	private Transform _LineRoot;
 	private float _Width, _Height, _LineWidth;
-	private readonly float FADE_TIME = 2f;
 	bool _IsTapped;
 	bool _LineIsCreated;
 
