@@ -99,7 +99,7 @@ public class InGameManager : Singleton<InGameManager>
 		foreach (var image in images) {
 			image.DOColorA (1f, 0);
 		}
-//		images [0].color = Color.blue;
+		images [0].color = StageManager.I.CurrentInfo.BackgroundColor;
 
 		Sequence seq = DOTween.Sequence();
 		//フェードアウト
@@ -107,12 +107,16 @@ public class InGameManager : Singleton<InGameManager>
 			_StageClearAnim.Play("Clear");
 		}) );
 
-		seq.Append ( transform.DOMove (transform.position, 0f).SetDelay(2.0f) );
+		seq.Append ( transform.DOMove (transform.position, TEXTFADE_DURATION).SetDelay(2.0f)
+			.OnStart(()=>{
+				
+			})
+			.OnComplete(()=>{
+				_StageClearAnim.Play("Idle");
+			}) );
 
 		foreach (var image in images) {
-			seq.Join( image.DOColorA (0f, TEXTFADE_DURATION).OnComplete(()=>{
-				_StageClearAnim.Play("Idle");	
-			}) );
+			seq.Join (image.DOColorA (0f, TEXTFADE_DURATION) );
 		}
 
 		//フェードイン

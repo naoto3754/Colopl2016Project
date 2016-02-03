@@ -99,14 +99,10 @@ public class StageClearManager : Singleton<StageClearManager>
 			State state0 = _StageClearList [i * 3];
 			State state2 = _StageClearList [i * 3 + 2];
 			bool unplayable = state0 == State.UNPLAYABLE;
-			bool displayIcon = state0 == State.UNPLAYABLE || state2 == State.CLEARED;
-			unplayable = false;
-			displayIcon = false;
-			Sprite sprite = unplayable ? _LockIcon : _ClearIcon;
 
 			SetIDText (i, unplayable);
-			SetIcon (i, sprite, displayIcon);
-			SetCountText (i, !displayIcon);
+			SetIcon (i, _LockIcon, unplayable);
+			SetCountText (i, !unplayable);
 		}
 	}
 	/// <summary>
