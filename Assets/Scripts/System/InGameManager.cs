@@ -25,6 +25,8 @@ public class InGameManager : Singleton<InGameManager>
 	GameObject _HomeButton;
 	[SerializeField]
 	GameObject _RestartButton;
+	[SerializeField]
+	Animator _StageClearAnim;
 
 	[SerializeField]
 	GameObject _TouchMark;
