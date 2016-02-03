@@ -5,6 +5,8 @@ using System.Linq;
 
 public class StageClearManager : Singleton<StageClearManager> 
 {
+	private readonly string SAVE_KEY = "StageClearList";
+
 	[SerializeField]
 	private GameObject _BookObjectRoot;
 	private List<Book> _BookObjects;
@@ -27,8 +29,8 @@ public class StageClearManager : Singleton<StageClearManager>
 	{
 		base.OnInitialize ();
 		//セーブある場合
-		if (PlayerPrefs.HasKey ("ListSaveKey")) {
-			var loadList = PlayerPrefsUtility.LoadList<State> ("ListSaveKey");
+		if (PlayerPrefs.HasKey (SAVE_KEY)) {
+			var loadList = PlayerPrefsUtility.LoadList<State> (SAVE_KEY);
 			_StageClearList = loadList.ToArray<State> ();
 		}
 		//セーブない場合
@@ -65,7 +67,7 @@ public class StageClearManager : Singleton<StageClearManager>
 	private void Save()
 	{
 		var stageSaveList = _StageClearList.ToList<State> ();
-		PlayerPrefsUtility.SaveList<State> ("ListSaveKey", stageSaveList);
+		PlayerPrefsUtility.SaveList<State> (SAVE_KEY, stageSaveList);
 	}
 	/// <summary>
 	/// データ初期化

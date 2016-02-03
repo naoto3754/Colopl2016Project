@@ -5,6 +5,8 @@ using System.Linq;
 
 public class CollectionManager : Singleton<CollectionManager> 
 {
+	private readonly string SAVE_KEY = "CollectionList";
+
 	[SerializeField]
 	private GameObject CollectionObjectRoot;
 	private List<GameObject> _CollectionObjects;
@@ -28,8 +30,8 @@ public class CollectionManager : Singleton<CollectionManager>
 	{
 		base.OnInitialize ();
 		//セーブある場合
-		if (PlayerPrefs.HasKey ("ListSaveKey")) {
-			var loadList = PlayerPrefsUtility.LoadList<State> ("ListSaveKey");
+		if (PlayerPrefs.HasKey (SAVE_KEY)) {
+			var loadList = PlayerPrefsUtility.LoadList<State> (SAVE_KEY);
 			_CollectionList = loadList.ToArray<State> ();
 		}
 		//セーブない場合
@@ -77,7 +79,7 @@ public class CollectionManager : Singleton<CollectionManager>
 	private void Save()
 	{
 		var collectionSaveList = _CollectionList.ToList<State> ();
-		PlayerPrefsUtility.SaveList<State> ("ListSaveKey", collectionSaveList);
+		PlayerPrefsUtility.SaveList<State> (SAVE_KEY, collectionSaveList);
 	}
 	/// <summary>
 	/// データ初期化
