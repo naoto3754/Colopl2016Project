@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class CollectionManager : Singleton<CollectionManager> 
 {
 	[SerializeField]
 	private GameObject CollectionObjectRoot;
 	private List<GameObject> _CollectionObjects;
+
+	List<GameObject> loadList;
 
 	/// <summary>
 	/// コレクションしているかのリスト
@@ -30,6 +33,7 @@ public class CollectionManager : Singleton<CollectionManager>
 		base.OnInitialize ();
 		_CollectionList = new State[StageManager.I.StageCount];
 		_CollectionObjects = new List<GameObject> ();
+		loadList = PlayerPrefsUtility.LoadList<GameObject> ("ListSaveKey");
 		foreach (var item in CollectionObjectRoot.GetComponentsInChildren<SpriteRenderer>()) {
 			if(item.name.Contains("Collection"))
 			_CollectionObjects.Add (item.gameObject);
@@ -41,22 +45,21 @@ public class CollectionManager : Singleton<CollectionManager>
 	/// </summary>
 	public void ActivateSprite()
 	{
-		//読み込み
-		List<GameObject> loadList = PlayerPrefsUtility.LoadList<GameObject> ("ListSaveKey");
+		//var collectionLoadList = loadList.ToArray ();
 
-		var collectionExist = loadList.Find (x => x.Equals (State.COLLECTED));
+		bool collectionExist = loadList.Find (x => x.Equals (State.COLLECTED));
 		if (collectionExist) {
 
 			for (int i = 0; i < _CollectionObjects.Count; i++) {
 				var obj = loadList [i];
 				obj.SetActive (this [i] == State.COLLECTED);
-			}
+			}Debug.Log ("Exist");
 		} 
 		else {
 			for (int i = 0; i < _CollectionObjects.Count; i++) {
 				var obj = _CollectionObjects [i];
 				obj.SetActive (this [i] == State.COLLECTED);
-			}
+			}Debug.Log ("Not Exist");
 		}
 	}
 	/// <summary>
@@ -81,8 +84,8 @@ public class CollectionManager : Singleton<CollectionManager>
 	/// </summary>
 	private void Save()
 	{
-		//保存
-		PlayerPrefsUtility.SaveList<GameObject> ("ListSaveKey", _CollectionObjects);
+		var collectionSaveList = _CollectionList.ToList<State> ();
+		PlayerPrefsUtility.SaveList<State> ("ListSaveKey", collectionSaveList);
 	}
 	/// <summary>
 	/// データ初期化
