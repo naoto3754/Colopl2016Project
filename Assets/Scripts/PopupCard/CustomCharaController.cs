@@ -515,7 +515,7 @@ public class CustomCharaController : MonoBehaviour
 			
 		//コレクション
 		if(GetCollection){
-			CollectionManager.I [chapter, bookID, stageIndex] = CollectionManager.State.COLLECTED;
+			CollectionManager.I.Collect (chapter, bookID, stageIndex);
 		}
 
 		StageClearManager.I.ClearStage(index);

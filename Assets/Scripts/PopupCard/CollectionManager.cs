@@ -9,8 +9,6 @@ public class CollectionManager : Singleton<CollectionManager>
 	private GameObject CollectionObjectRoot;
 	private List<GameObject> _CollectionObjects;
 
-	List<GameObject> loadList;
-
 	/// <summary>
 	/// コレクションしているかのリスト
 	/// </summary>
@@ -18,12 +16,10 @@ public class CollectionManager : Singleton<CollectionManager>
 	public State this[int index]
 	{
 		get { return _CollectionList [index]; }
-		set { _CollectionList [index] = value; }
 	}
 	public State this[int chap, int book, int id]
 	{
 		get { return _CollectionList [StageManager.CalcStageListIndex(chap, book, id)]; }
-		set { _CollectionList [StageManager.CalcStageListIndex(chap, book, id)] = value; }
 	}
 	/// <summary>
 	/// 初期化処理
@@ -31,9 +27,17 @@ public class CollectionManager : Singleton<CollectionManager>
 	public override void OnInitialize ()
 	{
 		base.OnInitialize ();
-		_CollectionList = new State[StageManager.I.StageCount];
+		//セーブある場合
+		if (PlayerPrefs.HasKey ("ListSaveKey")) {
+			var loadList = PlayerPrefsUtility.LoadList<State> ("ListSaveKey");
+			_CollectionList = loadList.ToArray<State> ();
+		}
+		//セーブない場合
+		else {
+			_CollectionList = new State[StageManager.I.StageCount];
+		}
+
 		_CollectionObjects = new List<GameObject> ();
-		loadList = PlayerPrefsUtility.LoadList<GameObject> ("ListSaveKey");
 		foreach (var item in CollectionObjectRoot.GetComponentsInChildren<SpriteRenderer>()) {
 			if(item.name.Contains("Collection"))
 			_CollectionObjects.Add (item.gameObject);
@@ -45,21 +49,9 @@ public class CollectionManager : Singleton<CollectionManager>
 	/// </summary>
 	public void ActivateSprite()
 	{
-		//var collectionLoadList = loadList.ToArray ();
-
-		bool collectionExist = loadList.Find (x => x.Equals (State.COLLECTED));
-		if (collectionExist) {
-
-			for (int i = 0; i < _CollectionObjects.Count; i++) {
-				var obj = loadList [i];
-				obj.SetActive (this [i] == State.COLLECTED);
-			}Debug.Log ("Exist");
-		} 
-		else {
-			for (int i = 0; i < _CollectionObjects.Count; i++) {
-				var obj = _CollectionObjects [i];
-				obj.SetActive (this [i] == State.COLLECTED);
-			}Debug.Log ("Not Exist");
+		for (int i = 0; i < _CollectionObjects.Count; i++) {
+			var obj = _CollectionObjects [i];
+			obj.SetActive (this [i] == State.COLLECTED);
 		}
 	}
 	/// <summary>
