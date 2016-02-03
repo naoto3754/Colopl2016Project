@@ -512,7 +512,7 @@ public class CustomCharaController : MonoBehaviour
 			foreach (Material mat in chara.GetComponentsInChildren<Renderer>().Select(x => x.material))
 				sequence.Join ( mat.DOMainColor (new Color(1f,1f,1f,0f), 1f) );
 		}
-			
+
 		//コレクション
 		if(GetCollection){
 			CollectionManager.I.Collect (chapter, bookID, stageIndex);
@@ -521,12 +521,7 @@ public class CustomCharaController : MonoBehaviour
 		StageClearManager.I.ClearStage(index);
 
 		sequence.OnComplete (() => {
-			if(stageIndex == 2){
-				InGameManager.I.OnReturnHome();
-			}else{
-				int[] indexInfo = StageManager.CalcStageIndexInfo (index + 1);
-				StageManager.I.InstantiateStage (indexInfo [0], indexInfo [1], indexInfo [2]);
-			}
+			InGameManager.I.DisplayStageClear (stageIndex, index);
 		});
 		sequence.Play ();
 	}
