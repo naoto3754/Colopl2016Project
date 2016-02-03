@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class StageClearManager : Singleton<StageClearManager> 
 {
@@ -25,7 +26,16 @@ public class StageClearManager : Singleton<StageClearManager>
 	public override void OnInitialize ()
 	{
 		base.OnInitialize ();
-		_StageClearList = new State[StageManager.I.StageCount];
+		//セーブある場合
+		if (PlayerPrefs.HasKey ("ListSaveKey")) {
+			var loadList = PlayerPrefsUtility.LoadList<State> ("ListSaveKey");
+			_StageClearList = loadList.ToArray<State> ();
+		}
+		//セーブない場合
+		else {
+			_StageClearList = new State[StageManager.I.StageCount];
+		}
+
 		_BookObjects = new List<Book> ();
 		foreach (var book in _BookObjectRoot.GetComponentsInChildren<Book>()) {
 			_BookObjects.Add (book);
@@ -54,7 +64,8 @@ public class StageClearManager : Singleton<StageClearManager>
 	/// </summary>
 	private void Save()
 	{
-		
+		var stageSaveList = _StageClearList.ToList<State> ();
+		PlayerPrefsUtility.SaveList<State> ("ListSaveKey", stageSaveList);
 	}
 	/// <summary>
 	/// データ初期化
