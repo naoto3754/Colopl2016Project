@@ -110,7 +110,6 @@ public class StageClearManager : Singleton<StageClearManager>
 	{
 		for (int i = 0; i < _BookObjects.Count; i ++) {
 			State state0 = _StageClearList [i * 3];
-			State state2 = _StageClearList [i * 3 + 2];
 			bool unplayable = state0 == State.UNPLAYABLE;
 
 			SetIDText (i, unplayable);

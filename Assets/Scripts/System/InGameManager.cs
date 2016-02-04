@@ -17,6 +17,8 @@ public class InGameManager : Singleton<InGameManager>
 	GameObject _RestartButton;
 	[SerializeField]
 	Animator _StageClearAnim;
+	[SerializeField]
+	Image _Circle;
 
 	private void ButtonPushShared()
 	{
@@ -109,7 +111,7 @@ public class InGameManager : Singleton<InGameManager>
 
 		seq.Append ( transform.DOMove (transform.position, TEXTFADE_DURATION).SetDelay(2.0f)
 			.OnStart(()=>{
-				
+				StartCoroutine(CircleAnimation(10f, StageManager.I.CurrentInfo.BackgroundColor));		
 			})
 			.OnComplete(()=>{
 				_StageClearAnim.Play("Idle");
@@ -131,5 +133,22 @@ public class InGameManager : Singleton<InGameManager>
 
 		//終了処理
 		seq.Play();
+	}
+		
+	private readonly float CIRCLE_WIDTH = 0.6f;
+	private readonly float CIRCLE_INTERVAL = 4f;
+	IEnumerator CircleAnimation(float time, Color color){
+		float max = 0.25f + (CIRCLE_WIDTH*2 + CIRCLE_INTERVAL)/2;
+		int frame = 1000;
+		Material mat = _Circle.material;
+		mat.SetColor ("_MainColor", color);
+		for (int n = 0; n < frame; n++) {
+			float step = (float)n;
+			mat.SetFloat ("_Border1", Mathf.Clamp((max-(CIRCLE_WIDTH*2-CIRCLE_INTERVAL)/2)*step/frame, 0f, 0.25f));
+			mat.SetFloat ("_Border2", Mathf.Clamp((max-(CIRCLE_WIDTH-CIRCLE_INTERVAL)/2)*step/frame, 0f, 0.25f));
+			mat.SetFloat ("_Border3", Mathf.Clamp((max-(CIRCLE_WIDTH)/2)*step/frame, 0f, 0.25f));
+			mat.SetFloat ("_Border4", Mathf.Clamp(max*step/frame, 0f, 0.25f));
+			yield return new WaitForSeconds(time/frame*((frame-step+100)/((1+frame)*frame/2+100*frame)));
+		}
 	}
 }
