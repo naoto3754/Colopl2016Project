@@ -122,8 +122,8 @@ public class StageSelectManager : Singleton<StageSelectManager>
 				Book bookInfo = tappedObj.GetComponent<Book>();
 				if (bookInfo.chapter > 2)
 					return;
-//				if (StageClearManager.I.ClearList [StageManager.CalcStageListIndex (bookInfo.chapter, bookInfo.bookID, 0)] == StageClearManager.State.UNPLAYABLE)
-//					return;
+				if (StageClearManager.I.ClearList [StageManager.CalcStageListIndex (bookInfo.chapter, bookInfo.bookID, 0)] == StageClearManager.State.UNPLAYABLE)
+					return;
 				
 				if(_IsZooming == false)
 				{

@@ -2,12 +2,12 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-using UnityStandardAssets.ImageEffects;
 using DG.Tweening;
 
 public class InGameManager : Singleton<InGameManager> 
 {
-	bool menu = false;
+	bool _MenuIsOpened = false;
+	bool _IsPlayingClearAnimation = false;
 
 	[SerializeField]
 	GameObject _MenuButton;
@@ -29,6 +29,9 @@ public class InGameManager : Singleton<InGameManager>
 	/// </summay>
 	public void OnRestart()
 	{
+		if (_IsPlayingClearAnimation)
+			return;
+		
 		ButtonPushShared ();
 		StageAnimator.I.RestartStage();
 		CloseMenu();
@@ -38,6 +41,9 @@ public class InGameManager : Singleton<InGameManager>
 	/// </summay>
 	public void OnReturnHome()
 	{
+		if (_IsPlayingClearAnimation)
+			return;
+		
 		ButtonPushShared ();
 		StageAnimator.I.CloseStage (45, 1f);
 		CloseMenu();
@@ -45,13 +51,16 @@ public class InGameManager : Singleton<InGameManager>
 	
 	public void OnReverse()
 	{
+		if (_IsPlayingClearAnimation)
+			return;
+		
 		StageAnimator.I.Reverse();
 	}
 	
 	public void OnPause()
 	{
 		ButtonPushShared ();
-		if (!menu) {
+		if (!_MenuIsOpened) {
 			OpenMenu ();
 		} else {
 			CloseMenu();
@@ -60,7 +69,7 @@ public class InGameManager : Singleton<InGameManager>
 
 	private void OpenMenu()
 	{
-		menu = true;
+		_MenuIsOpened = true;
 		Vector3 menuButtonPos = _MenuButton.transform.position;
 		var rectTrans = _MenuButton.GetComponent<RectTransform> ();
 		float buttonWidth = rectTrans.TransformPoint (rectTrans.rect.max).x - rectTrans.TransformPoint (rectTrans.rect.min).x;
@@ -71,9 +80,19 @@ public class InGameManager : Singleton<InGameManager>
 
 	private void CloseMenu()
 	{
-		menu = false;
+		_MenuIsOpened = false;
 		_RestartButton.transform.DOMove (_MenuButton.transform.position, 0.3f);
 		_HomeButton.transform.DOMove (_MenuButton.transform.position, 0.3f);
+	}
+
+	public override void OnInitialize ()
+	{
+		base.OnInitialize ();
+		Material mat = _Circle.material;
+		mat.SetFloat ("_Border1", 0f);
+		mat.SetFloat ("_Border2", 0f);
+		mat.SetFloat ("_Border3", 0f);
+		mat.SetFloat ("_Border4", 0f);
 	}
 	
 	//仮でキーボードの入力とる
@@ -95,7 +114,8 @@ public class InGameManager : Singleton<InGameManager>
 	/// </summay>
 	public void DisplayStageClear(int stageIndex, int index)
 	{
-		BlurOptimized blur = Camera.main.GetComponent<BlurOptimized>();
+		_IsPlayingClearAnimation = true;
+		CustomBlur blur = Camera.main.GetComponent<CustomBlur>();
 		blur.blurSize = 0f;
 		var images = _StageClearAnim.GetComponentsInChildren<Image> ();
 		foreach (var image in images) {
@@ -105,7 +125,7 @@ public class InGameManager : Singleton<InGameManager>
 
 		Sequence seq = DOTween.Sequence();
 		//フェードアウト
-		seq.Append( blur.DOBlurSize(3f, FADE_DURATION).SetEase(Ease.OutSine).OnComplete(()=>{
+		seq.Append( blur.DOBlurSize(4f, FADE_DURATION).SetEase(Ease.OutSine).OnComplete(()=>{
 			_StageClearAnim.Play("Clear");
 		}) );
 
@@ -123,6 +143,7 @@ public class InGameManager : Singleton<InGameManager>
 
 		//フェードイン
 		seq.Append( blur.DOBlurSize(0f, FADE_DURATION).SetEase(Ease.OutQuart).OnStart(()=>{
+			_IsPlayingClearAnimation = false;
 			if(stageIndex == 2){
 				InGameManager.I.OnReturnHome();
 			}else{

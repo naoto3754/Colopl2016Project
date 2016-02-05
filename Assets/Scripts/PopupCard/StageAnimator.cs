@@ -88,7 +88,7 @@ public class StageAnimator : Singleton<StageAnimator>
 		int bookID = StageManager.I.CurrentBookID;
 		int stageIdx = StageManager.I.CurrentStageIndex;
 		int index = StageManager.CalcStageListIndex (chap, bookID, stageIdx);
-		bool bookmarkActive = stageIdx == 1 || stageIdx == 2 && StageClearManager.I.ClearList [index] != StageClearManager.State.CLEARED;
+		bool bookmarkActive = StageClearManager.I.IsSuspended ((chap-1)*3+bookID);
 		float time = bookmarkActive ? 1f : 0f;
 		StageClearManager.I.SetBookmarkActive (bookmarkActive, (chap-1)*3+bookID);
 		StageManager.I.Book.bookmark.GetComponent<Renderer> ().enabled = bookmarkActive;

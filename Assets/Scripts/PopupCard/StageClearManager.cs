@@ -36,6 +36,7 @@ public class StageClearManager : Singleton<StageClearManager>
 		//セーブない場合
 		else {
 			_StageClearList = new State[StageManager.I.StageCount];
+			SetInitParam ();
 		}
 
 		_BookObjects = new List<Book> ();
@@ -43,7 +44,6 @@ public class StageClearManager : Singleton<StageClearManager>
 			_BookObjects.Add (book);
 		}
 
-		SetInitParam ();
 		SetBooksSpine ();
 	}
 	/// <summary>
@@ -95,12 +95,38 @@ public class StageClearManager : Singleton<StageClearManager>
 			book.bookmark.GetComponent<Renderer> ().enabled = false;
 		}
 	}
+
+	/// <summary>
+	/// Sets the bookmark active.
+	/// </summary>
+	public void SetBookmark()
+	{
+		for (int i = 0; i < _BookObjects.Count; i ++) {
+			var book = _BookObjects[i];
+			book.bookmark.GetComponent<Renderer> ().enabled = IsSuspended(i);
+		}
+	}
 	/// <summary>
 	/// Sets the bookmark active.
 	/// </summary>
 	public void SetBookmarkActive(bool active, int index)
 	{
 		_BookObjects[index].bookmark.GetComponent<Renderer> ().enabled = active;
+	}
+
+	public bool IsSuspended(int index)
+	{
+		
+		bool ret = false;
+		if (_StageClearList [index*3] != State.CLEARED) {
+			return ret;
+		}
+		for (int i = 1; i < 3; i++) {
+			if (_StageClearList [index*3 + i] == State.PLAYABLE) {
+				return true;
+			}
+		}
+		return ret;
 	}
 
 	/// <summary>
@@ -114,8 +140,9 @@ public class StageClearManager : Singleton<StageClearManager>
 
 			SetIDText (i, unplayable);
 			SetIcon (i, _LockIcon, unplayable);
-			SetCountText (i, !unplayable);
+			SetCountText (i, unplayable);
 		}
+		SetBookmark ();
 	}
 	/// <summary>
 	/// アイコンを設定する
@@ -140,21 +167,21 @@ public class StageClearManager : Singleton<StageClearManager>
 		Book book = _BookObjects[index];
 		if (book.text_id == null)
 			return;
+		
+		book.text_id.GetComponent<Renderer>().enabled = !unplayable;
+		if (unplayable)
+			return;
 
-		string str = unplayable ? "-" : (book.bookID+1).ToString();
+		string str = (book.bookID+1).ToString();
 		book.text_id.text = str;
 	}
 	/// <summary>
 	/// クリア数のテキストを設定する
 	/// </summary>
-	private void SetCountText(int index, bool active)
+	private void SetCountText(int index, bool unplayable)
 	{
 		Book book = _BookObjects[index];
 		if (book.text_count == null)
-			return;
-
-		book.text_count.GetComponent<Renderer>().enabled = active;
-		if (active == false)
 			return;
 
 		int clearCnt = 0;
@@ -163,7 +190,7 @@ public class StageClearManager : Singleton<StageClearManager>
 				clearCnt++;
 			}
 		}
-		book.text_count.text = string.Format ("{0}/3", clearCnt);
+		book.text_count.text = unplayable ? "---":  string.Format ("{0}/3", clearCnt);
 	}
 
 	public enum State
