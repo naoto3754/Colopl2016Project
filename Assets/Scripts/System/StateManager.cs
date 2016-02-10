@@ -61,8 +61,10 @@ public class StateManager : Singleton<StateManager> {
 			if(previous == GameState.INGAME)
 				StageSelectManager.I.InitFromInGame ();
 			CollectionManager.I.ActivateSprite ();
+			AudioManager.I.StopBGM (true);
 			break;
 		case GameState.INGAME:
+			AudioManager.I.PlayBGM (BGMConfig.Tag.THEME);
 			foreach(Transform child in _InGame.transform)
 				child.gameObject.SetActive(true);
 			StageManager.I.InstantiateStage(StageSelectManager.I.SelectedChapter, StageSelectManager.I.SelectedBookID, StageSelectManager.I.SelectedStageIdx);

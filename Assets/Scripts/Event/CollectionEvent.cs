@@ -30,7 +30,7 @@ public class CollectionEvent: EventBase
 			return;
 
 		StageManager.I.CurrentController.GetCollection = true;
-
+		AudioManager.I.PlaySE (SEConfig.Tag.GET);
 		base.GetObj ();
 	}
 }

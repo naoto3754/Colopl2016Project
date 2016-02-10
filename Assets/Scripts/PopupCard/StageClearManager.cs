@@ -13,8 +13,6 @@ public class StageClearManager : Singleton<StageClearManager>
 
 	[SerializeField]
 	Sprite _LockIcon;
-	[SerializeField]
-	Sprite _ClearIcon;
 
 	private State[] _StageClearList;
 	public State[] ClearList
@@ -28,6 +26,10 @@ public class StageClearManager : Singleton<StageClearManager>
 	public override void OnInitialize ()
 	{
 		base.OnInitialize ();
+		_BookObjects = new List<Book> ();
+		foreach (var book in _BookObjectRoot.GetComponentsInChildren<Book>()) {
+			_BookObjects.Add (book);
+		}
 		//セーブある場合
 		if (PlayerPrefs.HasKey (SAVE_KEY)) {
 			var loadList = PlayerPrefsUtility.LoadList<State> (SAVE_KEY);
@@ -39,11 +41,6 @@ public class StageClearManager : Singleton<StageClearManager>
 			SetInitParam ();
 		}
 
-		_BookObjects = new List<Book> ();
-		foreach (var book in _BookObjectRoot.GetComponentsInChildren<Book>()) {
-			_BookObjects.Add (book);
-		}
-
 		SetBooksSpine ();
 	}
 	/// <summary>
@@ -53,7 +50,7 @@ public class StageClearManager : Singleton<StageClearManager>
 	{
 		_StageClearList [index] = State.CLEARED;
 		int[] info = StageManager.CalcStageIndexInfo (index);
-		if (info [2] == 2 && info[1] != 2) {
+		if (info [2] == 2 && info[1] != 2 && _StageClearList [index + 1] == State.UNPLAYABLE) {
 			_StageClearList [index + 1] = State.PLAYABLE;
 			_StageClearList [index + 2] = State.PLAYABLE;
 			_StageClearList [index + 3] = State.PLAYABLE;

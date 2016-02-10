@@ -14,12 +14,14 @@ public class ListTesterInspector : Editor
 		if(BGMList.isExpanded){
 			EditorGUI.indentLevel += 1;
 			EditorGUILayout.PropertyField(BGMList.FindPropertyRelative("Array.size"));			
+			EditorGUILayout.Separator();
 			for (int i = 0; i < BGMList.arraySize; i++) {
+				EditorGUILayout.PropertyField(BGMList.GetArrayElementAtIndex(i).FindPropertyRelative("tag"), GUIContent.none);
 				EditorGUILayout.BeginHorizontal();
-				EditorGUILayout.PropertyField(BGMList.GetArrayElementAtIndex(i).FindPropertyRelative("Title"), GUIContent.none);
-				EditorGUILayout.PropertyField(BGMList.GetArrayElementAtIndex(i).FindPropertyRelative("Clip"), GUIContent.none);
+				EditorGUILayout.PropertyField(BGMList.GetArrayElementAtIndex(i).FindPropertyRelative("clip"), GUIContent.none);
+				EditorGUILayout.PropertyField(BGMList.GetArrayElementAtIndex(i).FindPropertyRelative("clip_loop"), GUIContent.none);
 				EditorGUILayout.EndHorizontal();
-				EditorGUILayout.PropertyField(BGMList.GetArrayElementAtIndex(i).FindPropertyRelative("Volume"), GUIContent.none);
+				EditorGUILayout.PropertyField(BGMList.GetArrayElementAtIndex(i).FindPropertyRelative("volume"), GUIContent.none);
 				
 				EditorGUILayout.Separator();
 				
@@ -32,12 +34,11 @@ public class ListTesterInspector : Editor
 		EditorGUI.indentLevel += 1;
 		if(SEList.isExpanded){
 			EditorGUILayout.PropertyField(SEList.FindPropertyRelative("Array.size"));
-			for (int i = 0; i < SEList.arraySize; i++) {
-				EditorGUILayout.BeginHorizontal();
-				EditorGUILayout.PropertyField(SEList.GetArrayElementAtIndex(i).FindPropertyRelative("Title"), GUIContent.none);
-				EditorGUILayout.PropertyField(SEList.GetArrayElementAtIndex(i).FindPropertyRelative("Clip"), GUIContent.none);
-				EditorGUILayout.EndHorizontal();
-				EditorGUILayout.PropertyField(SEList.GetArrayElementAtIndex(i).FindPropertyRelative("Volume"), GUIContent.none);
+			EditorGUILayout.Separator();
+			for (int i = 0; i < SEList.arraySize; i++) {				
+				EditorGUILayout.PropertyField(SEList.GetArrayElementAtIndex(i).FindPropertyRelative("tag"), GUIContent.none);
+				EditorGUILayout.PropertyField(SEList.GetArrayElementAtIndex(i).FindPropertyRelative("clip"), GUIContent.none);
+				EditorGUILayout.PropertyField(SEList.GetArrayElementAtIndex(i).FindPropertyRelative("volume"), GUIContent.none);
 				
 				EditorGUILayout.Separator();
 			}

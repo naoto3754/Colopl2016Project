@@ -22,6 +22,7 @@ public class ColorChangeEvent : EventBase
 			return;
 
 		StageManager.I.CurrentController.ChangeColor(_ToColor, _Color);
+		AudioManager.I.PlaySE (SEConfig.Tag.GET);
 		base.GetObj ();
 	}
 }

@@ -443,8 +443,8 @@ public class CustomCharaController : MonoBehaviour
 					anim.Play ("Wait");
 				}
 			}
-			if (AudioManager.I.IsPlayingSE (AudioContents.AudioTitle.WALK) == false) {
-				AudioManager.I.PlaySE (AudioContents.AudioTitle.WALK);
+			if (AudioManager.I.IsPlayingSE (SEConfig.Tag.WALK) == false) {
+				AudioManager.I.PlaySE (SEConfig.Tag.WALK);
 			}
 		}else{
 			foreach (var anim in AllCharacters.Select(x => x.GetComponent<Animator>())) {
@@ -467,7 +467,7 @@ public class CustomCharaController : MonoBehaviour
 					anim.Play ("Wait");
 				}
 			}
-			AudioManager.I.StopSE (AudioContents.AudioTitle.WALK);
+			AudioManager.I.StopSE (SEConfig.Tag.WALK);
 		}
 	}
 

@@ -25,8 +25,8 @@ public class AudioManager : MonoBehaviour {
 
 	}
 
-	public List<AudioContents> BGMList;
-	public List<AudioContents> SEList;
+	public List<BGMConfig> BGMList;
+	public List<SEConfig> SEList;
 
 	// === AudioSource ===
 	// BGM
@@ -38,13 +38,11 @@ public class AudioManager : MonoBehaviour {
 		get;
 		set;
 	}
-
+		
 	void Awake (){
 		isMute = false;
 		// BGM AudioSource
 		BGMSource = gameObject.AddComponent<AudioSource>();
-		// BGMはループを有効にする
-		BGMSource.loop = true;
 
 		// SE AudioSource
 		for(int i = 0 ; i < SESources.Length ; i++ ){
@@ -54,47 +52,76 @@ public class AudioManager : MonoBehaviour {
 
 	// *****  BGM再生 *****
 	// BGM再生
-	public void PlayBGM(AudioContents.AudioTitle Title){
+	public void PlayBGM(BGMConfig.Tag tag){
 		if (isMute)
 			return;
-		foreach (AudioContents contents in BGMList) {
-			if (contents.Title == Title) {
+		foreach (BGMConfig contents in BGMList) {
+			if (contents.tag == tag) {
+				bool loopOnly = contents.clip == null;
 				BGMSource.Stop();
-				BGMSource.clip = contents.Clip;
-				BGMSource.volume = contents.Volume;
+				BGMSource.clip = loopOnly ? contents.clip_loop : contents.clip;
+				BGMSource.loop = loopOnly;
+				BGMSource.volume = contents.volume;
 				BGMSource.Play ();
+				if (loopOnly == false) {
+					StartCoroutine (WaitForLoop (contents.clip_loop));
+				}
 				return;
 			}
 		}
 		Debug.LogError("BGM not found");
 	}
 
+	private IEnumerator WaitForLoop(AudioClip clip)
+	{
+		while (BGMSource.isPlaying) {
+			yield return new WaitForFixedUpdate ();
+		}
+		BGMSource.clip = clip;
+		BGMSource.loop = true;
+		BGMSource.Play ();
+	}
+
 	// BGM停止
-	public void StopBGM(){
+	public void StopBGM(bool isFade = false){
+		StopAllCoroutines ();
+		float time = isFade ? 2f: 0f;
+		StartCoroutine (FadeStopBGM (time));
+	}
+
+	private readonly int FRAME = 60;
+	private IEnumerator FadeStopBGM(float time)
+	{
+		
+		float delta = BGMSource.volume/FRAME;
+		for(int i = 0; i < FRAME; i++)
+		{
+			BGMSource.volume -= delta;
+			yield return new WaitForSeconds (time/FRAME);
+		}
 		BGMSource.Stop ();
 		BGMSource.clip = null;
 	}
 
-
 	// *****  SE再生 *****
-	public void PlaySE(AudioContents.AudioTitle Title){
+	public void PlaySE(SEConfig.Tag tag){
 		if (isMute)
 			return;
 		
-		foreach (AudioContents contents in SEList) {
-			if (contents.Title == Title) {
+		foreach (SEConfig contents in SEList) {
+			if (contents.tag == tag) {
 				foreach (var source in SESources) {
 					if (source.isPlaying)
 						continue;
 
-					source.clip = contents.Clip;
-					source.volume = contents.Volume;
+					source.clip = contents.clip;
+					source.volume = contents.volume;
 					source.Play ();
 					return;
 				}
 				SESources[0].Stop ();
-				SESources[0].clip = contents.Clip;
-				SESources[0].volume = contents.Volume;
+				SESources[0].clip = contents.clip;
+				SESources[0].volume = contents.volume;
 				SESources[0].Play ();
 
 				return;
@@ -103,11 +130,11 @@ public class AudioManager : MonoBehaviour {
 		Debug.LogError("SE not found");
 	}
 
-	public bool IsPlayingSE(AudioContents.AudioTitle Title){
-		foreach (AudioContents contents in SEList) {
-			if (contents.Title == Title) {
+	public bool IsPlayingSE(SEConfig.Tag tag){
+		foreach (SEConfig contents in SEList) {
+			if (contents.tag == tag) {
 				foreach (var source in SESources) {
-					if (source.isPlaying && source.clip == contents.Clip){
+					if (source.isPlaying && source.clip == contents.clip){
 						return true;
 					}
 				}
@@ -117,11 +144,11 @@ public class AudioManager : MonoBehaviour {
 		return false;
 	}
 
-	public void StopSE(AudioContents.AudioTitle Title){
-		foreach (AudioContents contents in SEList) {
-			if (contents.Title == Title) {
+	public void StopSE(SEConfig.Tag tag){
+		foreach (SEConfig contents in SEList) {
+			if (contents.tag == tag) {
 				foreach (var source in SESources) {
-					if (source.isPlaying && source.clip == contents.Clip){
+					if (source.isPlaying && source.clip == contents.clip){
 						source.Stop ();
 						source.clip = null;
 					}
@@ -132,7 +159,7 @@ public class AudioManager : MonoBehaviour {
 	}
 
 	// SE停止
-	public void StopSE(){
+	public void StopAllSE(){
 		// 全てのSE用のAudioSouceを停止する
 		foreach(AudioSource source in SESources){
 			source.Stop();
@@ -142,21 +169,44 @@ public class AudioManager : MonoBehaviour {
 }
 
 [Serializable]
-public class AudioContents{
-	public enum AudioTitle{
-		TEST,
-		CLOSE,
-		TURN_OVER,
-		WALK
+public class BGMConfig{
+	public enum Tag{
+		NONE,
+		THEME,
 	}
-	public AudioClip Clip;
-	public AudioTitle Title;
+	public AudioClip clip;
+	public AudioClip clip_loop;
+	public Tag tag;
 	[Range(0,1)]
-	public float Volume = 1.0f;
+	public float volume = 1.0f;
 
 	public void Init(){
-		Clip = null;
-		Title = AudioTitle.TEST;
-		Volume = 1.0f;
+		clip = null;
+		clip_loop = null;
+		tag = Tag.NONE;
+		volume = 1.0f;
+	}
+}
+
+[Serializable]
+public class SEConfig{
+	public enum Tag{
+		NONE,
+		CLOSE,
+		TURN_OVER,
+		WALK,
+		STAGE_CLEAR,
+		GET,
+	}
+	public AudioClip clip;
+	public Tag tag
+	;
+	[Range(0,1)]
+	public float volume = 1.0f;
+
+	public void Init(){
+		clip = null;
+		tag = Tag.NONE;
+		volume = 1.0f;
 	}
 }
