@@ -20,6 +20,7 @@ public class CustomBlur : MonoBehaviour
 		for (int i = 0; i < _BlurIteration; i++) {
 			RenderTexture tmp2 = RenderTexture.GetTemporary (source.width, source.height, 0, source.format);
 			Graphics.Blit(tmp, tmp2, _Material);
+			tmp.DiscardContents ();
 			Graphics.Blit(tmp2, tmp, _Material);
 			RenderTexture.ReleaseTemporary (tmp2);
 		}

@@ -42,7 +42,7 @@ public class CustomShotcut : EditorWindow
 	[MenuItem("Custom/Select All TextMeshPro %t")]
 	static void SelectAllTextMeshPro()
 	{
-		var tmproObjs = GameObject.FindObjectsOfType<TextMeshPro> ().Select(x=>x.gameObject);
+		var tmproObjs = GameObject.FindObjectsOfType<CollectionEvent> ().Select (x => x.gameObject);
 		Selection.objects = tmproObjs.ToArray ();
 	}
 

@@ -172,7 +172,8 @@ public class AudioManager : MonoBehaviour {
 public class BGMConfig{
 	public enum Tag{
 		NONE,
-		THEME,
+		CHAPTER1,
+		CHAPTER2,
 	}
 	public AudioClip clip;
 	public AudioClip clip_loop;
@@ -195,8 +196,9 @@ public class SEConfig{
 		CLOSE,
 		TURN_OVER,
 		WALK,
-		STAGE_CLEAR,
 		GET,
+		STAGE_CLEAR1,
+		STAGE_CLEAR2,
 	}
 	public AudioClip clip;
 	public Tag tag

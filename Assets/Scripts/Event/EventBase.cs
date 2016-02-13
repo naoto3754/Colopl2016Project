@@ -8,9 +8,10 @@ public class EventBase : MonoBehaviour {
 //	[SerializeField]
 //	protected bool _EnableOnTouch;
 
-	private Sequence _GetSequence;
+	protected Sequence _GetSequence;
 	protected bool _IsGetted;
 	protected Rectangle _Rect;
+	protected Vector3 _Delta = 4*Vector3.up;
 	private bool _IsStaying;
 	public Vector3 DefalutPos {
 		get;
@@ -96,7 +97,7 @@ public class EventBase : MonoBehaviour {
 			foreach (var sprite in obj.GetComponentsInChildren<SpriteRenderer>()) {
 				sprite.DOColorA (1,0);
 			}	
-			obj.transform.position -= 4*Vector3.up;
+			obj.transform.position -= _Delta;
 		}
 	}
 

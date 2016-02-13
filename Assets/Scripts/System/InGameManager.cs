@@ -159,7 +159,17 @@ public class InGameManager : Singleton<InGameManager>
 	private readonly float CIRCLE_WIDTH = 0.6f;
 	private readonly float CIRCLE_INTERVAL = 4f;
 	IEnumerator CircleAnimation(float time, Color color){
-		AudioManager.I.PlaySE (SEConfig.Tag.STAGE_CLEAR);
+		switch (StageSelectManager.I.SelectedChapter) {
+		case 1:
+			AudioManager.I.PlaySE (SEConfig.Tag.STAGE_CLEAR1);
+			break;
+		case 2:
+			AudioManager.I.PlaySE (SEConfig.Tag.STAGE_CLEAR2);
+			break;
+		default:
+			AudioManager.I.PlaySE (SEConfig.Tag.STAGE_CLEAR1);
+			break;
+		}
 		float max = 0.25f + (CIRCLE_WIDTH*2 + CIRCLE_INTERVAL)/2;
 		int frame = 1000;
 		Material mat = _Circle.material;
