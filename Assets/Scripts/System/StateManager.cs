@@ -56,12 +56,14 @@ public class StateManager : Singleton<StateManager> {
 		case GameState.STAGE_SELECT:
 			foreach (Transform child in _StageSelect.transform)
 				child.gameObject.SetActive (true);
-			if(previous == GameState.TITLE)
+			if (previous == GameState.TITLE) {
 				StageSelectManager.I.InitFromTitle ();
-			if(previous == GameState.INGAME)
+			}
+			if (previous == GameState.INGAME) {
+				AudioManager.I.StopBGM (true, 1.5f);
 				StageSelectManager.I.InitFromInGame ();
+			}
 			CollectionManager.I.ActivateSprite ();
-			AudioManager.I.StopBGM (true);
 			break;
 		case GameState.INGAME:
 			switch (StageSelectManager.I.SelectedChapter) {

@@ -42,6 +42,11 @@ public class TitleManager : Singleton<TitleManager>
 			text.DOColorA (1f, 0f);
 		}
 	}
+
+	void Start()
+	{
+		AudioManager.I.PlayBGM (BGMConfig.Tag.TITLE);
+	}
 	/// <summary>
 	/// 枠線を描画、アニメーションを登録する
 	/// </summary>

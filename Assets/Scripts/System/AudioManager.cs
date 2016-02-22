@@ -83,9 +83,9 @@ public class AudioManager : MonoBehaviour {
 	}
 
 	// BGM停止
-	public void StopBGM(bool isFade = false){
+	public void StopBGM(bool isFade = false, float fadeTime = 2f){
 		StopAllCoroutines ();
-		float time = isFade ? 2f: 0f;
+		float time = isFade ? fadeTime: 0f;
 		StartCoroutine (FadeStopBGM (time));
 	}
 
@@ -172,6 +172,7 @@ public class AudioManager : MonoBehaviour {
 public class BGMConfig{
 	public enum Tag{
 		NONE,
+		TITLE,
 		CHAPTER1,
 		CHAPTER2,
 	}

@@ -75,6 +75,7 @@ public class StageSelectManager : Singleton<StageSelectManager>
 				_CurrentState = State.SELECT;
 				_SelectedBook.SetActive (true);
 				Destroy(book.gameObject);
+				AudioManager.I.PlayBGM (BGMConfig.Tag.TITLE);
 			}) );
 		_Sequence.Play();
 	}
@@ -241,6 +242,7 @@ public class StageSelectManager : Singleton<StageSelectManager>
 	
 	void GoIngame(GameObject tappedObj)
 	{
+		AudioManager.I.StopBGM(true, 1.5f);
 		_CurrentState = State.TO_INGAME;
 		_Sequence.Kill();
 
